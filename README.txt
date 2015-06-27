@@ -58,6 +58,7 @@ Score#measure = [
 Takumi Ikeda
 https://bitbucket.org/piperauritum
 
+
 ## Copyright
 
 (C) Copyright 2015 by Takumi Ikeda, All Rights Reserved.
