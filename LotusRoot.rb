@@ -97,6 +97,7 @@ end
 class Score
 	include Notation
 #	attr_reader :dur, :elem, :tpl, :pch, :sco, :seq, :note
+	attr_reader :output
 	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :beam, :noTie, :redTupRule, :pnoTrem	# , :minim, :minimBeam
 
 
@@ -128,6 +129,7 @@ class Score
 		}
 
 		@note = join_beat(ary, @measure)
+
 	end
 
 	
@@ -152,9 +154,9 @@ class Score
 				beatDur = TPQN
 				barDur = tm*beatDur
 			end
-			
+		
 			bar.each.with_index{|tuple, tpl_id|				
-			
+		
 				# tuplet number
 				tar = tuple.map{|e| e.ar}.transpose[1]
 				tg = tar.inject(:gcd)
@@ -306,7 +308,7 @@ class Score
 
 					# beam
 					if @beam!=nil
-						if tick%beatDur==0
+						if nte_id==0
 						
 #					if @beam!=nil || @minimBeam!=nil
 #						if (tick%beatDur==0 && !@minimBeam) ||
@@ -562,7 +564,7 @@ class Score
 		bars.each.with_index{|bar,i|
 			time = measure[i%measure.size]
 			time = bar.size if Array === time
-			
+		
 			beat_structure = []			
 			while time>1
 				a = [2]*(time/2)
@@ -588,7 +590,8 @@ class Score
 
 							homoElem = [laf.el]-["=","=:"]==[] ||
 								(fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/) && (fo.size==1 || la.size==1)) ||
-								fol.el=~/r!|s!/
+								(fol.el=~/r!/ && laf.el=="r!") ||
+								(fol.el=~/s!/ && laf.el=="s!")
 #								(fol.el=~/r!|s!/ && fol.el==laf.el )								
 												
 #							homoPlet = [15,24,40].map{|e|
@@ -628,7 +631,7 @@ class Score
 			}
 			bars[i] = bar.dup
 		}
-
+=begin
 		# reduction the markup for rest
 		pre = nil
 		bars.each{|bar|
@@ -640,6 +643,7 @@ class Score
 				}
 			}
 		}
+=end
 		bars
 	end
 
