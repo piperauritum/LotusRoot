@@ -1,5 +1,5 @@
 require 'bigdecimal'
-#require 'win32/clipboard'	# gem install win32-clipboard
+# require 'win32/clipboard'	# gem install win32-clipboard
 
 
 class Float

@@ -16,5 +16,4 @@
     \override TrillPitchAccidental.glyph-name-alist = \arrowGlyphs
     \override AmbitusAccidental.glyph-name-alist = \arrowGlyphs
   }
-  }
 }

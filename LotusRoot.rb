@@ -96,29 +96,27 @@ end
 
 class Score
 	include Notation
-	attr_reader :dur, :elem, :tpl, :pch, :sco, :seq, :note
-	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :beam, :noTie, :redTupRule, :pnoTrem	#, :minim, :minimBeam
+#	attr_reader :dur, :elem, :tpl, :pch, :sco, :seq, :note
+	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :beam, :noTie, :redTupRule, :pnoTrem	# , :minim, :minimBeam
 
 
-	def initialize(dur, elem, tpl, pch)
-		@seq = unfold(dur, elem)
-		@tpls = tpl
-
-		@pch = pch-[nil]
+	def initialize(_dur, _elm, _tpl, _pch)
+		@seq = unfold(_dur, _elm)
+		@tpl = _tpl
+		@pch = _pch-[nil]
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
 		@autoAcc, @beam, @pnoTrem, @redTupRule = [nil]*4
 #		@autoAcc, @beam, @minim, @minimBeam, @pnoTrem, @redTupRule = [nil]*6
-
 		@gspat, @gsrep = [], []
 	end
 
 
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
-		@tpls = reduceTupl(@measure, @seq, @tpls, &@redTupRule)
-		@seq = to_tuplet(@seq, @tpls)
+		@tpl = reduceTupl(@measure, @seq, @tpl, &@redTupRule)
+		@seq = to_tuplet(@seq, @tpl)
 		@seq = noSyncop(@seq) if @noTie
 
 		ary = []
@@ -148,7 +146,7 @@ class Score
 		@note.each.with_index{|bar, bar_id|
 			tm = @measure[bar_id % @measure.size]
 			if Array===tm
-				beatDur = TPQN/2
+				beatDur = TPQN/tm[1]
 				barDur = tm[0].sigma*beatDur
 			else
 				beatDur = TPQN
@@ -167,6 +165,18 @@ class Score
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
 					wriDu = _du
+					
+					engrv = ->(pc){
+						if Array === pc && pc.size>1
+							acmd = @accMode
+							acmd = auto_accmode(pc, @accMode) if @autoAcc							
+							eg = pc.map{|e| notename(e, acmd)}.join(' ')
+							eg = "<" + eg + ">"
+						else
+							pc = pc[0] if Array === pc
+							eg = notename(pc, @accMode)
+						end
+					}
 
 					# tie
 					sco += "~ " if [_el]-["=","=:"]==[]
@@ -191,17 +201,39 @@ class Score
 						# line break
 						sco += "\n" if tpl_id==0
 					end
- 
+					
+					# tempo mark
+					if /((TMP)(.*;))/ =~ _el
+						x = $3.split(/;/)
+						sco += "\\tempo #{x[0]} = #{x[1]} "
+						_el = _el.sub(/TMP.*;/, "")
+					end
+					
 					# time signature
 					if tpl_id==0 && tm!=pre_tm
 						if Array === tm
-							tn = tm[0].sigma
-							sco += "\\time #{tn}/8 "
+							sco += "\\time #{tm[0].sigma}/#{4*tm[1]} "
 						else
 							sco += "\\time #{tm}/4 "
 						end
 					end
 					pre_tm = tm
+					
+					# grace note
+					if /((GRC)(.*;))/ =~ _el
+						gval, gnum = $3.split(/;/).map(&:to_i)
+						sco += "\\acciaccatura {"
+						gnum.times{|i|
+							pc_id += 1
+							pc_id %= @pch.size							
+							sco += engrv.call(@pch[pc_id])
+							sco += "#{gval}" if i==0
+							sco += " "
+						}
+						sco += "} "
+						_el = _el.sub(/GRC.*;/, "")
+						pre_du = gval
+					end
 
 					# before note
 					["@", "r!", "s!", "%+"].each{|e|
@@ -229,36 +261,25 @@ class Score
 						sco+="s"
 						
 					else
-						if _el=~/@/ || _el=~/%%/
+						if _el=~/@/ || _el=~/%%/	# next pitch
 							pc_id += 1
 							pc_id %= @pch.size
 						end
 
 						if _el=~/%/		# two-notes tremolo
-							tremDur = _el.scan(/%+\d+/)[0].sub(/%+/,'').to_i
+							/((%+)(\d+))/ =~ _el
+							tremDur = $3.to_i
 							tremTimes = notevalue[tp].key((tremDur/2).to_s)
 #							@minim ? dx=_du/2 : dx=_du
-							tremTimes = dx/tremTimes
+							tremTimes = _du/tremTimes
 							sco += "\\repeat tremolo #{tremTimes} {"
 							sco += "\\lhStaff " if @pnoTrem
 						end
 
-						if !@pch[pc_id].is_a?(Array)
-							sco += notename(@pch[pc_id], @accMode)
-						else
-							acmd = @accMode
-							acmd = auto_accmode(@pch[pc_id], @accMode) if @autoAcc
-							
-							sco += "<"
-							@pch[pc_id].each{|e|
-								sco += notename(e, acmd)
-								sco += " "
-							}
-							sco += ">"
-						end
+						sco += engrv.call(@pch[pc_id])
 					end
 
-					# note value, after note
+					# note value
 					if !(_el=~/%/) && ((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (wriDu==barDur && (_el=~/r!|s!/)))
 						sco += notevalue[tp][wriDu]
 					end
@@ -266,6 +287,7 @@ class Score
 					# tremolo
 					sco += ":" if _el=="=:"
 
+					# after note
 					["@", "r!", "s!"].each{|e|
 						sco += _el.sub(/.*#{e}/m,'') if _el=~/#{e}/
 					}
@@ -276,22 +298,8 @@ class Score
 						sco += " \\rhStaff" if @pnoTrem
 						tremSco = _el.sub(/.*%+\d+/,'')
 						tremDat = _el.scan(/\[.+\]/)[0]
-						tremNote = tremDat.gsub(/\[|\]|\s/,"").split(",").map{|e| e.to_f}
-
-						if tremNote==1
-							tremWri = notename(tremNote[0]+@pchShift, @accMode)
-						else
-							acmd = @accMode
-							acmd = auto_accmode(tremNote, @accMode) if @autoAcc
-								
-							tremWri = "<"
-							tremNote.each{|e|
-								tremWri += notename(e+@pchShift, acmd)
-								tremWri += " "
-							}
-							tremWri += ">"
-						end
-						
+						tremNote = tremDat.gsub(/\[|\]|\s/,"").split(",").map{|e| e.to_f+@pchShift}
+						tremWri = engrv.call(tremNote)					
 						tremSco = tremSco.sub(tremDat, tremWri) + "}"
 						sco += tremSco
 					end
@@ -315,12 +323,12 @@ class Score
 
 								# when the beam will be broken
 #								@minimBeam ? dx=nD/2 : dx=nD
-								dx=nD	
-								q = notevalue[tp][dx]
+	
+								q = notevalue[tp][nD]
 								["4","2","1"].each{|e|
 									bea = false if q!=nil && q.gsub(".","") == e
 								}
-								dsum += dx
+								dsum += nD
 								n += 1
 
 								# search forward
@@ -348,6 +356,7 @@ class Score
 
 							if bea
 								sco += "["
+								beam_ed = 1
 #								@minimBeam && tick%240==0 ? beam_ed=2 : beam_ed=1
 							end
 						end
@@ -455,22 +464,22 @@ class Score
 			e.each_with_index{|el, i|
 				if i==0
 					evt = Event.new(el, tick)
-
 				else
-					if el=~/@/ || el=~/%%/ ||
-					["r!", "s!"].map{|e|
-						((!(past=~/#{e}/) && el=~/#{e}/) ||
-						(past=~/#{e}/ && el=~/#{e}/ && past.sub(/#{e}/,'')!=el.sub(/#{e}/,'') )) ? 1:0
-					}.sigma>0
-					
+					n_rest = ["r!", "s!"].map{|e|
+						xelm = !(past=~/#{e}/) && el=~/#{e}/
+						xadj =  past=~/#{e}/ && el=~/#{e}/ && past.sub(/#{e}/,'')!=el.sub(/#{e}/,'')
+						xelm ? 1:0
+#						xelm || xadj ? 1:0
+					}.sigma>0					
+					c_tie = [el]-["=","=:"]==[]					
+					c_trem = past=~/%/ && el=~/%/ && !(el=~/%%/)					
+					c_rest = ["r!", "s!"].map{|e| past=~/#{e}/ && el=~/#{e}/ ? 1:0 }.sigma>0
+	
+					if el=~/@/ || el=~/%%/ || n_rest					
 						q << evt
 						evt = Event.new(el, tick)
-
-					elsif [el]-["=","=:"]==[] || (past=~/%/ && el=~/%/ && !(el=~/%%/)) ||
-					["r!", "s!"].map{|e| past=~/#{e}/ && el=~/#{e}/ ? 1:0 }.sigma>0
-					
+					elsif c_tie || c_trem || c_rest					
 						evt.va += tick
-
 					end
 				end
 				past = el
@@ -484,7 +493,7 @@ class Score
 	
 	def join_sliced(quad, dv)		
 		# This method can accept up to 8-plet.
-		#
+		# 
 		# [[#<Event:0x~~ @el="@", @va=80>], [#<Event:0x~~ @el="r!", @va=40>]]
 		# => [#<Event:0x~~ @el="@", @va=80>, #<Event:0x~~ @el="r!", @va=40>]
 
@@ -494,8 +503,10 @@ class Score
 				la = quad[i+1].first
 								
 				if ((fo.el=~/@/ || fo.el=='+' || [fo.el]-["=","=:"]==[]) && [la.el]-["=","=:"]==[]) ||
-					(fo.el=~/r!/ && la.el=~/r!/ && fo.el==la.el) ||
-					(fo.el=~/s!/ && la.el=~/s!/ && fo.el==la.el) ||
+					(fo.el=~/r!/ && la.el=~/r!/) ||
+					(fo.el=~/s!/ && la.el=~/s!/) ||
+#					(fo.el=~/r!/ && la.el=~/r!/ && fo.el==la.el) ||
+#					(fo.el=~/s!/ && la.el=~/s!/ && fo.el==la.el) ||
 					(fo.el=~/%/ && la.el=~/%/ && !(la.el=~/%%/)) 
 					
 					fv = qu.map{|e| e.va}.inject(:gcd) == TPQN/8
@@ -507,7 +518,7 @@ class Score
 					end
 				end
 			end
-		}		
+		}
 		quad.flatten!
 	end
 
@@ -537,9 +548,10 @@ class Score
 					}
 				end
 				ar = ary_beat.slice!(0, num)
-				ar.map!.with_index{|e,i|		# compress to 8th
+				ar = ar.map.with_index{|e,i|		# compress dur
 					e.map{|f| Event.new(f.el, (f.va*Rational(meas[0][i], meas[1])).to_i)}
 				}
+
 				bars << ar
 			end
 			
@@ -575,12 +587,13 @@ class Score
 							matchValue = notevalue[1][fol.va + laf.va]!=nil
 
 							homoElem = [laf.el]-["=","=:"]==[] ||
-								(fol.el=~/r!|s!/ && fol.el==laf.el ) ||
-								(fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/) && (fo.size==1 || la.size==1))
+								(fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/) && (fo.size==1 || la.size==1)) ||
+								fol.el=~/r!|s!/
+#								(fol.el=~/r!|s!/ && fol.el==laf.el )								
 												
-	#						homoPlet = [15,24,40].map{|e|
-	#							fo.map{|f| f.va}.min%e==0 && la.map{|l| l.va}.min%e==0 ? 1 : 0
-	#						}.sigma>0
+#							homoPlet = [15,24,40].map{|e|
+#								fo.map{|f| f.va}.min%e==0 && la.map{|l| l.va}.min%e==0 ? 1 : 0
+#							}.sigma>0
 
 							dsqv = Proc.new{|x| x.map{|e| e.va}.inject(true){|cond,e| e%(TPQN/8)==0&&cond}}						
 							homoPlet = dsqv.(fo) && dsqv.(la)
@@ -633,7 +646,6 @@ class Score
 	
 	def noSyncop(seq)
 		seq.map{|e|
-		 p e
 			if e[0]=="=" && e-["="]!=[]
 				re = true
 				e.map{|f|
@@ -655,55 +667,39 @@ class Score
 
 	
 	def reduceTupl(measure, seq, tpls, &block)
-		# reduce tuplets on 8th		
+		# reduce tuplets on shorter beat		
 		i, j = 0, 0
 		tp = []
 		se = seq.dup
 		me = measure.map{|e|
 			Array === e ? e[0].map{|f| f.to_f/e[1]} : [1]*e
 		}.flatten
-		
-		block = lambda{|q| 4-q%2} if block==nil		# 5,6,7,8 => 3,4,3,4
+
+		block = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max} if block==nil
 		
 		while se.size>0
 			u = tpls[j]
-			u = block.call(u) if me[i]<1 && u>3
+			u = block.call(u, me[i]) if me[i]<1
 			se.slice!(0, u)
 			tp << u
-			
 			i += 1
 			i %= me.size
 			j += 1
 			j %= tpls.size
 		end
-		
+
+		raise "wrong tuplet (less than 1) => #{tp}" if tp.min<1
 		tp
 	end
 
 	
-	def gsub(pattern, replacement)
+	def newReplace(pattern, replacement)
 		@gspat << pattern
 		@gsrep << replacement
 	end	
 
 
-	def print
-		puts self.ly
-	end
-
-
-	def export(fname)
-		Dir::chdir(File.dirname(__FILE__))
-		f = File.open(fname, 'w')
-		n = File.absolute_path(fname)
-		puts "exported > #{n}"	
-		s = self.ly
-		f.puts s
-		f.close		
-	end
-
-	
-	def repla(txt)
+	def do_gsub(txt)
 		if @gspat!=[]
 			@gspat.zip(@gsrep).each{|x,y|
 				txt = txt.gsub(x, y)
@@ -713,9 +709,24 @@ class Score
 	end
 
 
-	def ly
+	def gen
 		s = self.scoly
-		repla(s)
+		@output = do_gsub(s)
+	end
+
+
+	def print
+		puts @output
+	end
+
+
+	def export(fname)
+		Dir::chdir(File.dirname(__FILE__))
+		f = File.open(fname, 'w')
+		n = File.absolute_path(fname)
+		puts "exported > #{n}"	
+		f.puts @output
+		f.close		
 	end
 end
 

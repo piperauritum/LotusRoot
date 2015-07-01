@@ -1,11 +1,10 @@
-LotusRoot
+LotusRoot (alpha)
 
 
 ## Overview
 
 A LilyPond code generator for Ruby.
 Converts pitch/duration data into LilyPond code.
-(This is alpha version.)
 
 
 ## Requirement
@@ -23,40 +22,43 @@ lilypond example.ly
 
 ## Description
 
-pch = [Fixnum/Float] (pitch)	# Array = chord, .5 = 1/4 tone, .25 = 1/8 tone
-dur = [Fixnum] (duration)
-tpl = [Fixnum] (tuplet)			# cyclic. over 8-tet are not supported yet
-elm = [String] (element)		# (see below)
+pch = [Fixnum/Float]		# Pitch (cyclic). Array = chord, .5 = 1/4 tone, .25 = 1/8 tone
+dur = [Fixnum]				# Duration (acyclic)
+tpl = [Fixnum]				# Tuplet of quarter note (cyclic). Over 8-plet is not supported yet.
+elm = [String]				# Element (acyclic). See below.
+
+elm = [
+	"@", "=", "r!",			# Note/Attack (next pitch), Tie (not for rest), Rest
+	"\\hoge @ \\moge",		# '@' w/ LilyPond command
+	"@:N", "=:",			# Tremolo in Nth
+	"%N [pch]",				# Two-notes tremolo (Nth)
+	"@TMP4;60;",			# Note w/ Tempo mark (note value; bpm;)
+	"@GRC32;4;",			# Note w/ Grace notes (note value; number;)
+]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.instName = "hoge"
-sco.measure = [4]				# cyclic (see below)
-sco.pchShift = 0				# transposition
-sco.accMode = 0					# 0, 1 = sharp, flat
-sco.autoAcc = nil				# 0(!nil) = auto select accidentals of chord
-sco.beam = nil					# 0 = beam over rest on every quarter notes
-sco.noTie = nil					# 0 = remove syncopation (without a certain case)
-sco.redTupRule = lambda{|q| 4-q%2}	# rule of reducing tuplets on 8th	
+sco.measure = [				# Time signature (cyclic)
+	N,							# N/4
+	[[2,2,1], 2],				# 5/8 = (2+2+1)/(4*2) Numerators must be 1 or 2.
+	[[2,1], 4],					# 3/16 = (2+1)/(4*4)
+]
+sco.pchShift = 0			# Transposition.
+sco.accMode = 0				# 0, 1 = Sharp, Flat
+sco.autoAcc = nil			# 0(!nil) = Auto select accidentals of chord.
+sco.beam = nil				# 0 = Beam over rest on every quarter notes.
+sco.noTie = nil				# 0 = Remove syncopation (without a certain case).
+sco.redTupRule = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max}
+							# Rule of reducing tuplets on shorter beat.
+sco.newReplace(pattern, replacement)	# Add new text replacement
+sco.gen
+sco.print
 sco.export("sco.txt")
-
-elm = [
-	["@", "=", "r!"],					# tuplet[next, tie(not for rest), rest]
-	["\\hoge @ \\moge"],				# '@' with LilyPond command
-	["@:32", "=:"],						# tremolo
-	["\\hoge %N \\moge [pcs] \\voge"],	# two-notes tremolo(Nth) with command
-]
-
-Score#measure = [
-	N,				# N/4
-	[[2,2,1], 2]	# (2+2+1)/8 = 5/8
-					# Numerators must be 1 or 2. (Fraction is multipled to number of tuplet.)
-]
 
 
 ## Author
 
 Takumi Ikeda
-https://bitbucket.org/piperauritum
 
 
 ## Copyright
