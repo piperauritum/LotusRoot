@@ -1,8 +1,9 @@
 require 'bigdecimal'
-# require 'win32/clipboard'	# gem install win32-clipboard
+require 'win32/clipboard'	# gem install win32-clipboard
 
 
 class Float
+
 	# accurate modulo
 	def %(other)
 		x = BigDecimal(self.to_s)
@@ -14,10 +15,9 @@ end
 
 
 class Array
+
 	# summation of array
 	def sigma
-#		s = inject(:+)
-#		s==nil ? 0 : s
 		inject(:+)
 	end
 	
@@ -50,10 +50,10 @@ def export(str, filepath)
 end
 
 
-=begin
+
 def set_clipboard(x)
 	x = x.inspect if Array === x
 	Win32::Clipboard.set_data(x)
 end
-=end
+
 

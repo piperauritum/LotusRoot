@@ -22,15 +22,16 @@ lilypond example.ly
 
 ## Description
 
-pch = [Fixnum/Float]		# Pitch (cyclic). Array = chord, .5 = 1/4 tone, .25 = 1/8 tone
+pch = [Fixnum/Float]		# Pitch (cyclic); Array = chord, .5 = 1/4 tone, .25 = 1/8 tone
 dur = [Fixnum]				# Duration (acyclic)
-tpl = [Fixnum]				# Tuplet of quarter note (cyclic). Over 8-plet is not supported yet.
-elm = [String]				# Element (acyclic). See below.
+tpl = [Fixnum]				# Tuplet (cyclic); Divide a quarter-note into 1 to 16
+elm = [String]				# Element (acyclic). See below
 
 elm = [
 	"@", "=", "r!",			# Note/Attack (next pitch), Tie (not for rest), Rest
+	["@", 1]				# Staccato
 	"\\hoge @ \\moge",		# '@' w/ LilyPond command
-	"@:N", "=:",			# Tremolo in Nth
+	"@:N", "=:",			# Tremolo in Nth notes
 	"%N [pch]",				# Two-notes tremolo (Nth)
 	"@TMP4;60;",			# Note w/ Tempo mark (note value; bpm;)
 	"@GRC32;4;",			# Note w/ Grace notes (note value; number;)
@@ -50,10 +51,10 @@ sco.beam = nil				# 0 = Beam over rest on every quarter notes.
 sco.noTie = nil				# 0 = Remove syncopation (without a certain case).
 sco.redTupRule = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max}
 							# Rule of reducing tuplets on shorter beat.
-sco.newReplace(pattern, replacement)	# Add new text replacement
-sco.gen
-sco.print
-sco.export("sco.txt")
+sco.add_replace(pattern, replacement)	# Add new text replacement
+sco.gen						# Generate LilyPond code
+sco.print					# Output to console
+sco.export("sco.txt")		# Export
 
 
 ## Author
