@@ -98,20 +98,20 @@ module Notation
 	end
 
 
-	def echo(events)
-		case events
+	def echo(ev)
+		case ev
 		when Array
-			events.map{|e| Array === e ? echo(e) : e.ar}
+			ev.map{|e| Array === e ? echo(e) : e.ar}
 		when nil
 			nil
 		else
-			events.ar
+			ev.ar
 		end
 	end
 	
 	
-	def vtotal(events)
-		echo(events).flatten.inject(0){|s,e| Rational === e ? s+e : s}
+	def vtotal(ev)
+		echo(ev).flatten.inject(0){|s,e| Rational === e ? s+e : s}
 	end
 
 end
@@ -192,7 +192,7 @@ class Score
 
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
-					
+			
 					# write note name
 					abc = ->(pc){
 						if Array === pc && pc.size>1
@@ -207,9 +207,9 @@ class Score
 					}
 
 					# tie
-					voice += "~ " if [_el]-["=","=:"]==[]
+					voice += "~ " if [_el]-%w(= =:)==[]
 
-					# when on-beat				
+					# when top of beat				
 					if nte_id==0					
 
 						# close beam
@@ -248,82 +248,82 @@ class Score
 					# grace note
 					if /((GRC)(.*;))/ =~ _el
 						gval, gnum = $3.split(/;/).map(&:to_i)
-						voice += "\\acciaccatura {"
+						gtxt = ""
 						gnum.times{|i|
-							pc_id += 1
-							pc_id %= @pch.size							
-							voice += abc.call(@pch[pc_id])
-							voice += "#{gval}" if i==0
-							voice += " "
+							pc_id += 1							
+							gtxt += abc.call(@pch.on(pc_id))
+							gtxt += "#{gval}" if i==0
+							gtxt += " " if i<gnum-1
 						}
-						voice += "} "
+						voice += "\\acciaccatura {#{gtxt}} "
 						_el = _el.sub(/GRC.*;/, "")
 						pre_du = gval
 					end
 
-					# before note
-					["@", "r!", "s!", "%+"].each{|e|
-						voice += _el.sub(/#{e}.*/m,'') if _el=~/#{e.sub("+",'')}/
+					### main note
+					ntxt = ""
+					
+					# before note					
+					%w(@ r! s! %+).each{|e|
+						ntxt += _el.sub(/#{e}.*/m, "") if _el=~/#{e.sub("+", "")}/
 					}
 
 					# tuplet bracket
-					if nte_id==0
-						if Math.log2(tp)%1>0 && !brac
-							brac = true
-							mul = vtotal(tuple)/PPQN
-							nme = (tp*mul).to_i
-							den = (2**(Math.log2(tp).to_i)*mul).to_i
-							voice += "\\tuplet #{nme}/#{den} {"
-						end					
+					if nte_id==0 && Math.log2(tp)%1>0 && !brac
+						brac = true
+						mul = vtotal(tuple)/PPQN
+						nme = (tp*mul).to_i
+						den = (2**(Math.log2(tp).to_i)*mul).to_i
+						ntxt += "\\tuplet #{nme}/#{den} {"
 					end
 
 					# put note
 					case _el
 					when /r!/
-						_du==bar_dur ? voice+="R" : voice+="r"						
+						_du==bar_dur ? ntxt+="R" : ntxt+="r"						
 					when /s!/
-						voice += "s"
+						ntxt += "s"
 					else
-						case _el
-						when /@|%%/		# next pitch
-							pc_id += 1
-							pc_id %= @pch.size
-						when /%/		# two-notes tremolo
+						pc_id += 1 if _el=~/@|%%/	# next pitch
+						if _el=~/%/		# two-notes tremolo
 							/((%+)(\d+))/ =~ _el
-							tremDur = $3.to_i
-							tremTimes = note_value[tp].key((tremDur/2).to_s)
-							tremTimes = _du/tremTimes
-							voice += "\\repeat tremolo #{tremTimes} {"
-							voice += "\\lhStaff " if @pnoTrem
-						end
-						voice += abc.call(@pch[pc_id])
+							tr_dur = $3.to_i
+							t = [*0..4].map{|e| 2**e*tp}.select{|e| e<=16}.max
+							tr_times = note_value[t].key((tr_dur/2).to_s)
+							tr_times = (_du/tr_times).to_i
+							ntxt += "\\repeat tremolo #{tr_times} {"
+							ntxt += "\\lhStaff " if @pnoTrem
+						end						
+						ntxt += abc.call(@pch.on(pc_id))
 					end
 
 					# note value
-					voice += note_value[tp][_du] if !(_el=~/%/) &&
+					ntxt += note_value[tp][_du] if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					
 					# tremolo
-					voice += ":" if _el=="=:"
+					ntxt += ":" if _el=="=:"
 
 					# after note
-					["@", "r!", "s!"].each{|e|
-						voice += _el.sub(/.*#{e}/m,'') if _el=~/#{e}/
+					%w(@ r! s!).each{|e|
+						ntxt += _el.sub(/.*#{e}/m, "") if _el=~/#{e}/
 					}
 
 					# two-notes tremolo
 					if _el=~/%/
-						voice += tremDur.to_s
-						voice += " \\rhStaff" if @pnoTrem
-						tremSco = _el.sub(/.*%+\d+/,'')
-						tremDat = _el.scan(/\[.+\]/)[0]
-						tremNote = tremDat.gsub(/\[|\]|\s/,"").split(",").map{|e| e.to_f+@pchShift}
-						tremWri = abc.call(tremNote)					
-						tremSco = tremSco.sub(tremDat, tremWri) + "}"
-						voice += tremSco
+						ntxt += tr_dur.to_s						
+						ntxt += " \\rhStaff" if @pnoTrem
+						tr_txt = _el.sub(/.*%+\d+/, "")
+						tr_dat = _el.scan(/\[.+\]/)[0]
+						tr_note = tr_dat.gsub(/\[|\]|\s/,"").split(",").map{|e| e.to_f+@pchShift}
+						tr_abc = abc.call(tr_note)					
+						tr_txt = tr_txt.sub(tr_dat, tr_abc) + "}"						
+						ntxt += tr_txt
 					end
 
-					# beam
+					voice += ntxt
+
+					### beam
 					if @beam!=nil
 						if nte_id==0
 							n = nte_id
@@ -336,7 +336,7 @@ class Score
 								elz << n_el
 	
 								nv = note_value[tp][n_va]
-								["4","2","1"].each{|e|
+								%w(4 2 1).each{|e|
 									bm = false if nv!=nil && nv.gsub(".","")==e
 								}
 								va_sum += n_va
@@ -409,7 +409,9 @@ class Score
 					
 				when /%/			# two-notes tremolo
 					ary << el.sub("%", "%%")
-					(du-1).times{ ary << el.scan(/%\d+/)[0] + el.scan(/\[.+\]/)[0] }
+					(du-1).times{
+						ary << el.scan(/%\d+/)[0] + " " + el.scan(/\[.+\]/)[0]
+					}
 
 				when /=/			# tie
 					du.times{ ary << el }
@@ -438,17 +440,17 @@ class Score
 
 		if Array === tpl
 			arx = []
-			id = 0
+			idx = 0
 			while ary.size>0
-				if ary.size>tpl[id]
-					arx << ary.slice!(0, tpl[id])
+				tp = tpl.on(idx)
+				if ary.size>tp
+					arx << ary.slice!(0, tp)
 				else
 					ay = ary.slice!(0, ary.size)
-					ay += Array.new(tpl[id]-ay.size, "r!")
+					ay += Array.new(tp-ay.size, "r!")
 					arx << ay
 				end
-				id += 1
-				id %= tpl.size
+				idx += 1
 			end
 			ary = arx.dup
 			
@@ -472,15 +474,15 @@ class Score
 				if i==0
 					evt = Event.new(el, tick)
 				else
-					n_rest = ["r!", "s!"].map{|e|
+					n_rest = %w(r! s!).map{|e|
 						xelm = !(past=~/#{e}/) && el=~/#{e}/
 #						xadj =  past=~/#{e}/ && el=~/#{e}/ && past.sub(/#{e}/,'')!=el.sub(/#{e}/,'')
 						xelm ? 1:0
 #						xelm || xadj ? 1:0
 					}.sigma>0					
-					c_tie = [el]-["=","=:"]==[]					
+					c_tie = [el]-%w(= =:)==[]					
 					c_trem = past=~/%/ && el=~/%/ && !(el=~/%%/)					
-					c_rest = ["r!", "s!"].map{|e| past=~/#{e}/ && el=~/#{e}/ ? 1:0 }.sigma>0
+					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && el=~/#{e}/ ? 1:0 }.sigma>0
 	
 					if el=~/@/ || el=~/%%/ || n_rest					
 						qa << evt
@@ -513,7 +515,7 @@ class Score
 				if la!=nil
 					fol, laf = fo.last, la.first
 					cond = [
-						(fol.el=~/@/ || fol.el=='+' || [fol.el]-["=","=:"]==[]) && [laf.el]-["=","=:"]==[],
+						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
 						fol.el=~/r!/ && laf.el=~/r!/,
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
@@ -542,10 +544,10 @@ class Score
 		# => [[[["@", (16/1)]], [["=", (8/1)]]], [[["=", (32/3)], ["r!", (16/3)]], [["r!", (8/1)]]]]
 		# Fit beat into measure, Compress duration on half-beats, Fill bar by rests.
 
-		m = 0
+		idx = 0
 		bars = []
 		while ary_beat.size>0
-			meas = measure[m]
+			meas = measure.on(idx)
 			
 			if Fixnum === meas		# time N/4
 				if ary_beat.size<meas
@@ -569,8 +571,7 @@ class Score
 				bars << ar
 			end
 			
-			m += 1
-			m %= measure.size
+			idx += 1
 		end
 		bars
 	end
@@ -596,7 +597,7 @@ class Score
 						matchValue = note_value[16][fol.va + laf.va]!=nil
 						duples = [1/2r,1,2].map{|e| Rational(PPQN)*e}
 						matchDup = [fol.va]-duples==[] && [laf.va]-duples==[]
-						homoElem = [laf.el]-["=","=:"]==[] ||
+						homoElem = [laf.el]-%w(= =:)==[] ||
 							((fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/)) ||
 							(laf.el=="r!" && fol.el=~/r!/) ||
 							(laf.el=="s!" && fol.el=~/s!/)
@@ -653,14 +654,12 @@ class Score
 		block = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max} if block==nil
 		
 		while se.size>0
-			u = tpls[j]
-			u = block.call(u, me[i]) if me[i]<1
+			u = tpls.on(j)
+			u = block.call(u, me.on(i)) if me.on(i)<1
 			se.slice!(0, u)
 			tp << u
 			i += 1
-			i %= me.size
 			j += 1
-			j %= tpls.size
 		end
 
 		raise "wrong tuplet (less than 1) => #{tp}" if tp.min<1

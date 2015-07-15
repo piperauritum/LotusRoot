@@ -16,17 +16,22 @@ end
 
 class Array
 
-	# summation of array
+	# circular index
+	def on(idx)
+		self.at(idx%self.size)
+	end
+	
+	# sum of array
 	def sigma
 		inject(:+)
 	end
 	
-	# adding to multi-dimensional array
+	# add to multi-dimensional array
 	def mdadd(x)
 		self.map{|e| Array === e ? e.mdadd(x) : e+x }
 	end
 	
-	# conditional slicing
+	# conditional slice
 	def slice_by(&block)
 		x, y = [], []
 		self.each{|e|
@@ -55,5 +60,4 @@ def set_clipboard(x)
 	x = x.inspect if Array === x
 	Win32::Clipboard.set_data(x)
 end
-
 
