@@ -3,8 +3,7 @@ LotusRoot (alpha)
 
 ## Overview
 
-A LilyPond code generator for Ruby.
-Converts pitch/duration data into LilyPond code.
+An experimental Ruby program for musical notation, that generates LilyPond code from pitch/duration data.
 
 
 ## Requirement
@@ -34,7 +33,7 @@ elm = [
 	"@:N", "=:",			# Tremolo in Nth notes
 	"%N [pch]",				# Two-notes tremolo (Nth)
 	"@TMP4;60;",			# Note w/ Tempo mark (note value; bpm;)
-	"@GRC32;4;",			# Note w/ Grace notes (note value; number;)
+	"@GRC32;4;",			# Note w/ Grace notes (note value; number of notes;)
 ]
 
 sco = Score.new(dur, elm, tpl, pch)
