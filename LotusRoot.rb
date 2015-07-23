@@ -133,17 +133,17 @@ end
 class Score
 	include Notation
 	attr_reader :output
-	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :beam, :noTie, :redTupRule, :pnoTrem
+	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
-		@seq = unfold_element(_dur, _elm)
+		@seq = unfold_element(_dur, _elm)		
 		@tpl = _tpl
 		@pch = _pch-[nil]
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@autoAcc, @beam, @pnoTrem, @redTupRule = [nil]*4
+		@autoAcc, @beam, @pnoTrem, @redTupRule, @finalBar = [nil]*4
 		@gspat, @gsrep = [], []
 	end
 
@@ -151,7 +151,7 @@ class Score
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
 		@tpl = reduce_tuplet(@measure, @seq, @tpl, &@redTupRule)
-		@seq = make_tuplet(@seq, @tpl)
+		@seq = make_tuplet(@seq, @tpl)		
 		@seq = delete_syncop(@seq) if @noTie
 
 		ary = []
@@ -160,8 +160,9 @@ class Score
 			quad, past = quad_event(tuple, past, tick)
 			ary << connect_quad(quad, tuple.size)
 		}
-
 		@note = connect_beat(ary, @measure)
+		@note = @note[0..@finalBar-1] if @finalBar!=nil
+		slur_over_tremolo(@note)
 	end
 
 	
@@ -184,7 +185,7 @@ class Score
 				beat_dur = PPQN
 				bar_dur = tm*beat_dur
 			end
-		
+
 			bar.each.with_index{|tuple, tpl_id|				
 
 				# tuplet number
@@ -286,8 +287,8 @@ class Score
 					else
 						pc_id += 1 if _el=~/@|%%/	# next pitch
 						if _el=~/%/		# two-notes tremolo
-							/((%+)(\d+))/ =~ _el
-							tr_dur = $3.to_i
+							/((%+)(C?)(\d+))/ =~ _el
+							tr_dur = $4.to_i							
 							t = [*0..4].map{|e| 2**e*tp}.select{|e| e<=16}.max
 							tr_times = note_value[t].key((tr_dur/2).to_s)
 							tr_times = (_du/tr_times).to_i
@@ -313,11 +314,21 @@ class Score
 					if _el=~/%/
 						ntxt += tr_dur.to_s						
 						ntxt += " \\rhStaff" if @pnoTrem
-						tr_txt = _el.sub(/.*%+\d+/, "")
+						tr_txt = _el.sub(/.*%+C?\d+/, "")
 						tr_dat = _el.scan(/\[.+\]/)[0]
 						tr_note = tr_dat.gsub(/\[|\]|\s/,"").split(",").map{|e| e.to_f+@pchShift}
-						tr_abc = abc.call(tr_note)					
-						tr_txt = tr_txt.sub(tr_dat, tr_abc) + "}"						
+						tr_abc = abc.call(tr_note)				
+						tr_txt = tr_txt.sub(tr_dat, "")
+						case _el
+						when /%%C/
+							tr_txt = "#{tr_txt} (#{tr_abc}}"
+						when /%C/
+							tr_txt = "#{tr_txt} #{tr_abc})}"
+						when /%%/
+							tr_txt = "#{tr_txt} (#{tr_abc})}"
+						else
+							tr_txt = "#{tr_txt} #{tr_abc}}"
+						end
 						ntxt += tr_txt
 					end
 
@@ -328,7 +339,7 @@ class Score
 						if nte_id==0
 							n = nte_id
 							bm, go = true, true
-							va_sum = 0
+					#		va_sum = 0
 							elz = []
 							
 							while go
@@ -339,27 +350,27 @@ class Score
 								%w(4 2 1).each{|e|
 									bm = false if nv!=nil && nv.gsub(".","")==e
 								}
-								va_sum += n_va
+					#			va_sum += n_va
 								n += 1
 
 								# search forward
-								go = false if va_sum%beat_dur==0 || tuple[n]==nil
+								go = false if n==tuple.size # || va_sum%beat_dur==0
 							end
 
-							# there is only the first note
+							# only the first note
 							eq = elz.map{|e| e=~/@/ ? 1 : 0 }
 							bm = false if eq[0]==1 && (eq-[0]).size==1
 
-							# there is no rest
+							# no rest
 							eq = elz.map{|e| e=~/r!|s!/ ? 1 : 0 }.sigma
 							bm = false if eq==0
 
-							# rest only
-							eq = elz.map{|e| e=~/r!|s!/ ? 0 : 1 }.sigma
+							# only rest or tie
+							eq = elz.map{|e| e=~/r!|s!|=/ ? 0 : 1 }.sigma
 							bm = false if eq==0
 							
 							# already beamed
-							bm = false if beamed!=nil
+							bm = false if beamed==true
 
 							if bm
 								voice += "["
@@ -400,17 +411,16 @@ class Score
 						(du-1).times{ ary << "=" }
 					end
 
-				when /r!/			# rest
-					du.times{ ary << el }
-					
-				when /s!/			# spacer rest
-					ary << el
-					(du-1).times{ ary << "s!" }
+				when /(r!|s!)/			# rest, spacer rest
+					du.times{|i| i==0 ? ary << el : ary << $1}
 					
 				when /%/			# two-notes tremolo
-					ary << el.sub("%", "%%")
-					(du-1).times{
-						ary << el.scan(/%\d+/)[0] + " " + el.scan(/\[.+\]/)[0]
+					du.times{|n|
+						if n==0						
+							ary << el.sub("%", "%%")
+						else
+							ary << el.scan(/%\d+/)[0] + el.scan(/\[.+\]/)[0]
+						end
 					}
 
 				when /=/			# tie
@@ -431,6 +441,31 @@ class Score
 			end
 		}
 		ary
+	end
+	
+	
+	# Reduce tuplet on short beat.
+	def reduce_tuplet(measure, seq, tpls, &block)
+		i, j = 0, 0
+		tp = []
+		se = seq.dup
+		me = measure.map{|e|
+			Array === e ? e[0].map{|f| f.to_f/e[1]} : [1]*e
+		}.flatten
+
+		block = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max} if block==nil
+		
+		while se.size>0
+			u = tpls.on(j)
+			u = block.call(u, me.on(i)) if me.on(i)<1
+			se.slice!(0, u)
+			tp << u
+			i += 1
+			j += 1
+		end
+
+		raise "wrong tuplet (less than 1) => #{tp}" if tp.min<1
+		tp
 	end
 
 	
@@ -461,6 +496,28 @@ class Score
 		ary
 	end
 
+	
+	def delete_syncop(seq)
+		seq.map{|e|
+			if e[0]=="=" && e-["="]!=[]
+				re = true
+				e.map{|f|
+					case f
+					when /@/
+						re = false
+						f
+					when "="
+						re ? "r!" : f
+					else
+						f
+					end
+				}
+			else
+				e
+			end 
+		}
+	end
+	
 	
 	def quad_event(tuple, past, tick)
 		# ["@", "@", "=", "=", "r!", "r!"]
@@ -618,52 +675,30 @@ class Score
 			raise "invalid value data" if bv!=vtotal(bar)
 		}
 	end
-
 	
-	def delete_syncop(seq)
-		seq.map{|e|
-			if e[0]=="=" && e-["="]!=[]
-				re = true
-				e.map{|f|
-					case f
-					when /@/
-						re = false
-						f
-					when "="
-						re ? "r!" : f
-					else
-						f
+	
+	def slur_over_tremolo(seq)
+		past = nil
+		u,v,w = nil, nil, nil 
+		id = 0
+		seq.each.with_index{|bar,x|
+			bar.each.with_index{|tuple,y|
+				tuple.each.with_index{|note,z|
+					if past!=nil
+						ntr = note.el.scan(/%+/)[0]
+						ptr = past.el.scan(/%+/)[0]
+						if (ptr=="%%" && ntr=="%") || (ptr=="%" && ntr==nil)
+							seq[u][v][w].el = ptr + "C" + past.el.sub(ptr, "")
+						elsif ntr=="%" && id==seq.flatten.size-1
+							seq[x][y][z].el = ntr + "C" + note.el.sub(ntr, "")
+						end
 					end
+					u,v,w = x,y,z
+					past = seq[x][y][z]
+					id += 1			
 				}
-			else
-				e
-			end 
+			}
 		}
-	end
-
-	
-	# Reduce tuplet on short beat.
-	def reduce_tuplet(measure, seq, tpls, &block)
-		i, j = 0, 0
-		tp = []
-		se = seq.dup
-		me = measure.map{|e|
-			Array === e ? e[0].map{|f| f.to_f/e[1]} : [1]*e
-		}.flatten
-
-		block = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max} if block==nil
-		
-		while se.size>0
-			u = tpls.on(j)
-			u = block.call(u, me.on(i)) if me.on(i)<1
-			se.slice!(0, u)
-			tp << u
-			i += 1
-			j += 1
-		end
-
-		raise "wrong tuplet (less than 1) => #{tp}" if tp.min<1
-		tp
 	end
 
 	
