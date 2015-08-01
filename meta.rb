@@ -26,9 +26,14 @@ class Array
 		inject(:+)
 	end
 	
+	# average
+	def avg
+		self.sigma.to_f/self.size
+	end
+	
 	# add to multi-dimensional array
-	def mdadd(x)
-		self.map{|e| Array === e ? e.mdadd(x) : e+x }
+	def add(x)
+		self.map{|e| Array === e ? e.add(x) : e+x }
 	end
 	
 	# conditional slice
@@ -43,6 +48,23 @@ class Array
 		}
 		x << y
 		x
+	end
+	
+	# slice into tuplets
+	def slice_into_tuplet(ary)
+		ar = self.dup
+		sl, c = [], 0
+		while ar.size>0
+			dv = ary.on(c)
+			if ar.size >= dv
+				sl << ar.slice!(0, dv)
+			else
+				sl << ar + [nil]*(dv-ar.size)
+				break
+			end
+			c += 1
+		end
+		sl
 	end
 end
 

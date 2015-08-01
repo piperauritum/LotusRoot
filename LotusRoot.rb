@@ -77,7 +77,7 @@ module Notation
 	
 	
 	def pitch_shift(pch, sum)
-		pch.mdadd(sum)
+		pch.add(sum)
 	end
 	
 	
@@ -294,8 +294,9 @@ class Score
 							tr_times = (_du/tr_times).to_i
 							ntxt += "\\repeat tremolo #{tr_times} {"
 							ntxt += "\\lhStaff " if @pnoTrem
+						else
+							ntxt += abc.call(@pch.on(pc_id))
 						end						
-						ntxt += abc.call(@pch.on(pc_id))
 					end
 
 					# note value
@@ -312,23 +313,33 @@ class Score
 
 					# two-notes tremolo
 					if _el=~/%/
-						ntxt += tr_dur.to_s						
-						ntxt += " \\rhStaff" if @pnoTrem
+						ta = @pch.on(pc_id)
 						tr_txt = _el.sub(/.*%+C?\d+/, "")
 						tr_dat = _el.scan(/\[.+\]/)[0]
-						tr_note = tr_dat.gsub(/\[|\]|\s/,"").split(",").map{|e| e.to_f+@pchShift}
-						tr_abc = abc.call(tr_note)				
+						tr_note = tr_dat.gsub(/\[|\]|\s/, "").split(",").map{|e| e.to_f+@pchShift}
+						
+						if !(Array===ta) && tr_note.size==1
+							tr_abc = abc.call([ta, tr_note[0]])
+							tr_abc = tr_abc.gsub(/<|>/, "").split(" ")
+						else
+							tr_abc = [abc.call(ta), abc.call(tr_note)]
+						end
 						tr_txt = tr_txt.sub(tr_dat, "")
+						
 						case _el
 						when /%%C/
-							tr_txt = "#{tr_txt} (#{tr_abc}}"
+							tr_txt = "#{tr_txt} (#{tr_abc[1]}}"
 						when /%C/
-							tr_txt = "#{tr_txt} #{tr_abc})}"
+							tr_txt = "#{tr_txt} #{tr_abc[1]})}"
 						when /%%/
-							tr_txt = "#{tr_txt} (#{tr_abc})}"
+							tr_txt = "#{tr_txt} (#{tr_abc[1]})}"
 						else
-							tr_txt = "#{tr_txt} #{tr_abc}}"
+							tr_txt = "#{tr_txt} #{tr_abc[1]}}"
 						end
+						
+						ntxt += tr_abc[0]
+						ntxt += tr_dur.to_s						
+						ntxt += " \\rhStaff" if @pnoTrem
 						ntxt += tr_txt
 					end
 
