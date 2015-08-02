@@ -151,7 +151,7 @@ class Score
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
 		@tpl = reduce_tuplet(@measure, @seq, @tpl, &@redTupRule)
-		@seq = make_tuplet(@seq, @tpl)		
+		@seq = make_tuplet(@seq, @tpl)
 		@seq = delete_syncop(@seq) if @noTie
 
 		ary = []
@@ -160,8 +160,7 @@ class Score
 			quad, past = quad_event(tuple, past, tick)
 			ary << connect_quad(quad, tuple.size)
 		}
-		@note = connect_beat(ary, @measure)
-		@note = @note[0..@finalBar-1] if @finalBar!=nil
+		@note = connect_beat(ary, @measure)		
 		slur_over_tremolo(@note)
 	end
 
@@ -350,7 +349,6 @@ class Score
 						if nte_id==0
 							n = nte_id
 							bm, go = true, true
-					#		va_sum = 0
 							elz = []
 							
 							while go
@@ -361,7 +359,6 @@ class Score
 								%w(4 2 1).each{|e|
 									bm = false if nv!=nil && nv.gsub(".","")==e
 								}
-					#			va_sum += n_va
 								n += 1
 
 								# search forward
@@ -544,9 +541,7 @@ class Score
 				else
 					n_rest = %w(r! s!).map{|e|
 						xelm = !(past=~/#{e}/) && el=~/#{e}/
-#						xadj =  past=~/#{e}/ && el=~/#{e}/ && past.sub(/#{e}/,'')!=el.sub(/#{e}/,'')
 						xelm ? 1:0
-#						xelm || xadj ? 1:0
 					}.sigma>0					
 					c_tie = [el]-%w(= =:)==[]					
 					c_trem = past=~/%/ && el=~/%/ && !(el=~/%%/)					
@@ -610,26 +605,28 @@ class Score
 	def mold_bar(ary_beat, measure)		
 		# [[["@", (16/1)]], [["=", (16/1)]], [["=", (32/3)], ["r!", (16/3)]]]
 		# => [[[["@", (16/1)]], [["=", (8/1)]]], [[["=", (32/3)], ["r!", (16/3)]], [["r!", (8/1)]]]]
-		# Fit beat into measure, Compress duration on half-beats, Fill bar by rests.
+		# Fit beat into measure, Compress duration on half-beats, Fill bar(s) by rests.
 
 		idx = 0
 		bars = []
+		
+		# split into bar
 		while ary_beat.size>0
 			meas = measure.on(idx)
-			
+
 			if Fixnum === meas		# time N/4
 				if ary_beat.size<meas
 					(meas-ary_beat.size).times{
 						ary_beat << [Event.new("r!", Rational(PPQN))]		# rest filling
 					}
-				end					
+				end
 				bars << ary_beat.slice!(0, meas)
 				
 			else					# time N/8
 				num = meas[0].size
 				if ary_beat.size<num
 					(num-ary_beat.size).times{
-						ary_beat << [Event.new("r!", Rational(PPQN))]		# rest filling
+						ary_beat << [Event.new("r!", Rational(PPQN))]
 					}
 				end
 				ar = ary_beat.slice!(0, num)
@@ -638,9 +635,34 @@ class Score
 				}
 				bars << ar
 			end
-			
+	
 			idx += 1
 		end
+
+		# fit into final-bar
+		if @finalBar!=nil
+			if @finalBar>bars.size
+				(@finalBar-bars.size).times{
+					meas = measure.on(idx)
+					ar = []
+					if Fixnum === meas
+						meas.times{
+							ar << [Event.new("r!", Rational(PPQN))]
+						}
+					else
+						ar = []
+						meas[0].each{|e|
+							ar << [Event.new("r!", Rational(PPQN*e, meas[1]))]
+						}
+					end
+					bars << ar
+					idx += 1
+				}
+			else
+				bars = bars[0..@finalBar-1]
+			end
+		end
+
 		bars
 	end
 
@@ -651,7 +673,8 @@ class Score
 
 		bars = mold_bar(ary_beat, measure)
 		bars.each{|bar|
-			bv = vtotal(bar)					
+			bv = vtotal(bar)
+			
 			while 0
 				id = 0
 				cd = false
@@ -683,6 +706,7 @@ class Score
 				end
 				break if cd == false
 			end	
+
 			raise "invalid value data" if bv!=vtotal(bar)
 		}
 	end
