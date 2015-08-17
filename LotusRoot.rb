@@ -372,6 +372,10 @@ class Score
 							# no rest
 							eq = elz.map{|e| e=~/r!|s!/ ? 1 : 0 }.sigma
 							bm = false if eq==0
+							
+							# include two-notes tremolo or grace notes
+							eq = elz.map{|e| e=~/%|GRC/ ? 1 : 0 }.sigma
+							bm = false if eq>0
 
 							# only rest or tie
 							eq = elz.map{|e| e=~/r!|s!|=/ ? 0 : 1 }.sigma
