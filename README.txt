@@ -46,6 +46,7 @@ sco.measure = [				# Time signature (cyclic)
 sco.pchShift = 0			# Transposition
 sco.accMode = 0				# 0, 1 = Sharp, Flat
 sco.autoAcc = nil			# 0(!nil) = Auto select accidentals of chord
+sco.chordAcc = nil			# 0 = Engrave accidentals to the chord regardless of last chord
 sco.beam = nil				# 0 = Beam over rest on every quarter notes
 sco.noTie = nil				# 0 = Remove syncopation (without a certain case)
 sco.redTupRule = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max}

@@ -76,6 +76,11 @@ module Notation
 	end
 	
 	
+	def natural?(pc)
+		[0,2,4,5,7,9,11].include?(pc%12)
+	end
+	
+	
 	def pitch_shift(pch, sum)
 		pch.add(sum)
 	end
@@ -133,7 +138,7 @@ end
 class Score
 	include Notation
 	attr_reader :output
-	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar
+	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -143,7 +148,7 @@ class Score
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@autoAcc, @beam, @pnoTrem, @redTupRule, @finalBar = [nil]*4
+		@autoAcc, @chordAcc, @beam, @pnoTrem, @redTupRule, @finalBar = [nil]*5
 		@gspat, @gsrep = [], []
 	end
 
@@ -169,7 +174,7 @@ class Score
 		self.sequence
 
 		pc_id = -1
-		pre_du, pre_el, pre_tm = nil, nil, nil
+		pre_pc, pre_du, pre_el, pre_tm = [], nil, nil, nil
 		tp, pre_tp, tp_id = nil, nil, -1
 		brac, beamed = nil, nil
 		
@@ -198,11 +203,17 @@ class Score
 						if Array === pc && pc.size>1
 							acmd = @accMode
 							acmd = auto_accmode(pc, @accMode) if @autoAcc							
-							eg = pc.map{|e| note_name(e, acmd)}.join(' ')
-							eg = "<#{eg}>"
+							eg = pc.map{|e|
+								n = note_name(e, acmd)
+								n += "!" if pre_pc.include?(e) && !natural?(e) && @chordAcc
+								n
+							}.join(' ')
+							pre_pc = pc							
+							eg = "<#{eg}>"							
 						else
 							pc = pc[0] if Array === pc
-							eg = note_name(pc, @accMode)
+							pre_pc = [pc]
+							eg = note_name(pc, @accMode)							
 						end
 					}
 
