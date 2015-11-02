@@ -70,7 +70,7 @@ end
 
 
 def export(str, filepath)
-	Dir::chdir(File.dirname(__FILE__))
+#	Dir::chdir(File.dirname(__FILE__))
 	f = File.open(filepath, 'w')
 	f.puts str
 	f.close

@@ -780,7 +780,7 @@ class Score
 
 
 	def export(fname)
-		Dir::chdir(File.dirname(__FILE__))
+	#	Dir::chdir(File.dirname(__FILE__))
 		f = File.open(fname, 'w')
 		n = File.absolute_path(fname)
 		puts "exported > #{n}"	
