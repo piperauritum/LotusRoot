@@ -43,22 +43,34 @@ module Notation
 		qname = %w(cih deh dih eeh feh fih geh gih aeh aih beh ceh)
 		
 		# eighth tone
-		ename = %w(ci cise cisi de di dise eesi ee ei fe fi fise
-				fisi ge gi gise gisi ae ai aise besi be bi ce)
+		ename = [
+			%w(ci cise cisi de di dise eesi ee ei fe fi fise
+			fisi ge gi gise gisi ae ai aise besi be bi ce),
+			%w(ci dese desi de di eese eesi ee ei fe fi gese
+			gesi ge gi aese aesi ae ai bese besi be bi ce),
+		]
 
 		if pc%1 == 0.5
 			na = qname[(pc%12).to_i]
 		elsif pc%0.5 == 0.25
-			na = ename[(pc%12-0.25)*2]
+			na = ename[acc][(pc%12-0.25)*2]
 		else
 			na = nname[acc][pc%12]
 		end
 
 		otv = (pc/12.0).floor
 		otv += 1 if na == "ceh" || na == "ce"
+		
+		# alternate 1/8-tone accidentals (arrow)
+		if na.length==2
+			na = "\\upp #{na}" if pc%1==0.25
+			na = "\\dwn #{na}" if pc%1==0.75
+		end
+		
 		otv.abs.times{
 			pc>0 ? na+="'" : na+=","
-		}
+		}	
+		
 		na
 	end
 	
