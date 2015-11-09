@@ -63,8 +63,8 @@ module Notation
 		
 		# alternate 1/8-tone accidentals (arrow)
 		if na.length==2
-			na = "\\upp #{na}" if pc%1==0.25
-			na = "\\dwn #{na}" if pc%1==0.75
+			na = "\\eup #{na}" if pc%1==0.25
+			na = "\\edn #{na}" if pc%1==0.75
 		end
 		
 		otv.abs.times{
