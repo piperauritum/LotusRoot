@@ -320,6 +320,9 @@ class Score
 							ntxt += abc.call(@pch.on(pc_id))
 						end						
 					end
+					
+					# delete arrow
+					%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
 
 					# note value
 					ntxt += note_value[tp][_du] if !(_el=~/%/) &&
