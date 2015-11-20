@@ -31,9 +31,13 @@ class Array
 		self.sigma.to_f/self.size
 	end
 	
-	# add to multi-dimensional array
+	# calc multi-dimensional array
 	def add(x)
 		self.map{|e| Array === e ? e.add(x) : e+x }
+	end
+	
+	def mod(x)
+		self.map{|e| Array === e ? e.mod(x) : e%x }
 	end
 	
 	# conditional slice
