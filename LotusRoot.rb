@@ -150,7 +150,7 @@ end
 class Score
 	include Notation
 	attr_reader :output
-	attr_writer :instName, :measure, :pchShift, :accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar
+	attr_writer :instName, :noInstName, :measure, :pchShift, :accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -160,7 +160,7 @@ class Score
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@autoAcc, @chordAcc, @beam, @pnoTrem, @redTupRule, @finalBar = [nil]*5
+		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @redTupRule, @finalBar = [nil]*7
 		@gspat, @gsrep = [], []
 	end
 
@@ -188,9 +188,8 @@ class Score
 		pc_id = -1
 		pre_pc, pre_du, pre_el, pre_tm = [], nil, nil, nil
 		tp, pre_tp, tp_id = nil, nil, -1
-		brac, beamed = nil, nil
-		
-		voice = "{"
+		brac, beamed = nil, nil		
+		voice = ""
 
 		@note.each.with_index{|bar, bar_id|
 			tm = @measure[bar_id % @measure.size]
@@ -428,8 +427,10 @@ class Score
 		# close voice
 		voice += "]" if beamed
 		voice += "}" if brac
-		voice += "\n}"
-		"#{@instName} = " + voice
+		if @noInstName==nil
+			voice = "#{@instName} = {#{voice}\n}"
+		end
+		voice
 	end
 
 	
