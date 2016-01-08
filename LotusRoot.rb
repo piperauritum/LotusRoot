@@ -286,7 +286,7 @@ class Score
 					ntxt = ""
 					
 					# before note					
-					%w(@ r! s! %+).each{|e|
+					%w(@ r! s! rrr sss %+).each{|e|
 						ntxt += _el.sub(/#{e}.*/m, "") if _el=~/#{e.sub("+", "")}/
 					}
 
@@ -301,9 +301,9 @@ class Score
 
 					# put note
 					case _el
-					when /r!/
+					when /r!|rrr/
 						_du==bar_dur ? ntxt+="R" : ntxt+="r"						
-					when /s!/
+					when /s!|sss/
 						ntxt += "s"
 					else
 						pc_id += 1 if _el=~/@|%%/	# next pitch
@@ -331,7 +331,7 @@ class Score
 					ntxt += ":" if _el=="=:"
 
 					# after note
-					%w(@ r! s!).each{|e|
+					%w(@ r! s! rrr sss).each{|e|
 						ntxt += _el.sub(/.*#{e}/m, "") if _el=~/#{e}/
 					}
 
@@ -395,7 +395,7 @@ class Score
 							bm = false if eq[0]==1 && (eq-[0]).size==1
 
 							# no rest
-							eq = elz.map{|e| e=~/r!|s!/ ? 1 : 0 }.sigma
+							eq = elz.map{|e| e=~/r!|s!|rrr|sss/ ? 1 : 0 }.sigma
 							bm = false if eq==0
 							
 							# include two-notes tremolo or grace notes
@@ -403,7 +403,7 @@ class Score
 							bm = false if eq>0
 
 							# only rest or tie
-							eq = elz.map{|e| e=~/r!|s!|=/ ? 0 : 1 }.sigma
+							eq = elz.map{|e| e=~/r!|s!|=|rrr|sss/ ? 0 : 1 }.sigma
 							bm = false if eq==0
 							
 							# already beamed
@@ -450,7 +450,7 @@ class Score
 						(du-1).times{ ary << "=" }
 					end
 
-				when /(r!|s!)/			# rest, spacer rest
+				when /(r!|s!|rrr|sss)/	# rest, spacer rest
 					du.times{|i| i==0 ? ary << el : ary << $1}
 					
 				when /%/			# two-notes tremolo
@@ -578,7 +578,7 @@ class Score
 					c_trem = past=~/%/ && el=~/%/ && !(el=~/%%/)					
 					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && el=~/#{e}/ ? 1:0 }.sigma>0
 	
-					if el=~/@/ || el=~/%%/ || n_rest					
+					if el=~/(@|%%|rrr|sss)/ ||n_rest					
 						qa << evt
 						evt = Event.new(el, tick)
 					elsif c_tie || c_trem || c_rest					
@@ -589,7 +589,7 @@ class Score
 			}
 			qa << evt
 			quad << qa
-		}		
+		}
 		[quad, past]
 	end
 
