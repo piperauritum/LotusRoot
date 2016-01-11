@@ -27,7 +27,7 @@ tpl = [Fixnum]				# Tuplet (cyclic); Divide a quarter-note into 1 to 16
 elm = [String]				# Element (acyclic). See below
 
 elm = [
-	"@", "=", "r!",			# Note/Attack (next pitch), Tie (not for rest), Rest
+	"@", "=", "r!", "rrr"	# Note/Attack (next pitch), Tie (not for rest), Rest, Individual Rest
 	["@", 1]				# Staccato
 	"\\hoge @ \\moge",		# '@' w/ LilyPond command
 	"@:N", "=:",			# Tremolo in Nth notes
@@ -48,6 +48,7 @@ sco.accMode = 0				# 0, 1 = Sharp, Flat
 sco.autoAcc = nil			# 0(!nil) = Auto select accidentals of chord
 sco.chordAcc = nil			# 0 = Engrave accidentals to the chord regardless of last chord
 sco.beam = nil				# 0 = Beam over rest on every quarter notes
+sco.subdiv = nil			# 0 = \set baseMoment & beatStructure for subdivideBeams (experimental)
 sco.noTie = nil				# 0 = Remove syncopation (without a certain case)
 sco.redTupRule = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max}
 							# Rule of reducing tuplets on shorter beat

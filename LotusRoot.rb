@@ -150,7 +150,7 @@ end
 class Score
 	include Notation
 	attr_reader :output
-	attr_writer :instName, :noInstName, :measure, :pchShift, :accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar
+	attr_writer :instName, :noInstName, :measure, :pchShift, :accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar, :subdiv
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -160,7 +160,7 @@ class Score
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @redTupRule, @finalBar = [nil]*7
+		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @redTupRule, @finalBar, @subdiv = [nil]*8
 		@gspat, @gsrep = [], []
 	end
 
@@ -190,6 +190,7 @@ class Score
 		tp, pre_tp, tp_id = nil, nil, -1
 		brac, beamed = nil, nil		
 		voice = ""
+		basemom = nil
 
 		@note.each.with_index{|bar, bar_id|
 			tm = @measure[bar_id % @measure.size]
@@ -291,12 +292,23 @@ class Score
 					}
 
 					# tuplet bracket
-					if nte_id==0 && Math.log2(tp)%1>0 && !brac
-						brac = true
-						mul = vtotal(tuple)/PPQN
-						nme = (tp*mul).to_i
-						den = (2**(Math.log2(tp).to_i)*mul).to_i
-						ntxt += "\\tuplet #{nme}/#{den} {"
+					if nte_id==0
+						if Math.log2(tp)%1>0 && !brac
+							brac = true
+							mul = vtotal(tuple)/PPQN
+							nme = (tp*mul).to_i
+							den = (2**(Math.log2(tp).to_i)*mul).to_i
+							if @subdiv!=nil && basemom!=1
+								ntxt += "\\bsmY "
+								basemom = 1
+							end
+							ntxt += "\\tuplet #{nme}/#{den} {"
+						else
+							if @subdiv!=nil && basemom!=0
+								ntxt += "\\bsmX "
+								basemom = 0
+							end
+						end
 					end
 
 					# put note
@@ -393,7 +405,7 @@ class Score
 							# only the first note
 							eq = elz.map{|e| e=~/@/ ? 1 : 0 }
 							bm = false if eq[0]==1 && (eq-[0]).size==1
-
+							
 							# no rest
 							eq = elz.map{|e| e=~/r!|s!|rrr|sss/ ? 1 : 0 }.sigma
 							bm = false if eq==0
@@ -401,9 +413,9 @@ class Score
 							# include two-notes tremolo or grace notes
 							eq = elz.map{|e| e=~/%|GRC/ ? 1 : 0 }.sigma
 							bm = false if eq>0
-
+							
 							# only rest or tie
-							eq = elz.map{|e| e=~/r!|s!|=|rrr|sss/ ? 0 : 1 }.sigma
+							eq = elz.map{|e| e=~/r!|s!|rrr|sss|\A=\Z|\A=:\Z/ ? 0 : 1 }.sigma
 							bm = false if eq==0
 							
 							# already beamed
@@ -705,7 +717,7 @@ class Score
 		bars = mold_bar(ary_beat, measure)
 		bars.each{|bar|
 			bv = vtotal(bar)
-			
+
 			while 0
 				id = 0
 				cd = false
@@ -715,8 +727,10 @@ class Score
 					
 					if la!=nil
 						fol, laf = fo.last, la.first
-						
-						matchValue = note_value[16][fol.va + laf.va]!=nil
+			
+						nv = fol.va + laf.va
+						matchValue = note_value[16][nv]!=nil
+						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1/2r,1,2].map{|e| Rational(PPQN)*e}
 						matchDup = [fol.va]-duples==[] && [laf.va]-duples==[]
 						homoElem = [laf.el]-%w(= =:)==[] ||
@@ -735,6 +749,7 @@ class Score
 					end
 					id += 1					
 				end
+
 				break if cd == false
 			end	
 
