@@ -18,6 +18,7 @@
   }
 }
 
+
 %%%% Subdivided beams
 % sco.subdiv = 0
 % \set subdivideBeams = ##t

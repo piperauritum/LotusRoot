@@ -13,13 +13,13 @@ LilyPond 2.18.2
 Frescobaldi 2.18 (recommended)
 
 
+## Example
+
+ruby xmpl.rb
+lilypond xmpl.ly
+
+
 ## Usage
-
-ruby example.rb
-lilypond example.ly
-
-
-## Description
 
 pch = [Fixnum/Float]		# Pitch (cyclic); Array = chord, .5 = 1/4 tone, .25 = 1/8 tone
 dur = [Fixnum]				# Duration (acyclic)
@@ -49,11 +49,13 @@ sco.autoAcc = nil			# 0(!nil) = Auto select accidentals of chord
 sco.chordAcc = nil			# 0 = Engrave accidentals to the chord regardless of last chord
 sco.beam = nil				# 0 = Beam over rest on every quarter notes
 sco.subdiv = nil			# 0 = \set baseMoment & beatStructure for subdivideBeams (experimental)
+sco.pnoTrem = nil			# 0 = "\change Staff = upper" "\change Staff = lower"
 sco.noTie = nil				# 0 = Remove syncopation (without a certain case)
 sco.redTupRule = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max}
 							# Rule of reducing tuplets on shorter beat
 sco.finalBar = nil			# Last number of bars
 sco.add_replace(pattern, replacement)	# Add new text replacement
+ssco.noInstName = nil		# 0 = Output only notation
 sco.gen						# Generate LilyPond code
 sco.print					# Output to console
 sco.export("sco.txt")		# Export

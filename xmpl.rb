@@ -6,9 +6,9 @@ pch = (0..7).to_a.map{|x|
 		mtl[(x+y)%mtl.size]
 	}
 }
-dur = pch.map{1}
-tpl = [2]
-elm = ["TMP4;48;@(", ["@"]*6, "@)"].flatten
+dur = [1,1,1,1,1,1,1,2]
+tpl = [2,3,2,2]
+elm = ["TMP4;48;@("] + ["@"]*6 + ["@)"]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0

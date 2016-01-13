@@ -62,10 +62,10 @@ module Notation
 		otv += 1 if na == "ceh" || na == "ce"
 		
 		# alternate 1/8-tone accidentals (arrow)
-		if na.length==2
-			na = "\\eup #{na}" if pc%1==0.25
-			na = "\\edn #{na}" if pc%1==0.75
-		end
+	#	if na.length==2
+	#		na = "\\eup #{na}" if pc%1==0.25
+	#		na = "\\edn #{na}" if pc%1==0.75
+	#	end
 		
 		otv.abs.times{
 			pc>0 ? na+="'" : na+=","
@@ -150,7 +150,8 @@ end
 class Score
 	include Notation
 	attr_reader :output
-	attr_writer :instName, :noInstName, :measure, :pchShift, :accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar, :subdiv
+	attr_writer :instName, :noInstName, :measure, :pchShift, 
+	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar, :subdiv
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -326,14 +327,14 @@ class Score
 							tr_times = note_value[t].key((tr_dur/2).to_s)
 							tr_times = (_du/tr_times).to_i
 							ntxt += "\\repeat tremolo #{tr_times} {"
-							ntxt += "\\lhStaff " if @pnoTrem
+							ntxt += "\\change Staff = lower " if @pnoTrem
 						else
 							ntxt += abc.call(@pch.on(pc_id))
 						end						
 					end
 					
 					# delete arrow
-					%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
+				#	%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
 
 					# note value
 					ntxt += note_value[tp][_du] if !(_el=~/%/) &&
@@ -375,7 +376,7 @@ class Score
 						
 						ntxt += tr_abc[0]
 						ntxt += tr_dur.to_s						
-						ntxt += " \\rhStaff" if @pnoTrem
+						ntxt += " \\change Staff = upper" if @pnoTrem
 						ntxt += tr_txt
 					end
 
