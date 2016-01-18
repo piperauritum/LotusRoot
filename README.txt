@@ -3,7 +3,7 @@ LotusRoot (alpha)
 
 ## Overview
 
-An experimental Ruby program for musical notation, that generates LilyPond code from pitch/duration data.
+An experimental Ruby program for computer-aided composition, that generates LilyPond code from pitch/duration data.
 
 
 ## Requirement
