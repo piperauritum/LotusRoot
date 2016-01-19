@@ -68,5 +68,5 @@ Takumi Ikeda
 
 ## Copyright
 
-(C) Copyright 2015 by Takumi Ikeda, All Rights Reserved.
+(C) Copyright 2015-2016 by Takumi Ikeda, All Rights Reserved.
 No warranty.
