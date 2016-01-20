@@ -5,17 +5,25 @@ include Notation
 
 dur = [1]*6
 elm = dur.map{"@"}
-tpl = [[3, 4, 1/4r]]
+tpl = [[6, 5, 1/4r]]
 pch = [12]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
 sco.pchShift = 12
-# sco.gen
-# sco.print
-# sco.export("sco.txt")
+sco.gen
+sco.print
+sco.export("sco.txt")
 
-def x_note_value(rto_num, rto_den, tpl_nval)
+def note_value(tpl)
+
+	if Array === tpl
+		rto_nu, rto_de, unit_nt = tpl
+	else
+		rto_nu = tpl
+		rto_de = 2**Math.log2(tpl).to_i
+		unit_nt = Rational(1, rto_de)
+	end
 
 	duple_note = [*0..6].map{|e|
 		x = 2**e
@@ -28,29 +36,27 @@ def x_note_value(rto_num, rto_den, tpl_nval)
 		[2**e*3/2, "#{x}"]
 	}
 
-	n_values = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
-p n_values
-	if rto_num==0
+	notation = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
+
+	if rto_nu==0
 		nil
 	else
-	te = rto_num*rto_den*tpl_nval
-	mn = Math.log2(te).to_i
-p mn
-			mn = PPQN/2**mn
-p mn
-		va = n_values.select{|v|	
-				v[0]>=mn && (v[0]<=mn*te || Math.log2(te)%1==0)
-			}
-			va = va.map{|v|
-				[Rational(v[0],mn) * Rational(PPQN, te), v[1]]
-			}
+		unit_va = PPQN*unit_nt
+		nt = notation.select{|dur, note|	
+			dur>=unit_va && (dur<=unit_va*rto_nu || Math.log2(rto_nu)%1==0)
+		}
 
-		va += n_values.select{|du, nv| du==PPQN}.map{|du, nv| [Rational(du), nv]}
-		Hash[*va.uniq.flatten]
+		nt = nt.map{|dur, note|
+			[Rational(rto_de, rto_nu)*dur, note]
+		}
+
+		nt += notation.select{|dur, note|
+			dur==PPQN*rto_de*unit_nt
+		}.map{|dur, note|
+			[Rational(dur), note]
+		}
+		
+		Hash[*nt.uniq.flatten]
 	end
 end
 
-
-q = x_note_value(9, 4, 1/2r)
-p q
-p %w(8 8 16).map{|e| q.key(e)}.sigma

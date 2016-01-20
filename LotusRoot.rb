@@ -33,7 +33,15 @@ module Notation
 	end
 =end
 
-	def note_value(rto_num, rto_den, tpl_nval)
+	def note_value(tpl)
+
+		if Array === tpl
+			rto_nu, rto_de, unit_nt = tpl
+		else
+			rto_nu = tpl
+			rto_de = 2**Math.log2(tpl).to_i
+			unit_nt = Rational(1, rto_de)
+		end
 
 		duple_note = [*0..6].map{|e|
 			x = 2**e
@@ -46,22 +54,27 @@ module Notation
 			[2**e*3/2, "#{x}"]
 		}
 
-		n_values = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
+		notation = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
 
-		if rto_num==0
+		if rto_nu==0
 			nil
 		else
-			min_val = PPQN * tpl_nval
-			va = n_values.select{|v|
-				v[0]>=min_val && (v[0]<=min_val*rto_num || Math.log2(rto_num)%1==0)
+			unit_va = PPQN*unit_nt
+			nt = notation.select{|dur, note|	
+				dur>=unit_va && (dur<=unit_va*rto_nu || Math.log2(rto_nu)%1==0)
 			}
-			va = va.map{|v|
-				mul_val = Rational(v[0], min_val)
-				unit_val = Rational(PPQN * tpl_nval * rto_den, rto_num)
-				[mul_val * unit_val, v[1]]
+
+			nt = nt.map{|dur, note|
+				[Rational(rto_de, rto_nu)*dur, note]
 			}
-			va += n_values.select{|v| v[0]==PPQN}.map{|v| [Rational(v[0]), v[1]]}
-			Hash[*va.uniq.flatten]
+
+			nt += notation.select{|dur, note|
+				dur==PPQN*rto_de*unit_nt
+			}.map{|dur, note|
+				[Rational(dur), note]
+			}
+			
+			Hash[*nt.uniq.flatten]
 		end
 	end
 	
@@ -93,12 +106,6 @@ module Notation
 
 		otv = (pc/12.0).floor
 		otv += 1 if na == "ceh" || na == "ce"
-		
-		# alternate 1/8-tone accidentals (arrow)
-	#	if na.length==2
-	#		na = "\\eup #{na}" if pc%1==0.25
-	#		na = "\\edn #{na}" if pc%1==0.75
-	#	end
 		
 		otv.abs.times{
 			pc>0 ? na+="'" : na+=","
@@ -148,10 +155,10 @@ module Notation
 	end
 
 
-	def eview
+	def look
 		case self
 		when Array
-			self.map{|e| Array === e ? e.eview : e.ar}
+			self.map{|e| Array === e ? e.look : e.ar}
 		when nil
 			nil
 		else
@@ -161,7 +168,7 @@ module Notation
 
 	
 	def vtotal
-		self.eview.flatten.inject(0){|s,e| Numeric === e ? s+e : s}
+		self.look.flatten.inject(0){|s,e| Numeric === e ? s+e : s}
 	end
 
 end
@@ -218,7 +225,7 @@ class Score
 			ary << connect_quad(quad, tuple.size)
 		}
 
-		@note = connect_beat(ary, @measure)		
+		@note = connect_beat(ary, @measure)
 		slur_over_tremolo(@note)
 	end
 
@@ -244,9 +251,10 @@ class Score
 			end
 
 			bar.each.with_index{|tuple, tpl_id|				
-
+p tuple.look
 				# tuplet number
-				tp = tuple.map(&:va).map{|e| e/PPQN}.map(&:denominator).max
+		#		tp = tuple.map(&:va).map{|e| e/PPQN}.map(&:denominator).max
+				tp = @tpl.on(tpl_id)[0]
 
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
@@ -364,7 +372,7 @@ class Score
 							/((%+)(C?)(\d+))/ =~ _el
 							tr_dur = $4.to_i							
 							t = [*0..4].map{|e| 2**e*tp}.select{|e| e<=16}.max
-							tr_times = note_value(t, 4, 1/4r).key((tr_dur/2).to_s)
+							tr_times = note_value(t).key((tr_dur/2).to_s)
 							tr_times = (_du/tr_times).to_i
 							ntxt += "\\repeat tremolo #{tr_times} {"
 							ntxt += "\\change Staff = lower " if @pnoTrem
@@ -377,7 +385,8 @@ class Score
 				#	%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
 
 					# note value
-					ntxt += note_value(tp, 4, 1/4r)[_du] if !(_el=~/%/) &&
+					p [tp, note_value(@tpl.on(tpl_id)), _du]
+					ntxt += note_value(@tpl.on(tpl_id))[_du] if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					
 					# tremolo
@@ -433,7 +442,7 @@ class Score
 								n_el, n_va = tuple[n].ar
 								elz << n_el
 	
-								nv = note_value(tp, 4, 1/4r)[n_va]
+								nv = note_value(@tpl.on(tpl_id))[n_va]
 								%w(4 2 1).each{|e|
 									bm = false if nv!=nil && nv.gsub(".","")==e
 								}
@@ -670,7 +679,7 @@ class Score
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
-					nval = note_value(dv, 4, 1/4r)[fol.va + laf.va]
+					nval = note_value(dv)[fol.va + laf.va]
 
 					if cond.inject(false){|s,e| s||e} && nval!=nil
 						fol.va += laf.va
@@ -702,27 +711,26 @@ class Score
 		# split into bar
 		while ary_beat.size>0
 			meas = measure.on(idx)
-			
 
 			if Fixnum === meas		# time N/4
 				a_dur = ary_beat.vtotal/PPQN
+
 				if a_dur < meas
 					rest = meas-a_dur
-					r_dur = rest%1
-					r_dur = 1 if r_dur==0
+					r_dur = Rational(1, rest.denominator)
 					(rest/r_dur).to_i.times{
-						ary_beat << [Event.new("r!", Rational(r_dur)*PPQN)]
+						ary_beat << [Event.new("r!", r_dur*PPQN)]
 					}
 				end
 
-				while bt_sum < meas
+				while bt_sum < meas*PPQN
 					b = ary_beat.shift
 					bar << b
-					bt_sum = bar.vtotal/PPQN
+					bt_sum = bar.vtotal
 				end
 				
 				bars << bar
-				bt_sum -= meas
+				bt_sum -= meas*PPQN
 
 				
 =begin				
@@ -797,7 +805,7 @@ class Score
 						fol, laf = fo.last, la.first
 			
 						nv = fol.va + laf.va
-						matchValue = note_value(16, 4, 1/4r)[nv]!=nil
+						matchValue = note_value(16)[nv]!=nil
 						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1/2r,1,2].map{|e| Rational(PPQN)*e}
 						matchDup = [fol.va]-duples==[] && [laf.va]-duples==[]
