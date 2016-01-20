@@ -2,7 +2,7 @@
 
 module Notation
 	PPQN = 16	# Pulses per quarter note
-	
+=begin	
 	def note_value
 		vd = [*0..6].map{|e|	# duple notes
 			x = 2**e
@@ -31,7 +31,40 @@ module Notation
 		}
 		ha.insert(0, nil)
 	end
+=end
 
+	def note_value(rto_num, rto_den, tpl_nval)
+
+		duple_note = [*0..6].map{|e|
+			x = 2**e
+			[x, "#{PPQN*4/x}"]
+		}
+
+		dotted_note = [*1..5].map{|e|
+			x = PPQN*4/(2**e)
+			x = x.to_s + "."
+			[2**e*3/2, "#{x}"]
+		}
+
+		n_values = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
+
+		if rto_num==0
+			nil
+		else
+			min_val = PPQN * tpl_nval
+			va = n_values.select{|v|
+				v[0]>=min_val && (v[0]<=min_val*rto_num || Math.log2(rto_num)%1==0)
+			}
+			va = va.map{|v|
+				mul_val = Rational(v[0], min_val)
+				unit_val = Rational(PPQN * tpl_nval * rto_den, rto_num)
+				[mul_val * unit_val, v[1]]
+			}
+			va += n_values.select{|v| v[0]==PPQN}.map{|v| [Rational(v[0]), v[1]]}
+			Hash[*va.uniq.flatten]
+		end
+	end
+	
 	
 	def note_name(pc, acc=0)	
 		nname = [
@@ -115,20 +148,20 @@ module Notation
 	end
 
 
-	def echo(ev)
-		case ev
+	def eview
+		case self
 		when Array
-			ev.map{|e| Array === e ? echo(e) : e.ar}
+			self.map{|e| Array === e ? e.eview : e.ar}
 		when nil
 			nil
 		else
-			ev.ar
+			self.ar
 		end
 	end
+
 	
-	
-	def vtotal(ev)
-		echo(ev).flatten.inject(0){|s,e| Rational === e ? s+e : s}
+	def vtotal
+		self.eview.flatten.inject(0){|s,e| Numeric === e ? s+e : s}
 	end
 
 end
@@ -168,16 +201,23 @@ class Score
 
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
-		@tpl = reduce_tuplet(@measure, @seq, @tpl, &@redTupRule)
+#		@tpl = reduce_tuplet(@measure, @seq, @tpl, &@redTupRule)
 		@seq = make_tuplet(@seq, @tpl)
 		@seq = delete_syncop(@seq) if @noTie
 
 		ary = []
+		idx = 0
 		@seq.inject("r!"){|past, tuple|
-			tick = Rational(PPQN, tuple.size)
+			tp = @tpl.on(idx)
+			if Array===tp
+				tick = Rational(PPQN*tp[2]*tp[1], tp[0])
+			else
+				tick = Rational(PPQN, tp)
+			end
 			quad, past = quad_event(tuple, past, tick)
 			ary << connect_quad(quad, tuple.size)
 		}
+
 		@note = connect_beat(ary, @measure)		
 		slur_over_tremolo(@note)
 	end
@@ -296,7 +336,7 @@ class Score
 					if nte_id==0
 						if Math.log2(tp)%1>0 && !brac
 							brac = true
-							mul = vtotal(tuple)/PPQN
+							mul = tuple.vtotal/PPQN
 							nme = (tp*mul).to_i
 							den = (2**(Math.log2(tp).to_i)*mul).to_i
 							if @subdiv!=nil && basemom!=1
@@ -324,7 +364,7 @@ class Score
 							/((%+)(C?)(\d+))/ =~ _el
 							tr_dur = $4.to_i							
 							t = [*0..4].map{|e| 2**e*tp}.select{|e| e<=16}.max
-							tr_times = note_value[t].key((tr_dur/2).to_s)
+							tr_times = note_value(t, 4, 1/4r).key((tr_dur/2).to_s)
 							tr_times = (_du/tr_times).to_i
 							ntxt += "\\repeat tremolo #{tr_times} {"
 							ntxt += "\\change Staff = lower " if @pnoTrem
@@ -337,7 +377,7 @@ class Score
 				#	%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
 
 					# note value
-					ntxt += note_value[tp][_du] if !(_el=~/%/) &&
+					ntxt += note_value(tp, 4, 1/4r)[_du] if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					
 					# tremolo
@@ -393,7 +433,7 @@ class Score
 								n_el, n_va = tuple[n].ar
 								elz << n_el
 	
-								nv = note_value[tp][n_va]
+								nv = note_value(tp, 4, 1/4r)[n_va]
 								%w(4 2 1).each{|e|
 									bm = false if nv!=nil && nv.gsub(".","")==e
 								}
@@ -495,7 +535,7 @@ class Score
 		ary
 	end
 	
-	
+=begin	
 	# Reduce tuplet on short beat.
 	def reduce_tuplet(measure, seq, tpls, &block)
 		i, j = 0, 0
@@ -519,7 +559,7 @@ class Score
 		raise "wrong tuplet (less than 1) => #{tp}" if tp.min<1
 		tp
 	end
-
+=end
 	
 	def make_tuplet(ary, tpl=0)
 		# ary = ["@", "=", "=", "="]; tpl = [6]
@@ -530,6 +570,7 @@ class Score
 			idx = 0
 			while ary.size>0
 				tp = tpl.on(idx)
+				tp = tp[0] if Array===tp
 				if ary.size>tp
 					arx << ary.slice!(0, tp)
 				else
@@ -542,8 +583,10 @@ class Score
 			ary = arx.dup
 			
 		elsif tpl>0
-			(tpl-ary.size%tpl).times{ ary << "r!" } if ary.size%tpl>0
-			ary = ary.each_slice(tpl).to_a
+			tp = tpl
+			tp = tp[0] if Array===tp
+			(tp-ary.size%tp).times{ ary << "r!" } if ary.size%tp>0
+			ary = ary.each_slice(tp).to_a
 		end
 		ary
 	end
@@ -611,7 +654,7 @@ class Score
 		# [[["@", (8/1)], ["r!", (8/3)]], [["r!", (16/3)]]]
 		# => [["@", (8/1)], ["r!", (8/1)]]
 	
-		qv = vtotal(quad)		
+		qv = quad.vtotal	
 		while 0
 			id = 0
 			cd = false
@@ -627,7 +670,7 @@ class Score
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
-					nval = note_value[dv][fol.va + laf.va]
+					nval = note_value(dv, 4, 1/4r)[fol.va + laf.va]
 
 					if cond.inject(false){|s,e| s||e} && nval!=nil
 						fol.va += laf.va
@@ -641,31 +684,55 @@ class Score
 			break if cd == false
 		end
 		
-		raise "invalid value data" if qv!=vtotal(quad)
+		raise "invalid value data" if qv!=quad.vtotal
 		quad.flatten!
 	end
 	
 	
-	def mold_bar(ary_beat, measure)		
+	def mold_bar(ary_beat, measure)	
+		# Grouping beats into measure
 		# [[["@", (16/1)]], [["=", (16/1)]], [["=", (32/3)], ["r!", (16/3)]]]
 		# => [[[["@", (16/1)]], [["=", (8/1)]]], [[["=", (32/3)], ["r!", (16/3)]], [["r!", (8/1)]]]]
 		# Fit beat into measure, Compress duration on half-beats, Fill bar(s) by rests.
 
 		idx = 0
-		bars = []
+		bt_sum = 0
+		bar, bars = [], []
 		
 		# split into bar
 		while ary_beat.size>0
 			meas = measure.on(idx)
+			
 
 			if Fixnum === meas		# time N/4
+				a_dur = ary_beat.vtotal/PPQN
+				if a_dur < meas
+					rest = meas-a_dur
+					r_dur = rest%1
+					r_dur = 1 if r_dur==0
+					(rest/r_dur).to_i.times{
+						ary_beat << [Event.new("r!", Rational(r_dur)*PPQN)]
+					}
+				end
+
+				while bt_sum < meas
+					b = ary_beat.shift
+					bar << b
+					bt_sum = bar.vtotal/PPQN
+				end
+				
+				bars << bar
+				bt_sum -= meas
+
+				
+=begin				
 				if ary_beat.size<meas
 					(meas-ary_beat.size).times{
 						ary_beat << [Event.new("r!", Rational(PPQN))]		# rest filling
 					}
 				end
 				bars << ary_beat.slice!(0, meas)
-				
+=end				
 			else					# time N/8
 				num = meas[0].size
 				if ary_beat.size<num
@@ -717,7 +784,7 @@ class Score
 
 		bars = mold_bar(ary_beat, measure)
 		bars.each{|bar|
-			bv = vtotal(bar)
+			bv = bar.vtotal
 
 			while 0
 				id = 0
@@ -730,7 +797,7 @@ class Score
 						fol, laf = fo.last, la.first
 			
 						nv = fol.va + laf.va
-						matchValue = note_value[16][nv]!=nil
+						matchValue = note_value(16, 4, 1/4r)[nv]!=nil
 						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1/2r,1,2].map{|e| Rational(PPQN)*e}
 						matchDup = [fol.va]-duples==[] && [laf.va]-duples==[]
@@ -754,7 +821,7 @@ class Score
 				break if cd == false
 			end	
 
-			raise "invalid value data" if bv!=vtotal(bar)
+			raise "invalid value data" if bv!=bar.vtotal
 		}
 	end
 	
