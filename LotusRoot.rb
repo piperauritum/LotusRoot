@@ -1,7 +1,7 @@
 ﻿require_relative 'meta'
 
 module Notation
-	PPQN = 16	# Pulses per quarter note
+	PPQN = 1	# Pulses per quarter note
 =begin	
 	def note_value
 		vd = [*0..6].map{|e|	# duple notes
