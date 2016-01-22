@@ -2,10 +2,10 @@ require_relative 'LotusRoot'
 include Notation
 
 # \tuplet x/y : [nth note]*x on [nth note]*y
-=begin
-dur = [1]*6
+# =begin
+dur = [1]*14
 elm = dur.map{"@"}
-tpl = [[6, 5, 1/4r]]
+tpl = [[3, 2, 1/2r]]
 pch = [12]
 
 sco = Score.new(dur, elm, tpl, pch)
@@ -14,7 +14,7 @@ sco.pchShift = 12
 sco.gen
 sco.print
 sco.export("sco.txt")
-=end
+# =end
 
 
 def xnote_value(tpl)
@@ -61,5 +61,5 @@ def xnote_value(tpl)
 	end
 end
 
- tpl = [5, 4, 1/4r]
- p xnote_value(tpl)
+# tpl = [5, 4, 1/4r]
+# p xnote_value(tpl)

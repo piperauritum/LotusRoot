@@ -43,15 +43,14 @@ module Notation
 			unit_nt = Rational(1, rto_de)
 		end
 
-		duple_note = [*0..6].map{|e|
+		duple_note = [*-4..2].map{|e|
 			x = 2**e
-			[x, "#{PPQN*4/x}"]
+			[x, "#{(4/x).to_i}"]
 		}
 
-		dotted_note = [*1..5].map{|e|
-			x = PPQN*4/(2**e)
-			x = x.to_s + "."
-			[2**e*3/2, "#{x}"]
+		dotted_note = [*-4..0].map{|e|
+			x = 2**e
+			[Rational(x*3), "#{(2/x).to_i}."]
 		}
 
 		notation = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
@@ -59,7 +58,7 @@ module Notation
 		if rto_nu==0
 			nil
 		else
-			unit_va = PPQN*unit_nt
+			unit_va = unit_nt
 			nt = notation.select{|dur, note|	
 				dur>=unit_va && (dur<=unit_va*rto_nu || Math.log2(rto_nu)%1==0)
 			}
@@ -69,7 +68,7 @@ module Notation
 			}
 
 			nt += notation.select{|dur, note|
-				dur==PPQN*rto_de*unit_nt
+				dur==rto_de*unit_nt
 			}.map{|dur, note|
 				[Rational(dur), note]
 			}
@@ -223,6 +222,7 @@ class Score
 			end
 			quad, past = quad_event(tuple, past, tick)
 			ary << connect_quad(quad, tuple.size)
+			idx += 1
 		}
 
 		@note = connect_beat(ary, @measure)
@@ -239,7 +239,7 @@ class Score
 		brac, beamed = nil, nil		
 		voice = ""
 		basemom = nil
-
+p @tpl
 		@note.each.with_index{|bar, bar_id|
 			tm = @measure[bar_id % @measure.size]
 			if Array === tm
@@ -251,10 +251,10 @@ class Score
 			end
 
 			bar.each.with_index{|tuple, tpl_id|				
-p tuple.look
+
 				# tuplet number
 		#		tp = tuple.map(&:va).map{|e| e/PPQN}.map(&:denominator).max
-				tp = @tpl.on(tpl_id)[0]
+				tp = @tpl.on(tpl_id)
 
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
@@ -341,17 +341,20 @@ p tuple.look
 					}
 
 					# tuplet bracket
-					if nte_id==0
-						if Math.log2(tp)%1>0 && !brac
+					if nte_id==0 && !brac
+					#	if Math.log2(tp[0])%1>0 && !brac
+						if (Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1])
 							brac = true
-							mul = tuple.vtotal/PPQN
-							nme = (tp*mul).to_i
-							den = (2**(Math.log2(tp).to_i)*mul).to_i
+						#	mul = tuple.vtotal/PPQN
+						#	nme = (tp[0]*mul).to_i
+						#	den = (2**(Math.log2(tp[0]).to_i)*mul).to_i
 							if @subdiv!=nil && basemom!=1
-								ntxt += "\\bsmY "
+								ntxt += "\\bsmY "	# config.ly
 								basemom = 1
 							end
-							ntxt += "\\tuplet #{nme}/#{den} {"
+							ntxt += "\\fractpl " if Array===tp	# config.ly
+							ntxt += "\\tuplet #{tp[0]}/#{tp[1]} {"
+						#	ntxt += "\\tuplet #{nme}/#{den} {"
 						else
 							if @subdiv!=nil && basemom!=0
 								ntxt += "\\bsmX "
@@ -371,7 +374,7 @@ p tuple.look
 						if _el=~/%/		# two-notes tremolo
 							/((%+)(C?)(\d+))/ =~ _el
 							tr_dur = $4.to_i							
-							t = [*0..4].map{|e| 2**e*tp}.select{|e| e<=16}.max
+							t = [*0..4].map{|e| 2**e*tp[0]}.select{|e| e<=16}.max
 							tr_times = note_value(t).key((tr_dur/2).to_s)
 							tr_times = (_du/tr_times).to_i
 							ntxt += "\\repeat tremolo #{tr_times} {"
@@ -383,10 +386,9 @@ p tuple.look
 					
 					# delete arrow
 				#	%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
-
+p [tp, note_value(tp), _du]
 					# note value
-					p [tp, note_value(@tpl.on(tpl_id)), _du]
-					ntxt += note_value(@tpl.on(tpl_id))[_du] if !(_el=~/%/) &&
+					ntxt += note_value(tp)[_du] if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					
 					# tremolo
@@ -573,6 +575,8 @@ p tuple.look
 	def make_tuplet(ary, tpl=0)
 		# ary = ["@", "=", "=", "="]; tpl = [6]
 		# => [["@", "=", "=", "=", "r!", "r!"]]
+		
+		new_tpl = []
 
 		if Array === tpl
 			arx = []
@@ -587,6 +591,7 @@ p tuple.look
 					ay += Array.new(tp-ay.size, "r!")
 					arx << ay
 				end
+				new_tpl << tpl.on(idx)
 				idx += 1
 			end
 			ary = arx.dup
@@ -596,7 +601,10 @@ p tuple.look
 			tp = tp[0] if Array===tp
 			(tp-ary.size%tp).times{ ary << "r!" } if ary.size%tp>0
 			ary = ary.each_slice(tp).to_a
+			new_tpl = [tpl]*ary.size
 		end
+		
+		@tpl = new_tpl.dup
 		ary
 	end
 
@@ -707,40 +715,32 @@ p tuple.look
 		idx = 0
 		bt_sum = 0
 		bar, bars = [], []
-		
+		new_tpl = @tpl.dup
+
 		# split into bar
 		while ary_beat.size>0
 			meas = measure.on(idx)
 
 			if Fixnum === meas		# time N/4
 				a_dur = ary_beat.vtotal/PPQN
-
+### wrong ###			
 				if a_dur < meas
 					rest = meas-a_dur
 					r_dur = Rational(1, rest.denominator)
-					(rest/r_dur).to_i.times{
-						ary_beat << [Event.new("r!", r_dur*PPQN)]
-					}
+					r_num = (rest/r_dur).to_i
+					ary_beat << [Event.new("r!", r_dur*PPQN)]*r_num
+					new_tpl << [r_num, r_num, r_dur]
 				end
 
-				while bt_sum < meas*PPQN
-					b = ary_beat.shift
-					bar << b
+				while bt_sum < meas*PPQN && ary_beat.size>0
+					bar << ary_beat.slice!(0)
 					bt_sum = bar.vtotal
 				end
-				
+			
 				bars << bar
+				bar = []
 				bt_sum -= meas*PPQN
-
 				
-=begin				
-				if ary_beat.size<meas
-					(meas-ary_beat.size).times{
-						ary_beat << [Event.new("r!", Rational(PPQN))]		# rest filling
-					}
-				end
-				bars << ary_beat.slice!(0, meas)
-=end				
 			else					# time N/8
 				num = meas[0].size
 				if ary_beat.size<num
@@ -757,7 +757,7 @@ p tuple.look
 	
 			idx += 1
 		end
-
+=begin
 		# fit into final-bar
 		if @finalBar!=nil
 			if @finalBar>bars.size
@@ -767,11 +767,13 @@ p tuple.look
 					if Fixnum === meas
 						meas.times{
 							ar << [Event.new("r!", Rational(PPQN))]
+							new_tpl << [1]*3
 						}
 					else
 						ar = []
 						meas[0].each{|e|
 							ar << [Event.new("r!", Rational(PPQN*e, meas[1]))]
+							new_tpl << [1, 1, Rational(PPQN*e, meas[1])]
 						}
 					end
 					bars << ar
@@ -781,7 +783,8 @@ p tuple.look
 				bars = bars[0..@finalBar-1]
 			end
 		end
-
+=end
+		@tpl = new_tpl.dup
 		bars
 	end
 

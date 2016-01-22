@@ -18,6 +18,9 @@
   }
 }
 
+fractpl = {
+  \once \override TupletNumber.text = #tuplet-number::calc-fraction-text
+}
 
 %%%% Subdivided beams
 % sco.subdiv = 0
