@@ -1,4 +1,4 @@
-require_relative 'LotusRoot'
+require_relative 'bin/LotusRoot'
 
 pch = [*0..99].map{
 	[*0..rand(2)+1].map{

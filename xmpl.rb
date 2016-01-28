@@ -1,4 +1,4 @@
-require_relative 'LotusRoot'
+require_relative 'bin/LotusRoot'
 
 mtl = [0,2,3,5,6,8,9,11]
 pch = (0..7).to_a.map{|x|

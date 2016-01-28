@@ -1,4 +1,4 @@
-require_relative 'LotusRoot'
+require_relative 'bin/LotusRoot'
 include Notation
 
 # \tuplet x/y : [nth note]*x on [nth note]*y
