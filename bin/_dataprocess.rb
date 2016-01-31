@@ -10,7 +10,7 @@ class DataProcess
 	
 	def unfold_element(dur, elem)
 		# dur = [4]; elem = ["@"]
-		# => ["@", "=", "=", "="]
+		# =>  ary = ["@", "=", "=", "="]
 
 		ary = []
 		elem.zip(dur).each{|el, du|
@@ -58,8 +58,9 @@ class DataProcess
 	
 	
 	def make_tuplet(ary, tpl=0)
-		# ary = ["@", "=", "=", "="]; tpl = [6]
-		# => [["@", "=", "=", "=", "r!", "r!"]]
+		# ary = ["@", "=", "=", "@", "=", "="]; tpl = [2, 3]
+		# =>  ary = [[["@", (1/2)], ["=", (1/2)]], [["=", (1/3)], ["@", (1/3)], ["=", (1/3)]], [["=", (1/2)], ["r!", (1/2)]]]
+		# =>  tpl = [2, 3, 2]
 		
 		new_tpl = []
 
@@ -68,26 +69,43 @@ class DataProcess
 			idx = 0
 			while ary.size>0
 				tp = tpl.on(idx)
-				tp = tp[0] if Array===tp
-				if ary.size>tp
-					arx << ary.slice!(0, tp)
+				if Array===tp
+					len = tp[0]
+					tick = Rational(tp[2]*tp[1], tp[0])
+				else
+					len = tp
+					tick = Rational(1, tp)
+				end
+				
+				if ary.size>len
+					ay = ary.slice!(0, len)					
 				else
 					ay = ary.slice!(0, ary.size)
-					ay += Array.new(tp-ay.size, "r!")
-					arx << ay
+					ay += Array.new(len-ay.size, "r!")
 				end
+				ay = ay.map{|e| Event.new(e, tick)}
+				arx << ay
 				new_tpl << tpl.on(idx)
 				idx += 1
 			end
 			ary = arx.dup
 			
 		elsif tpl>0
-			tp = tpl
-			tp = tp[0] if Array===tp
-			(tp-ary.size%tp).times{ ary << "r!" } if ary.size%tp>0
-			ary = ary.each_slice(tp).to_a
+			tp = tpl.on(idx)
+			if Array===tp
+				len = tp[0]
+				tick = Rational(tp[2]*tp[1], tp[0])
+			else
+				len = tp
+				tick = Rational(1, tp)
+			end
+			
+			(len-ary.size%len).times{ ary << "r!" } if ary.size%len>0
+			ary = ary.map{|e| Event.new(e, tick)}
+			ary = ary.each_slice(len).to_a
 			new_tpl = [tpl]*ary.size
 		end
+
 		
 		@tpl = new_tpl.dup
 		ary
@@ -95,16 +113,19 @@ class DataProcess
 
 	
 	def delete_syncop(seq)
+		# seq.map{|e| e.look.transpose[0]} = [["@", "="], ["=", "@", "="], ["=", "r!"]]
+		# =>  seq.map{|e| e.look.transpose[0]} = [["@", "="], ["r!", "@", "="], ["r!", "r!"]]
+
 		seq.map{|e|
-			if e[0]=="=" && e-["="]!=[]
+			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
 				re = true
 				e.map{|f|
-					case f
+					case f.el
 					when /@/
 						re = false
 						f
 					when "="
-						re ? "r!" : f
+						re ? Event.new("r!", f.va) : f
 					else
 						f
 					end
@@ -117,33 +138,33 @@ class DataProcess
 	
 	
 	def quad_event(tuple, past, tick)
-		# ["@", "@", "=", "=", "r!", "r!"]
-		# => [[["@", (8/3)], ["@", (8/1)]], [["r!", (16/3)]]]
+		# tuple = [["@", (1/6)], ["@", (1/6)], ["=", (1/6)], ["=", (1/6)], ["r!", (1/6)], ["r!", (1/6)]]
+		# =>  quad = [[["@", (1/6)], ["@", (1/2)]], [["r!", (1/3)]]]
 
 		quad, evt = [], nil
 		sliced = tuple.each_slice(4).to_a
 		sliced.each{|sl|
 			qa = []
-			sl.each_with_index{|el, i|
+			sl.each_with_index{|ev, i|
 				if i==0
-					evt = Event.new(el, tick)
+					evt = ev
 				else
 					n_rest = %w(r! s!).map{|e|
-						xelm = !(past=~/#{e}/) && el=~/#{e}/
+						xelm = !(past=~/#{e}/) && ev.el=~/#{e}/
 						xelm ? 1:0
 					}.sigma>0					
-					c_tie = [el]-%w(= =:)==[]					
-					c_trem = past=~/%/ && el=~/%/ && !(el=~/%%/)					
-					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && el=~/#{e}/ ? 1:0 }.sigma>0
+					c_tie = [ev.el]-%w(= =:)==[]					
+					c_trem = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%%/)					
+					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && ev.el=~/#{e}/ ? 1:0 }.sigma>0
 	
-					if el=~/(@|%%|rrr|sss)/ ||n_rest					
+					if ev.el=~/(@|%%|rrr|sss)/ ||n_rest					
 						qa << evt
-						evt = Event.new(el, tick)
+						evt = ev
 					elsif c_tie || c_trem || c_rest					
 						evt.va += tick
 					end
 				end
-				past = el
+				past = ev.el
 			}
 			qa << evt
 			quad << qa
@@ -153,9 +174,9 @@ class DataProcess
 
 	
 	def connect_quad(quad, dv)		
-		# [[["@", (8/1)], ["r!", (8/3)]], [["r!", (16/3)]]]
-		# => [["@", (8/1)], ["r!", (8/1)]]
-	
+		# quad = [[["@", (1/6)], ["@", (1/3)], ["r!", (1/6)]], [["r!", (1/3)]]]
+		# =>  quad = [["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
+
 		qv = quad.vtotal	
 		while 0
 			id = 0
@@ -191,40 +212,79 @@ class DataProcess
 	end
 	
 	
-	def mold_bar(ary_beat, measure)	
-		# Grouping beats into measure
+	def barr(ary_beat, measure)		
+		meas_id = 0
+		bars = []
+		resid = 0
+
+		# split into bar
+		while ary_beat.size>0 || resid>0
+			meas = measure.on(meas_id)
+			if Fixnum === meas		# time N/4
+				if ary_beat.vtotal<meas
+					filler = []
+					tpl_add = []
+					len = ary_beat.vtotal+filler.vtotal+resid
+					while len<meas
+						gap = meas-len
+						tk = note_value(16).select{|e| e<=gap}.max[0]
+						filler << [Event.new("r!", tk)]
+						tpl_add << [1, 1, tk]
+					end
+					filler.reverse!
+					tpl_add.reverse!
+					ary_beat += filler
+					@tpl += tpl_add
+				end
+					
+				bar = []
+				while bar.vtotal+resid<meas
+					bar << ary_beat.shift
+				end
+				resid = bar.vtotal-meas
+				bars << bar
+
+			else					# time N/8
+				num = meas[0].size
+				if ary_beat.size<num
+					(num-ary_beat.size).times{
+						ary_beat << [Event.new("r!", Rational(PPQN))]
+					}
+				end
+				ar = ary_beat.slice!(0, num)
+				ar = ar.map.with_index{|e,i|		# compress dur
+					e.map{|f| Event.new(f.el, (f.va*Rational(meas[0][i], meas[1])))}
+				}
+				bars << ar
+			end
+	
+			meas_id += 1
+		end
+
+
+		bars
+	end
+	
+	
+	def mold_bar(ary_beat, measure)		
 		# [[["@", (16/1)]], [["=", (16/1)]], [["=", (32/3)], ["r!", (16/3)]]]
 		# => [[[["@", (16/1)]], [["=", (8/1)]]], [[["=", (32/3)], ["r!", (16/3)]], [["r!", (8/1)]]]]
 		# Fit beat into measure, Compress duration on half-beats, Fill bar(s) by rests.
 
 		idx = 0
-		bt_sum = 0
-		bar, bars = [], []
-		new_tpl = @tpl.dup
-
+		bars = []
+		
 		# split into bar
 		while ary_beat.size>0
 			meas = measure.on(idx)
 
 			if Fixnum === meas		# time N/4
-				a_dur = ary_beat.vtotal/PPQN
-### wrong ###			
-				if a_dur < meas
-					rest = meas-a_dur
-					r_dur = Rational(1, rest.denominator)
-					r_num = (rest/r_dur).to_i
-					ary_beat << [Event.new("r!", r_dur*PPQN)]*r_num
-					new_tpl << [r_num, r_num, r_dur]
+				if ary_beat.size<meas
+					(meas-ary_beat.size).times{
+						ary_beat << [Event.new("r!", Rational(PPQN))]		# rest filling
+					}
 				end
-
-				while bt_sum < meas*PPQN && ary_beat.size>0
-					bar << ary_beat.slice!(0)
-					bt_sum = bar.vtotal
-				end
-			
-				bars << bar
-				bar = []
-				bt_sum -= meas*PPQN
+				bars << ary_beat.slice!(0, meas)
 				
 			else					# time N/8
 				num = meas[0].size
@@ -242,7 +302,7 @@ class DataProcess
 	
 			idx += 1
 		end
-=begin
+
 		# fit into final-bar
 		if @finalBar!=nil
 			if @finalBar>bars.size
@@ -252,13 +312,11 @@ class DataProcess
 					if Fixnum === meas
 						meas.times{
 							ar << [Event.new("r!", Rational(PPQN))]
-							new_tpl << [1]*3
 						}
 					else
 						ar = []
 						meas[0].each{|e|
 							ar << [Event.new("r!", Rational(PPQN*e, meas[1]))]
-							new_tpl << [1, 1, Rational(PPQN*e, meas[1])]
 						}
 					end
 					bars << ar
@@ -268,8 +326,7 @@ class DataProcess
 				bars = bars[0..@finalBar-1]
 			end
 		end
-=end
-		@tpl = new_tpl.dup
+
 		bars
 	end
 
@@ -278,7 +335,10 @@ class DataProcess
 		# [[["@", (32/3)], ["@", (16/3)]], [["=", (16/1)]], [["=", (16/1)]], [["=", (16/3)], ["@", (32/3)]]]
 		# => [[[["@", (32/3)], ["@", (16/3)]], [["=", (32/1)]], [["=", (16/3)], ["@", (32/3)]]]]
 
-		bars = mold_bar(ary_beat, measure)
+	#	bars = mold_bar(ary_beat, measure)
+
+		bars = barr(ary_beat, measure)
+		p bars.look
 		bars.each{|bar|
 			bv = bar.vtotal
 

@@ -3,13 +3,16 @@ include Notation
 
 # \tuplet x/y : [nth note]*x on [nth note]*y
 # =begin
-dur = [1]*14
+dur = [1]*10
 elm = dur.map{"@"}
-tpl = [[3, 2, 1/2r]]
+tpl = [[4, 5, 1/2r]]
+
 pch = [12]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
+# sco.noTie = 0
+sco.measure = [4,5]
 sco.pchShift = 12
 sco.gen
 sco.print

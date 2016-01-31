@@ -178,7 +178,11 @@ module Notation
 
 	
 	def vtotal
-		self.look.flatten.inject(0){|s,e| Numeric === e ? s+e : s}
+		if self!=[]
+			self.look.flatten.inject(0){|s,e| Numeric === e ? s+e : s}
+		else
+			0
+		end
 	end
 
 end

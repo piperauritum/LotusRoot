@@ -26,6 +26,7 @@ class Score < DataProcess
 		@seq = make_tuplet(@seq, @tpl)
 		@seq = delete_syncop(@seq) if @noTie
 
+		
 		ary = []
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
@@ -40,7 +41,10 @@ class Score < DataProcess
 			idx += 1
 		}
 
+	#	barr(ary.dup, @measure)
+
 		@note = connect_beat(ary, @measure)
+
 		slur_over_tremolo(@note)
 	end
 
@@ -54,7 +58,8 @@ class Score < DataProcess
 		brac, beamed = nil, nil		
 		voice = ""
 		basemom = nil
-p @tpl
+		tpl_id = 0
+
 		@note.each.with_index{|bar, bar_id|
 			tm = @measure[bar_id % @measure.size]
 			if Array === tm
@@ -65,11 +70,12 @@ p @tpl
 				bar_dur = tm*beat_dur
 			end
 
-			bar.each.with_index{|tuple, tpl_id|				
+			bar.each.with_index{|tuple, bt_id|				
 
 				# tuplet number
 		#		tp = tuple.map(&:va).map{|e| e/PPQN}.map(&:denominator).max
 				tp = @tpl.on(tpl_id)
+				tp = 1 if tuple[0].va.denominator==1
 
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
@@ -112,7 +118,7 @@ p @tpl
 						end
 						
 						# line break
-						voice += "\n" if tpl_id==0
+						voice += "\n" if bt_id==0
 					end
 					
 					# tempo mark
@@ -123,7 +129,7 @@ p @tpl
 					end
 					
 					# time signature
-					if tpl_id==0 && tm!=pre_tm
+					if bt_id==0 && tm!=pre_tm
 						if Array === tm
 							voice += "\\time #{tm[0].sigma}/#{4*tm[1]} "
 						else
@@ -167,9 +173,13 @@ p @tpl
 								ntxt += "\\bsmY "	# config.ly
 								basemom = 1
 							end
-							ntxt += "\\fractpl " if Array===tp	# config.ly
-							ntxt += "\\tuplet #{tp[0]}/#{tp[1]} {"
-						#	ntxt += "\\tuplet #{nme}/#{den} {"
+							if Array===tp
+								ntxt += "\\fractpl " # config.ly
+								ntxt += "\\tuplet #{tp[0]}/#{tp[1]} {"
+							else
+								den = 2**(Math.log2(tp).to_i)
+								ntxt += "\\tuplet #{tp}/#{den} {"
+							end
 						else
 							if @subdiv!=nil && basemom!=0
 								ntxt += "\\bsmX "
@@ -201,9 +211,12 @@ p @tpl
 					
 					# delete arrow
 				#	%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
-p [tp, note_value(tp), _du]
+
 					# note value
-					ntxt += note_value(tp)[_du] if !(_el=~/%/) &&
+					nv = note_value(tp)[_du]
+					nv = note_value(1)[_du] if nv==nil
+p [_du, tp, note_value(tp), nv]
+					ntxt += nv if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					
 					# tremolo
@@ -299,7 +312,10 @@ p [tp, note_value(tp), _du]
 					pre_tp = tp
 					pre_el = _el
 					voice += " "
+					
+					
 				}
+				tpl_id += 1
 			}
 		}
 
