@@ -41,6 +41,7 @@ module Notation
 		
 		# quarter tone
 		qname = %w(cih deh dih eeh feh fih geh gih aeh aih beh ceh)
+#		qname = %w(cih cisih dih disih eih fih fisih gih gisih aih aisih bih)	# alt
 		
 		# eighth tone
 		ename = [
