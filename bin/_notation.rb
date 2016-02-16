@@ -1,53 +1,32 @@
 ﻿class Event
-	attr_accessor :el, :va
+	attr_accessor :el, :du
 	
-	def initialize(e, v)
-		@el, @va = e, v		
+	def initialize(e, d)
+		@el, @du = e, d		# element, duration
 	end
 	
 	def ar
-		[@el, @va]
+		[@el, @du]
 	end
 end
 
 
 module Notation
-	PPQN = 1	# Pulses per quarter note
-=begin	
-	def note_value
-		vd = [*0..6].map{|e|	# duple notes
-			x = 2**e
-			[x, "#{PPQN*4/x}"]
-		}
 
-		vt = [*1..5].map{|e|	# dotted notes
-			x = PPQN*4/(2**e)
-			x = x.to_s + "."
-			[2**e*3/2, "#{x}"]
-		}
-
-		val = (vd+vt).sort{|x,y| x[0]<=>y[0]}
-
-		ha = [*1..16].map{|tpl|
-			mn = Math.log2(tpl).to_i
-			mn = PPQN/2**mn	
-			va = val.select{|v|	
-				v[0]>=mn && (v[0]<=mn*tpl || Math.log2(tpl)%1==0)
-			}
-			va = va.map{|v|
-				[Rational(v[0],mn) * Rational(PPQN, tpl), v[1]]
-			}
-			va += val.select{|v| v[0]==PPQN}.map{|v| [Rational(v[0]), v[1]]}
-			Hash[*va.uniq.flatten]
-		}
-		ha.insert(0, nil)
-	end
-=end
-
+	# hash table of duration and note value in tuplet
 	def note_value(tpl)
 
 		if Array === tpl
-			rto_nu, rto_de, unit_nt = tpl
+			if tpl.size==2
+				rto_nu, unit_nt = tpl
+				rto_de = rto_nu
+					# amount of notes, unit duration
+					# [5, 1/4r] => \tuplet 5/4 {r16 r r r r } 
+			else
+				rto_nu, rto_de, unit_nt = tpl
+					# numerator, denominator, unit duration
+					# [3, 2, 1/2r] => \tuplet 3/2 {r8 r r }
+			end
 		else
 			rto_nu = tpl
 			rto_de = 2**Math.log2(tpl).to_i
@@ -69,9 +48,9 @@ module Notation
 		if rto_nu==0
 			nil
 		else
-			unit_va = unit_nt
+			unit_du = unit_nt
 			nt = notation.select{|dur, note|	
-				dur>=unit_va && (dur<=unit_va*rto_nu || Math.log2(rto_nu)%1==0)
+				dur>=unit_du && (dur<=unit_du*rto_nu || Math.log2(rto_nu)%1==0)
 			}
 
 			nt = nt.map{|dur, note|
@@ -164,7 +143,7 @@ module Notation
 		ans
 	end
 
-
+	# look inside of note structure
 	def look
 		case self
 		when Array
@@ -177,7 +156,8 @@ module Notation
 	end
 
 	
-	def vtotal
+	# total duration of note structure
+	def dtotal
 		if self!=[]
 			self.look.flatten.inject(0){|s,e| Numeric === e ? s+e : s}
 		else

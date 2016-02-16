@@ -71,7 +71,11 @@ class DataProcess
 				tp = tpl.on(idx)
 				if Array===tp
 					len = tp[0]
-					tick = Rational(tp[2]*tp[1], tp[0])
+					if tp.size==2
+						tick = Rational(tp[0]*tp[1], tp[0])
+					else
+						tick = Rational(tp[2]*tp[1], tp[0])
+					end
 				else
 					len = tp
 					tick = Rational(1, tp)
@@ -125,7 +129,7 @@ class DataProcess
 						re = false
 						f
 					when "="
-						re ? Event.new("r!", f.va) : f
+						re ? Event.new("r!", f.du) : f
 					else
 						f
 					end
@@ -161,7 +165,7 @@ class DataProcess
 						qa << evt
 						evt = ev
 					elsif c_tie || c_trem || c_rest					
-						evt.va += tick
+						evt.du += tick
 					end
 				end
 				past = ev.el
@@ -177,7 +181,7 @@ class DataProcess
 		# quad = [[["@", (1/6)], ["@", (1/3)], ["r!", (1/6)]], [["r!", (1/3)]]]
 		# =>  quad = [["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
 
-		qv = quad.vtotal	
+		qv = quad.dtotal	
 		while 0
 			id = 0
 			cd = false
@@ -193,10 +197,10 @@ class DataProcess
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
-					nval = note_value(dv)[fol.va + laf.va]
+					nval = note_value(dv)[fol.du + laf.du]
 
 					if cond.inject(false){|s,e| s||e} && nval!=nil
-						fol.va += laf.va
+						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}
 						cd = cd||true
@@ -207,7 +211,7 @@ class DataProcess
 			break if cd == false
 		end
 		
-		raise "invalid value data" if qv!=quad.vtotal
+		raise "invalid value data" if qv!=quad.dtotal
 		quad.flatten!
 	end
 	
@@ -215,52 +219,41 @@ class DataProcess
 	def barr(ary_beat, measure)		
 		meas_id = 0
 		bars = []
-		resid = 0
+		bar_residue = 0
 
 		# split into bar
-		while ary_beat.size>0 || resid>0
+		while ary_beat.size>0 || bar_residue>0
 			meas = measure.on(meas_id)
-			if Fixnum === meas		# time N/4
-				if ary_beat.vtotal<meas
-					filler = []
-					tpl_add = []
-					len = ary_beat.vtotal+filler.vtotal+resid
-					while len<meas
-						gap = meas-len
-						tk = note_value(16).select{|e| e<=gap}.max[0]
-						filler << [Event.new("r!", tk)]
-						tpl_add << [1, 1, tk]
-					end
-					filler.reverse!
-					tpl_add.reverse!
-					ary_beat += filler
-					@tpl += tpl_add
-				end
-					
-				bar = []
-				while bar.vtotal+resid<meas
-					bar << ary_beat.shift
-				end
-				resid = bar.vtotal-meas
-				bars << bar
+			meas = Rational(meas[0].sigma, meas[1]) if Array===meas
 
-			else					# time N/8
-				num = meas[0].size
-				if ary_beat.size<num
-					(num-ary_beat.size).times{
-						ary_beat << [Event.new("r!", Rational(PPQN))]
-					}
+			if ary_beat.dtotal<meas
+				filler = []
+				tpl_add = []
+				len = ary_beat.dtotal+filler.dtotal+bar_residue
+				gap = meas-len
+				while gap>0						
+					tk = note_value(16).select{|e| e<=gap}.max[0]
+					filler << [Event.new("r!", tk)]
+					tpl_add << [1, 1, tk]
+					gap -= tk
 				end
-				ar = ary_beat.slice!(0, num)
-				ar = ar.map.with_index{|e,i|		# compress dur
-					e.map{|f| Event.new(f.el, (f.va*Rational(meas[0][i], meas[1])))}
-				}
-				bars << ar
+				filler.reverse!
+				tpl_add.reverse!
+				ary_beat += filler
+				@tpl += tpl_add
 			end
+				
+			bar = []
+			while bar.dtotal+bar_residue<meas
+				bar << ary_beat.shift
+			end
+	
+			bar_residue = bar.dtotal+bar_residue-meas
+			bars << bar
+
 	
 			meas_id += 1
 		end
-
 
 		bars
 	end
@@ -281,7 +274,7 @@ class DataProcess
 			if Fixnum === meas		# time N/4
 				if ary_beat.size<meas
 					(meas-ary_beat.size).times{
-						ary_beat << [Event.new("r!", Rational(PPQN))]		# rest filling
+						ary_beat << [Event.new("r!", 1)]		# rest filling
 					}
 				end
 				bars << ary_beat.slice!(0, meas)
@@ -290,12 +283,12 @@ class DataProcess
 				num = meas[0].size
 				if ary_beat.size<num
 					(num-ary_beat.size).times{
-						ary_beat << [Event.new("r!", Rational(PPQN))]
+						ary_beat << [Event.new("r!", 1)]
 					}
 				end
 				ar = ary_beat.slice!(0, num)
 				ar = ar.map.with_index{|e,i|		# compress dur
-					e.map{|f| Event.new(f.el, (f.va*Rational(meas[0][i], meas[1])))}
+					e.map{|f| Event.new(f.el, (f.du*Rational(meas[0][i], meas[1])))}
 				}
 				bars << ar
 			end
@@ -311,12 +304,12 @@ class DataProcess
 					ar = []
 					if Fixnum === meas
 						meas.times{
-							ar << [Event.new("r!", Rational(PPQN))]
+							ar << [Event.new("r!", 1)]
 						}
 					else
 						ar = []
 						meas[0].each{|e|
-							ar << [Event.new("r!", Rational(PPQN*e, meas[1]))]
+							ar << [Event.new("r!", Rational(e, meas[1]))]
 						}
 					end
 					bars << ar
@@ -336,11 +329,10 @@ class DataProcess
 		# => [[[["@", (32/3)], ["@", (16/3)]], [["=", (32/1)]], [["=", (16/3)], ["@", (32/3)]]]]
 
 	#	bars = mold_bar(ary_beat, measure)
-
 		bars = barr(ary_beat, measure)
-		p bars.look
+
 		bars.each{|bar|
-			bv = bar.vtotal
+			bv = bar.dtotal
 
 			while 0
 				id = 0
@@ -352,20 +344,20 @@ class DataProcess
 					if la!=nil
 						fol, laf = fo.last, la.first
 			
-						nv = fol.va + laf.va
+						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
 						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
-						duples = [1/2r,1,2].map{|e| Rational(PPQN)*e}
-						matchDup = [fol.va]-duples==[] && [laf.va]-duples==[]
+						duples = [1/2r,1,2].map{|e| e}
+						matchDup = [fol.du]-duples==[] && [laf.du]-duples==[]
 						homoElem = [laf.el]-%w(= =:)==[] ||
 							((fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/)) ||
 							(laf.el=="r!" && fol.el=~/r!/) ||
 							(laf.el=="s!" && fol.el=~/s!/)
-						tup = ->(x){x.map(&:va).map{|e| e/PPQN}.map(&:denominator).max}
+						tup = ->(x){x.map(&:du).map{|e| e}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
 					
 						if matchValue && matchDup && homoElem && homoPlet
-							fol.va += laf.va
+							fol.du += laf.du
 							la.shift
 							bar.delete_if{|e| e==[]}
 							cd = cd||true
@@ -377,7 +369,7 @@ class DataProcess
 				break if cd == false
 			end	
 
-			raise "invalid value data" if bv!=bar.vtotal
+			raise "invalid value data" if bv!=bar.dtotal
 		}
 	end
 

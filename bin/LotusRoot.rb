@@ -32,10 +32,15 @@ class Score < DataProcess
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
 			if Array===tp
-				tick = Rational(PPQN*tp[2]*tp[1], tp[0])
+				if tp.size==2
+					tick = Rational(tp[0]*tp[1], tp[0])
+				else
+					tick = Rational(tp[2]*tp[1], tp[0])
+				end
 			else
-				tick = Rational(PPQN, tp)
+				tick = Rational(1, tp)
 			end
+			
 			quad, past = quad_event(tuple, past, tick)
 			ary << connect_quad(quad, tuple.size)
 			idx += 1
@@ -63,19 +68,18 @@ class Score < DataProcess
 		@note.each.with_index{|bar, bar_id|
 			tm = @measure[bar_id % @measure.size]
 			if Array === tm
-				beat_dur = Rational(PPQN, tm[1])
+				beat_dur = Rational(1, tm[1])
 				bar_dur = tm[0].sigma*beat_dur
 			else
-				beat_dur = PPQN
+				beat_dur = 1
 				bar_dur = tm*beat_dur
 			end
 
 			bar.each.with_index{|tuple, bt_id|				
 
 				# tuplet number
-		#		tp = tuple.map(&:va).map{|e| e/PPQN}.map(&:denominator).max
 				tp = @tpl.on(tpl_id)
-				tp = 1 if tuple[0].va.denominator==1
+				tp = 1 if tuple[0].du.denominator==1
 
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
@@ -166,16 +170,20 @@ class Score < DataProcess
 					#	if Math.log2(tp[0])%1>0 && !brac
 						if (Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1])
 							brac = true
-						#	mul = tuple.vtotal/PPQN
+						#	mul = tuple.dtotal
 						#	nme = (tp[0]*mul).to_i
 						#	den = (2**(Math.log2(tp[0]).to_i)*mul).to_i
 							if @subdiv!=nil && basemom!=1
 								ntxt += "\\bsmY "	# config.ly
 								basemom = 1
 							end
-							if Array===tp
-								ntxt += "\\fractpl " # config.ly
-								ntxt += "\\tuplet #{tp[0]}/#{tp[1]} {"
+							if Array===tp								
+								if tp.size==2
+									ntxt += "\\tuplet #{tp[0]}/#{tp[1].denominator} {"
+								else
+									ntxt += "\\fractpl " # config.ly
+									ntxt += "\\tuplet #{tp[0]}/#{tp[1]} {"
+								end
 							else
 								den = 2**(Math.log2(tp).to_i)
 								ntxt += "\\tuplet #{tp}/#{den} {"
@@ -214,7 +222,7 @@ class Score < DataProcess
 
 					# note value
 					nv = note_value(tp)[_du]
-					nv = note_value(1)[_du] if nv==nil
+					nv = note_value(16)[_du] if nv==nil
 p [_du, tp, note_value(tp), nv]
 					ntxt += nv if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))

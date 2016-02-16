@@ -56,6 +56,7 @@ class Array
 end
 
 
+# export to file
 def export(str, filepath)
 #	Dir::chdir(File.dirname(__FILE__))
 	f = File.open(filepath, 'w')
@@ -64,8 +65,8 @@ def export(str, filepath)
 end
 
 
-
-def set_clipboard(x)
+# copy to clipboard
+def clipbd(x)
 	x = x.inspect if Array === x
 	Win32::Clipboard.set_data(x)
 end
