@@ -5,7 +5,6 @@ include Notation
 # =begin
 dur = [*0..50].map{rand(16)+1}
 clipbd(dur)
-# dur = [1,9,6]
 
 elm = dur.map{"@"}
 tpl = [4]
@@ -14,7 +13,7 @@ pch = [12]
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
 # sco.beam = 0
-# sco.measure = [3,4]
+sco.measure = [[[2,2,1],2]]
 # sco.finalBar = 2
 sco.pchShift = 12
 sco.gen

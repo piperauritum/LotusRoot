@@ -304,9 +304,15 @@ class DataProcess
 
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
-						matchValue = matchValue && (tm%2==0 || (tm-0.5)%2==0) if nv==1.5
-						matchValue = matchValue && tm%1==0 if nv==3
-#						matchValue = matchValue && Math.log2(nv)%1==0 if (tm+0.5)%2==0
+						if matchValue
+							case nv
+							when 1.5
+								matchValue = tm%2==0 || tm%2==0.5
+							when 2,3
+								matchValue = tm%1==0
+							end
+						end
+
 p [tm, nv, matchValue, fo.look, la.look]
 #						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
