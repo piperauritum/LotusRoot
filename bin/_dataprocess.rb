@@ -286,37 +286,28 @@ class DataProcess
 
 	def connect_beat(ary, measure, final_bar)
 		bars = make_bar(ary, measure, final_bar)
-		
-		ba = bars.deepcopy
-		
-		ba = ba.map{|bb|
-			tm = 0
-			bb.map{|bc|
-				bc.map{|bd|
-					z = [bd, tm]
-					tm += bd.du
-					z
-				}
-			}
-		}
-	
-		
 		bars.each{|bar|
-#		ba.each{|bar|
-#			bv = bar.dtotal
+			
+			bv = bar.dtotal
 
-
-#			while 0
+			while 0
 				id = 0
+				tm = 0
 				cd = false
 				
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
-
 					if la!=nil
-						fol, laf = fo.last, la.first		
+
+						fol, laf = fo.last, la.first
+						tm += fo[0..-2].dtotal
+
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
+						matchValue = matchValue && (tm%2==0 || (tm-0.5)%2==0) if nv==1.5
+						matchValue = matchValue && tm%1==0 if nv==3
+#						matchValue = matchValue && Math.log2(nv)%1==0 if (tm+0.5)%2==0
+p [tm, nv, matchValue, fo.look, la.look]
 #						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						matchDup = [fol.du]-duples==[] && [laf.du]-duples==[]
@@ -332,14 +323,16 @@ class DataProcess
 							bar.delete_if{|e| e==[]}
 							cd = cd||true
 						end
+						tm += fo[-1].du
 					end
-					id += 1					
+					id += 1
+									
 				end
 
-#				break if cd == false
-#			end	
+				break if cd == false
+			end	
 
-#			raise "invalid value data" if bv!=bar.dtotal
+			raise "invalid value data" if bv!=bar.dtotal
 		}
 	end
 
