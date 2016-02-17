@@ -13,18 +13,19 @@ end
 
 module Notation
 
-	# hash table of duration and note value in tuplet
+	# Hash table of duration and note value in tuplet
 	def note_value(tpl)
 
 		if Array === tpl
 			if tpl.size==2
-				rto_nu, unit_nt = tpl
-				rto_de = rto_nu
-					# amount of notes, unit duration
+				rto_nu = tpl[0]
+				rto_de = 2**Math.log2(tpl[0]).to_i
+				unit_nt = Rational(2*tpl[1], rto_de)
+					# [amount of notes, unit duration]
 					# [5, 1/4r] => \tuplet 5/4 {r16 r r r r } 
 			else
 				rto_nu, rto_de, unit_nt = tpl
-					# numerator, denominator, unit duration
+					# [numerator, denominator, unit duration]
 					# [3, 2, 1/2r] => \tuplet 3/2 {r8 r r }
 			end
 		else
@@ -143,7 +144,7 @@ module Notation
 		ans
 	end
 
-	# look inside of note structure
+	# Look inside of event structure
 	def look
 		case self
 		when Array
@@ -156,7 +157,7 @@ module Notation
 	end
 
 	
-	# total duration of note structure
+	# Total duration of event structure
 	def dtotal
 		if self!=[]
 			self.look.flatten.inject(0){|s,e| Numeric === e ? s+e : s}

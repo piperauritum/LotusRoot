@@ -3,7 +3,7 @@
 \include "sco.txt"
 
 #(set-global-staff-size 12)
-#(set-default-paper-size "a4" 'landscape)
+%#(set-default-paper-size "a4" 'landscape)
 
 \score {
   { \hoge }

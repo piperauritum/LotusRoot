@@ -53,6 +53,11 @@ class Array
 		x << y
 		x
 	end
+	
+	# deep copy
+	def deepcopy
+		Marshal.load(Marshal.dump(self))
+	end
 end
 
 

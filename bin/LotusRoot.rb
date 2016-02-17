@@ -10,7 +10,6 @@ class Score < DataProcess
 	def initialize(_dur, _elm, _tpl, _pch)
 		super(_tpl)
 		@seq = unfold_element(_dur, _elm)		
-#		@tpl = _tpl
 		@pch = _pch-[nil]
 		@instName = "hoge"
 		@measure = [4]
@@ -22,34 +21,28 @@ class Score < DataProcess
 
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
-#		@tpl = reduce_tuplet(@measure, @seq, @tpl, &@redTupRule)
 		@seq = make_tuplet(@seq, @tpl)
-		@seq = delete_syncop(@seq) if @noTie
-
-		
+		@seq = delete_suspension(@seq) if @noTie
+	
 		ary = []
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
 			if Array===tp
 				if tp.size==2
-					tick = Rational(tp[0]*tp[1], tp[0])
-				else
-					tick = Rational(tp[2]*tp[1], tp[0])
+					den = 2**Math.log2(tp[0]).to_i
+					tp = [tp[0], den, Rational(2*tp[1], den)]
 				end
+				tick = Rational(tp[2]*tp[1], tp[0])
 			else
 				tick = Rational(1, tp)
 			end
 			
-			quad, past = quad_event(tuple, past, tick)
+			quad, past = make_quad(tuple, past, tick)
 			ary << connect_quad(quad, tuple.size)
 			idx += 1
 		}
-
-	#	barr(ary.dup, @measure)
-
-		@note = connect_beat(ary, @measure)
-
+		@note = connect_beat(ary, @measure, @finalBar)
 		slur_over_tremolo(@note)
 	end
 
@@ -79,6 +72,10 @@ class Score < DataProcess
 
 				# tuplet number
 				tp = @tpl.on(tpl_id)
+				if Array===tp && tp.size==2
+					den = 2**Math.log2(tp[0]).to_i
+					tp = [tp[0], den, Rational(2*tp[1], den)]
+				end
 				tp = 1 if tuple[0].du.denominator==1
 
 				tuple.each.with_index{|nte, nte_id|
@@ -177,16 +174,20 @@ class Score < DataProcess
 								ntxt += "\\bsmY "	# config.ly
 								basemom = 1
 							end
-							if Array===tp								
-								if tp.size==2
-									ntxt += "\\tuplet #{tp[0]}/#{tp[1].denominator} {"
-								else
+							
+							atp = @tpl.on(tpl_id)
+							if Array===atp
+								case atp.size
+								when 2
+									den = 2**Math.log2(atp[0]).to_i
+									ntxt += "\\tuplet #{atp[0]}/#{den} {"
+								when 3
 									ntxt += "\\fractpl " # config.ly
-									ntxt += "\\tuplet #{tp[0]}/#{tp[1]} {"
+									ntxt += "\\tuplet #{atp[0]}/#{atp[1]} {"
 								end
 							else
-								den = 2**(Math.log2(tp).to_i)
-								ntxt += "\\tuplet #{tp}/#{den} {"
+								den = 2**Math.log2(atp).to_i
+								ntxt += "\\tuplet #{atp}/#{den} {"
 							end
 						else
 							if @subdiv!=nil && basemom!=0
@@ -223,7 +224,7 @@ class Score < DataProcess
 					# note value
 					nv = note_value(tp)[_du]
 					nv = note_value(16)[_du] if nv==nil
-p [_du, tp, note_value(tp), nv]
+#	p [_du, tp, note_value(tp), nv]
 					ntxt += nv if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					
