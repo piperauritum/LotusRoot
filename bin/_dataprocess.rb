@@ -56,6 +56,17 @@ class DataProcess
 	end
 	
 	
+	def unfold_measure(measure)
+		measure.map{|e|
+			if Array===e
+				e[0].map{|f| Rational(f, e[1])}
+			else
+				[1]*e
+			end
+		}.flatten
+	end
+	
+	
 =begin
 	ary = ["@", "=", "=", "@", "=", "="]
 	tpl = [2, 3]	
@@ -68,12 +79,23 @@ class DataProcess
 			]]
 =>	tpl = [2, 3, 2]
 =end		
-	def make_tuplet(ary, tpl=0)
+	def make_tuplet(ary, tpl, measure)
+		meas = unfold_measure(measure)
 		new_tpl = []
 		arx = []
 		idx = 0
 		while ary.size>0
 			tp = tpl.on(idx)
+			me = meas.on(idx)
+			raise "\n## Unit length of tuplet (#{Rational(1,tp)}) is longer than beat length of measure (#{me}).\n" if tp<me.denominator
+
+			if Fixnum===tp && Math.log2(tp)%1==0 && Rational===me
+				tp = [me*tp, me*tp, Rational(1,tp)]
+				new_tpl << tp
+			else
+				new_tpl << tpl.on(idx)
+			end
+			
 			if Array===tp
 				len = tp[0]
 				if tp.size==2
@@ -94,8 +116,7 @@ class DataProcess
 			end
 			
 			ay = ay.map{|e| Event.new(e, tick)}
-			arx << ay
-			new_tpl << tpl.on(idx)
+			arx << ay			
 			idx += 1
 		end
 		ary = arx.dup
@@ -209,7 +230,7 @@ class DataProcess
 			break if cd == false
 		end
 		
-		raise "invalid value data" if qv!=quad.dtotal
+		raise "## Invalid value data" if qv!=quad.dtotal
 		quad.flatten!
 	end
 	
@@ -287,7 +308,7 @@ class DataProcess
 	def connect_beat(ary, measure, final_bar)
 		bars = make_bar(ary, measure, final_bar)
 		bars.each{|bar|
-			
+# p bar.look			
 			bv = bar.dtotal
 
 			while 0
@@ -313,7 +334,7 @@ class DataProcess
 							end
 						end
 
-p [tm, nv, matchValue, fo.look, la.look]
+# p [tm, nv, matchValue, fo.look, la.look]
 #						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						matchDup = [fol.du]-duples==[] && [laf.du]-duples==[]
@@ -338,7 +359,7 @@ p [tm, nv, matchValue, fo.look, la.look]
 				break if cd == false
 			end	
 
-			raise "invalid value data" if bv!=bar.dtotal
+			raise "## invalid value data" if bv!=bar.dtotal
 		}
 	end
 

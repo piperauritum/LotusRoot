@@ -6,7 +6,7 @@ pch = [*0..99].map{
 	}.uniq
 }
 dur = pch.map{rand(8)+1}
-tpl = [*0..99].map{rand(16)+1}
+tpl = [*0..99].map{rand(15)+2}
 elm = pch.map{
 	%w(@\\ff-^ @\\f-> @\\mf-! @\\mp-. @\\p-- @\\pp-_ r!)[rand(7)]
 }

@@ -1,4 +1,5 @@
 ﻿require_relative '_dataprocess'
+include Notation
 
 class Score < DataProcess
 	include Notation
@@ -21,7 +22,7 @@ class Score < DataProcess
 
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
-		@seq = make_tuplet(@seq, @tpl)
+		@seq = make_tuplet(@seq, @tpl, @measure)
 		@seq = delete_suspension(@seq) if @noTie
 	
 		ary = []

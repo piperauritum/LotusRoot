@@ -156,6 +156,18 @@ module Notation
 		end
 	end
 
+
+	def elook
+		case self
+		when Array
+			self.map{|e| Array === e ? e.elook : e.el}
+		when nil
+			nil
+		else
+			self.el
+		end
+	end
+
 	
 	# Total duration of event structure
 	def dtotal
