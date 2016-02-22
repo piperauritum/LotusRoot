@@ -307,9 +307,14 @@ class DataProcess
 
 	def connect_beat(ary, measure, final_bar)
 		bars = make_bar(ary, measure, final_bar)
-		bars.each{|bar|
+#		p unfold_measure(measure)
+		bars.each.with_index{|bar, idx|
 # p bar.look			
 			bv = bar.dtotal
+			meas = measure.on(idx)
+			
+raise "boo" if Array===meas && Rational(meas[0].sigma, meas[1])!=bv
+raise "boo" if Fixnum===meas && meas!=bv
 
 			while 0
 				id = 0
@@ -325,14 +330,25 @@ class DataProcess
 
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
+						
 						if matchValue
+						if meas%2==0
 							case nv
 							when 1.5
 								matchValue = tm%2==0 || tm%2==0.5
 							when 2,3
 								matchValue = tm%1==0
+							when 1
+								matchValue = tm%2==0 || tm%2==0.5 || tm%2==1
+							end
+						elsif meas%3==0
+							case nv
+							when 1.5
+								matchValue = tm%1==0 ||tm%3==0.5
 							end
 						end
+						end
+
 
 # p [tm, nv, matchValue, fo.look, la.look]
 #						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat

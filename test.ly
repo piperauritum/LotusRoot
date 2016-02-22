@@ -2,7 +2,7 @@
 \include "config.ly"
 \include "sco.txt"
 
-#(set-global-staff-size 12)
+%#(set-global-staff-size 12)
 %#(set-default-paper-size "a4" 'landscape)
 
 \score {
