@@ -307,9 +307,9 @@ class DataProcess
 
 	def connect_beat(ary, measure, final_bar)
 		bars = make_bar(ary, measure, final_bar)
-#		p unfold_measure(measure)
+
 		bars.each.with_index{|bar, idx|
-# p bar.look			
+			
 			bv = bar.dtotal
 			meas = measure.on(idx)
 			
@@ -331,22 +331,27 @@ raise "boo" if Fixnum===meas && meas!=bv
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
 						
+						conds = ->(co){
+							co.inject(false){|s,e| tm%e[0]==e[1] || s}						
+						}
+						
 						if matchValue
-						if meas%2==0
-							case nv
-							when 1.5
-								matchValue = tm%2==0 || tm%2==0.5
-							when 2,3
-								matchValue = tm%1==0
-							when 1
-								matchValue = tm%2==0 || tm%2==0.5 || tm%2==1
+							if Fixnum===meas
+								if meas%2==0
+									co = {
+										1 => [[2, 0], [2, 0.5], [2, 1]],
+										1.5 => [[2, 0], [2, 0.5]],
+										2 => [[1, 0]],
+										3 => [[1, 0]],
+									}
+									matchValue = conds.call(co[nv]) if co[nv]!=nil
+								elsif meas%3==0
+									matchValue = conds.call([[1, 0], [3, 0.5]]) if nv==1.5
+								end
+
+
+
 							end
-						elsif meas%3==0
-							case nv
-							when 1.5
-								matchValue = tm%1==0 ||tm%3==0.5
-							end
-						end
 						end
 
 

@@ -13,8 +13,8 @@ pch = [12]
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
 # sco.beam = 0
-# sco.measure = [[[2,2,1],1]]
-sco.measure = [6]
+# sco.measure = [[[2,3],1]]
+sco.measure = [4]
 # sco.finalBar = 4
 sco.pchShift = 12
 sco.gen
