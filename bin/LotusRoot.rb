@@ -40,10 +40,17 @@ class Score < DataProcess
 			end
 
 			quad, past = split_tuple_to_quad(tuple, past, tick)
-			ary << connect_quad(quad, tuple.size)
+			meas = tp[0]*tp[2]
+			if Array===tp && tp[0]==tp[1] && meas%1==0				
+				quad = connect_beat([quad], [meas.to_i])
+			end
+			cq = connect_quad(quad, tuple.size)
+#	p cq.look
+			ary << cq
 			idx += 1
 		}
-		@note = connect_beat(ary, @measure, @finalBar)
+		bars = make_bar(ary, @measure, @finalBar)
+		@note = connect_beat(bars, @measure)
 		slur_over_tremolo(@note)
 	end
 

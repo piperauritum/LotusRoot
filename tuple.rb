@@ -2,7 +2,7 @@ require_relative 'bin/LotusRoot'
 
 # \tuplet x/y : [nth note]*x on [nth note]*y
 # =begin
-dur = [*0..20].map{rand(16)+1}
+dur = [*0..80].map{rand(16)+1}
 clipbd(dur)
 elm = dur.map{"@"}
 
@@ -13,7 +13,7 @@ pch = [12]
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
 # sco.beam = 0
-sco.measure = [[[3,2],1]]
+ sco.measure = [[[3,2],1]]
 # sco.measure = [5]
 # sco.finalBar = 4
 sco.pchShift = 12

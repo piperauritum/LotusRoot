@@ -306,14 +306,14 @@ class DataProcess
 	end
 	
 
-	def connect_beat(ary, measure, final_bar)
-		bars = make_bar(ary, measure, final_bar)
+	def connect_beat(bars, measure)
 
 		bars.each.with_index{|bar, idx|
 
 			bv = bar.dtotal
 			meas = measure.on(idx)
-p bar.look, meas		
+
+#	p bv		
 			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
 				raise "total duration of bar is different from the time signature"
 			end
@@ -340,14 +340,19 @@ p bar.look, meas
 								}
 								if meas%2==0
 									co = {
-										1 => [[2, 0], [2, 0.5], [2, 1]],
-										1.5 => [[2, 0], [2, 0.5]],
-										2 => [[1, 0]],
-										3 => [[1, 0]],
+										1r => [[2, 0], [2, 0.5], [2, 1]],
+										1.5r => [[2, 0], [2, 0.5]],
+										2r => [[1, 0]],
+										3r => [[1, 0]],
 									}
 									matchValue = conds.call(co[nv]) if co[nv]!=nil
 								elsif meas%3==0
-									matchValue = conds.call([[1, 0], [3, 0.5]]) if nv==1.5
+									co = {
+										1r => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
+										1.5r => [[3, 0], [3, 0.5], [3, 1]],
+										2r => [[1, 0]],
+									}
+									matchValue = conds.call(co[nv]) if co[nv]!=nil
 								end
 							else
 								co = []
