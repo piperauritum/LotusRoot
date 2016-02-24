@@ -200,6 +200,7 @@ class DataProcess
 =>	[["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
 =end
 	def connect_quad(quad, dv)
+p quad.look
 		qv = quad.dtotal	
 		while 0
 			id = 0
@@ -313,8 +314,9 @@ class DataProcess
 			bv = bar.dtotal
 			meas = measure.on(idx)
 			
-raise "boo" if Array===meas && Rational(meas[0].sigma, meas[1])!=bv
-raise "boo" if Fixnum===meas && meas!=bv
+			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
+				raise "total duration of bar is different from the time signature"
+			end
 
 			while 0
 				id = 0
@@ -323,20 +325,19 @@ raise "boo" if Fixnum===meas && meas!=bv
 				
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
+#	p fo.look, la.look
 					if la!=nil
-
 						fol, laf = fo.last, la.first
 						tm += fo[0..-2].dtotal
 
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
-						
-						conds = ->(co){
-							co.inject(false){|s,e| tm%e[0]==e[1] || s}						
-						}
-						
+					
 						if matchValue
 							if Fixnum===meas
+								conds = ->(co){
+									co.inject(false){|s,e| tm%e[0]==e[1] || s}						
+								}
 								if meas%2==0
 									co = {
 										1 => [[2, 0], [2, 0.5], [2, 1]],
@@ -348,14 +349,28 @@ raise "boo" if Fixnum===meas && meas!=bv
 								elsif meas%3==0
 									matchValue = conds.call([[1, 0], [3, 0.5]]) if nv==1.5
 								end
-
-
-
+							else
+								co = []
+								cc = {
+									2 => [[2, 0], [1, 0], [1, 1]],
+									3 => [[3, 0]]
+								}
+								te = 0
+								meas[0].each{|e|
+#	p cc[e]
+									cc[e].each{|f|
+										co << [Rational(f[0], meas[1]), Rational(f[1]+te, meas[1])]
+									}
+									te += e
+								}
+								
+								matchValue = co.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
+#	p co, [nv, tm], matchValue 
 							end
 						end
 
 
-# p [tm, nv, matchValue, fo.look, la.look]
+#	p [tm, nv, matchValue, fo.look, la.look]
 #						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						matchDup = [fol.du]-duples==[] && [laf.du]-duples==[]
