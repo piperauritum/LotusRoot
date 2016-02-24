@@ -28,6 +28,7 @@ class Score < DataProcess
 		ary = []
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
+
 			tp = @tpl.on(idx)
 			if Array===tp
 				if tp.size==2
@@ -41,11 +42,15 @@ class Score < DataProcess
 
 			quad, past = split_tuple_to_quad(tuple, past, tick)
 			meas = tp[0]*tp[2]
-			if Array===tp && tp[0]==tp[1] && meas%1==0				
+
+			if Array===tp && tp[0]==tp[1] && meas%1==0		
 				quad = connect_beat([quad], [meas.to_i])
 			end
-			cq = connect_quad(quad, tuple.size)
-#	p cq.look
+			dv = tuple.size
+
+			dv = 4 if tuple[0].du = 1/4r
+			cq = connect_quad(quad, dv)
+# p cq.look, cq.dtotal
 			ary << cq
 			idx += 1
 		}

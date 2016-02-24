@@ -201,15 +201,16 @@ class DataProcess
 =>	[["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
 =end
 	def connect_quad(quad, dv)
-		qv = quad.dtotal	
+		qv = quad.dtotal
+
 		while 0
 			id = 0
 			cd = false
-			
+
 			while id<quad.size
-				fo, la = quad[id], quad[id+1]
-				
+				fo, la = quad[id], quad[id+1]				
 				if la!=nil
+p fo.look, la.look
 					fol, laf = fo.last, la.first
 					cond = [
 						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
@@ -218,7 +219,7 @@ class DataProcess
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
 					nval = note_value(dv)[fol.du + laf.du]
-
+p note_value(dv), nval
 					if cond.inject(false){|s,e| s||e} && nval!=nil
 						fol.du += laf.du
 						la.shift
@@ -307,13 +308,10 @@ class DataProcess
 	
 
 	def connect_beat(bars, measure)
-
 		bars.each.with_index{|bar, idx|
-
 			bv = bar.dtotal
 			meas = measure.on(idx)
 
-#	p bv		
 			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
 				raise "total duration of bar is different from the time signature"
 			end
@@ -325,14 +323,13 @@ class DataProcess
 				
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
-#	p fo.look, la.look
 					if la!=nil
 						fol, laf = fo.last, la.first
 						tm += fo[0..-2].dtotal
 
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
-					
+
 						if matchValue
 							if Fixnum===meas
 								conds = ->(co){
@@ -377,16 +374,12 @@ class DataProcess
 									}
 									te += me
 								}
-								
+
 								matchValue = co.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
 
-#	p co, [nv, tm], matchValue 
 							end
 						end
 
-
-#	p [tm, nv, matchValue, fo.look, la.look]
-#						matchValue = matchValue && Math.log2(nv)%1==0 if id%2==1	# avoid dotted value at off-beat
 						duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						matchDup = [fol.du]-duples==[] && [laf.du]-duples==[]
 						homoElem = [laf.el]-%w(= =:)==[] ||
