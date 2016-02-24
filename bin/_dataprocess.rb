@@ -97,16 +97,17 @@ class DataProcess
 			end
 			
 			if Array===tp
-				len = tp[0]
 				if tp.size==2
 					den = 2**Math.log2(tp[0]).to_i
 					tp = [tp[0], den, Rational(2*tp[1], den)]
 				end
 				tick = Rational(tp[2]*tp[1], tp[0])
 			else
-				len = tp
 				tick = Rational(1, tp)
 			end
+			
+			len = tp
+			len = tp[0] if Array===tp
 			
 			if ary.size>len
 				ay = ary.slice!(0, len)					
@@ -114,7 +115,7 @@ class DataProcess
 				ay = ary.slice!(0, ary.size)
 				ay += Array.new(len-ay.size, "r!")
 			end
-			
+		
 			ay = ay.map{|e| Event.new(e, tick)}
 			arx << ay			
 			idx += 1
@@ -157,7 +158,7 @@ class DataProcess
 				["r!", (1/3)]
 			]]
 =end
-	def make_quad(tuple, past, tick)
+	def split_tuple_to_quad(tuple, past, tick)
 		quad, evt = [], nil
 		sliced = tuple.each_slice(4).to_a
 		sliced.each{|sl|
@@ -200,7 +201,6 @@ class DataProcess
 =>	[["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
 =end
 	def connect_quad(quad, dv)
-p quad.look
 		qv = quad.dtotal	
 		while 0
 			id = 0
@@ -310,10 +310,10 @@ p quad.look
 		bars = make_bar(ary, measure, final_bar)
 
 		bars.each.with_index{|bar, idx|
-			
+
 			bv = bar.dtotal
 			meas = measure.on(idx)
-			
+p bar.look, meas		
 			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
 				raise "total duration of bar is different from the time signature"
 			end
@@ -352,19 +352,29 @@ p quad.look
 							else
 								co = []
 								cc = {
-									2 => [[2, 0], [1, 0], [1, 1]],
-									3 => [[3, 0]]
+									2 => [
+										[2, [0]],
+										[1.5, [0, 0.5]],
+									],
+									3 => [
+										[3, [0]],
+										[2, [0, 1]],
+										[1.5, [0, 0.5]],
+										[1, [*0..4].map{|e| e/2.0}],
+									],
 								}
 								te = 0
-								meas[0].each{|e|
-#	p cc[e]
-									cc[e].each{|f|
-										co << [Rational(f[0], meas[1]), Rational(f[1]+te, meas[1])]
+								meas[0].each{|me|
+									cc[me].each{|nval, pos|
+										pos.each{|po|
+											co << [nval, po+te].map{|e| Rational(e, meas[1])}
+										}
 									}
-									te += e
+									te += me
 								}
 								
 								matchValue = co.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
+
 #	p co, [nv, tm], matchValue 
 							end
 						end

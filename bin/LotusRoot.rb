@@ -24,7 +24,7 @@ class Score < DataProcess
 		@pch = pitch_shift(@pch, @pchShift)
 		@seq = make_tuplet(@seq, @tpl, @measure)
 		@seq = delete_suspension(@seq) if @noTie
-	
+
 		ary = []
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
@@ -38,8 +38,8 @@ class Score < DataProcess
 			else
 				tick = Rational(1, tp)
 			end
-			
-			quad, past = make_quad(tuple, past, tick)
+
+			quad, past = split_tuple_to_quad(tuple, past, tick)
 			ary << connect_quad(quad, tuple.size)
 			idx += 1
 		}
