@@ -309,10 +309,17 @@ class DataProcess
 	
 
 	def connect_beat(bars, measure, tpl)
+		t = 0
+		barr = bars.map{|e|
+			e.map{|f|
+				z = [f, tpl[t]]
+				t += 1
+				z
+			}
+		}
 
-		tpl_id = 0
-		bars.each.with_index{|bar, idx|
-			bv = bar.dtotal
+		barr.each.with_index{|bar, idx|
+			bv = bar.map{|e| e[0]}.dtotal
 			meas = measure.on(idx)
 			
 
@@ -324,14 +331,15 @@ class DataProcess
 				id = 0
 				tm = 0
 				cd = false
-				td = tpl_id
+#				td = tpl_id
 				
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
 
 					if la!=nil
-						fol, laf = fo.last, la.first
-						tm += fo[0..-2].dtotal
+						fol, laf = fo[0].last, la[0].first
+
+						tm += fo[0..-2].map{|e| e[0]}.dtotal
 
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
@@ -394,16 +402,18 @@ class DataProcess
 							((fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/)) ||
 							(laf.el=="r!" && fol.el=~/r!/) ||
 							(laf.el=="s!" && fol.el=~/s!/)
-						tup = ->(x){x.map(&:du).map{|e| e}.map(&:denominator).max}
+						tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}
+				#		tup = ->(x){x.map(&:du).map{|e| e}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
 						
 						if matchValue && matchDup && homoElem && homoPlet
 							fol.du += laf.du						
-							la.shift
-							tpl[tpl_id] = 16
+							la[0].shift
+							fo[1] = 16
+							bar.delete_if{|e| e[0]==[]}
 							cd = cd||true
 							
-
+=begin
 							if la==[]
 				c=0; bars.each{|e| e.each.with_index{|f,i| p [c,i,f.look]; c+=1}}
 				p [id+1, bar[id+1]]
@@ -412,23 +422,26 @@ class DataProcess
 								tpl.delete_at(td+1)
 				p tpl
 							end
+=end
 						end
-						tm += fo[-1].du
+						tm += fo[0][-1].du
 					end
 					
 					id += 1
-					td += 1
+#					td += 1
 				end
 
 				if cd == false
-					tpl_id = td
+#					tpl_id = td
 					break
 				end
 			end	
 
-			raise "\nLo >> invalid value data\n" if bv!=bar.dtotal
+			raise "\nLo >> invalid value data\n" if bv!= bar.map{|e| e[0]}.dtotal
 		}
-		[bars, tpl]
+		b = barr.map{|e| e.map{|f| f[0]}}
+		t = barr.inject([]){|s,e| s += e.map{|f| f[1]}}
+		[b, t]
 	end
 
 end
