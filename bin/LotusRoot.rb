@@ -39,33 +39,23 @@ class Score < DataProcess
 				tick = Rational(1, tp)
 			end
 
-			quad, past = split_tuple_to_quad(tuple.deepcopy, past, tick)
+			quad, past = tuple_to_quad(tuple.deepcopy, past, tick)
 
-		
-
-
+			# connect sub-measure
 			meas = tp[0]*tp[2]
 			if Array===tp && tp[0]==tp[1] && meas%1==0		
 				quad = connect_beat([quad], [meas.to_i])
 			end
-			
+		
 			dv = tuple.size
 			dv = 16 if Math.log2(tuple[0].du.denominator)%1==0
-
 			cq = connect_quad(quad, dv)
-=begin
-			# restore duples
-			if quad.dlook.inject(false){|s,e| Math.log2(e.denominator)%1==0 || s}
-				@tpl[idx % @tpl.size] = quad.dlook.min.denominator
-			end
-=end			
 			ary << cq
 			idx += 1
 		}
 
 		bars = make_bar(ary, @measure, @finalBar)
-		@note = connect_beat(bars, @measure)
-
+		@note, @tpl = connect_beat(bars, @measure, @tpl)
 		slur_over_tremolo(@note)
 	end
 
@@ -90,22 +80,22 @@ class Score < DataProcess
 				beat_dur = 1
 				bar_dur = tm*beat_dur
 			end
-p bar.look
-			bar.each.with_index{|tuple, bt_id|				
- p tuple.look
+
+			bar.each.with_index{|tuple, bt_id|	
+
 				# tuplet number
 				tp = @tpl.on(tpl_id)
-p tp
 				if Array===tp && tp.size==2
 					den = 2**Math.log2(tp[0]).to_i
 					tp = [tp[0], den, Rational(2*tp[1], den)]
 				end
-		#		tp = 1 if tuple[0].du.denominator==1
-				
+				tp = 1 if tuple[0].du.denominator==1
+p tuple.look, tp
+=begin				
 				if tuple.dlook.inject(false){|s,e| Math.log2(e.denominator)%1==0 || s}
 					tp = tuple.dlook.min.denominator
 				end
-
+=end
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
 			
@@ -253,7 +243,7 @@ p tp
 					nv = note_value(tp)[_du]
 					nv = note_value(16)[_du] if nv==nil
 
-					raise "\nLo >> There isn't note value for dur (#{_du}) on tuplet (#{tp})\n#{note_value(tp)}" if nv==nil
+					raise "\nLo >> There is not a note value for the duration (#{_du}) on tuplet (#{tp})\n#{note_value(tp)}" if nv==nil
 					ntxt += nv if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					

@@ -160,7 +160,7 @@ class DataProcess
 				["r!", (1/3)]
 			]]
 =end
-	def split_tuple_to_quad(tuple, past, tick)
+	def tuple_to_quad(tuple, past, tick)
 		quad, evt = [], nil
 		sliced = tuple.each_slice(4).to_a
 		sliced.each{|sl|
@@ -308,10 +308,13 @@ class DataProcess
 	end
 	
 
-	def connect_beat(bars, measure)
+	def connect_beat(bars, measure, tpl)
+
+		tpl_id = 0
 		bars.each.with_index{|bar, idx|
 			bv = bar.dtotal
 			meas = measure.on(idx)
+			
 
 			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
 				raise "\nLo >> total duration of bar (#{bv}) is different from the time signature (#{meas})\n"
@@ -321,9 +324,11 @@ class DataProcess
 				id = 0
 				tm = 0
 				cd = false
+				td = tpl_id
 				
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
+
 					if la!=nil
 						fol, laf = fo.last, la.first
 						tm += fo[0..-2].dtotal
@@ -391,23 +396,39 @@ class DataProcess
 							(laf.el=="s!" && fol.el=~/s!/)
 						tup = ->(x){x.map(&:du).map{|e| e}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
+						
 						if matchValue && matchDup && homoElem && homoPlet
-							fol.du += laf.du
+							fol.du += laf.du						
 							la.shift
-							bar.delete_if{|e| e==[]}
+							tpl[tpl_id] = 16
 							cd = cd||true
+							
+
+							if la==[]
+				c=0; bars.each{|e| e.each.with_index{|f,i| p [c,i,f.look]; c+=1}}
+				p [id+1, bar[id+1]]
+								bar.delete_at(id+1)
+				p [td+1, tpl[td+1]]
+								tpl.delete_at(td+1)
+				p tpl
+							end
 						end
 						tm += fo[-1].du
 					end
+					
 					id += 1
-									
+					td += 1
 				end
 
-				break if cd == false
+				if cd == false
+					tpl_id = td
+					break
+				end
 			end	
 
 			raise "\nLo >> invalid value data\n" if bv!=bar.dtotal
 		}
+		[bars, tpl]
 	end
 
 end
