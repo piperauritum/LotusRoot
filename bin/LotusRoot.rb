@@ -5,7 +5,7 @@ class Score < DataProcess
 	include Notation
 	attr_reader :output
 	attr_writer :instName, :noInstName, :measure, :pchShift, 
-	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :redTupRule, :pnoTrem, :finalBar, :subdiv
+	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :rtoTup, :pnoTrem, :finalBar, :subdiv
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -15,7 +15,7 @@ class Score < DataProcess
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @redTupRule, @finalBar, @subdiv = [nil]*8
+		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @rtoTup, @finalBar, @subdiv = [nil]*8
 		@gspat, @gsrep = [], []
 	end
 
@@ -28,7 +28,6 @@ class Score < DataProcess
 		ary = []
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
-
 			tp = @tpl.on(idx)
 			if Array===tp
 				if tp.size==2
@@ -40,22 +39,33 @@ class Score < DataProcess
 				tick = Rational(1, tp)
 			end
 
-			quad, past = split_tuple_to_quad(tuple, past, tick)
-			meas = tp[0]*tp[2]
+			quad, past = split_tuple_to_quad(tuple.deepcopy, past, tick)
 
+		
+
+
+			meas = tp[0]*tp[2]
 			if Array===tp && tp[0]==tp[1] && meas%1==0		
 				quad = connect_beat([quad], [meas.to_i])
 			end
+			
 			dv = tuple.size
+			dv = 16 if Math.log2(tuple[0].du.denominator)%1==0
 
-			dv = 4 if tuple[0].du = 1/4r
 			cq = connect_quad(quad, dv)
-# p cq.look, cq.dtotal
+=begin
+			# restore duples
+			if quad.dlook.inject(false){|s,e| Math.log2(e.denominator)%1==0 || s}
+				@tpl[idx % @tpl.size] = quad.dlook.min.denominator
+			end
+=end			
 			ary << cq
 			idx += 1
 		}
+
 		bars = make_bar(ary, @measure, @finalBar)
 		@note = connect_beat(bars, @measure)
+
 		slur_over_tremolo(@note)
 	end
 
@@ -80,16 +90,21 @@ class Score < DataProcess
 				beat_dur = 1
 				bar_dur = tm*beat_dur
 			end
-
+p bar.look
 			bar.each.with_index{|tuple, bt_id|				
-
+ p tuple.look
 				# tuplet number
 				tp = @tpl.on(tpl_id)
+p tp
 				if Array===tp && tp.size==2
 					den = 2**Math.log2(tp[0]).to_i
 					tp = [tp[0], den, Rational(2*tp[1], den)]
 				end
-				tp = 1 if tuple[0].du.denominator==1
+		#		tp = 1 if tuple[0].du.denominator==1
+				
+				if tuple.dlook.inject(false){|s,e| Math.log2(e.denominator)%1==0 || s}
+					tp = tuple.dlook.min.denominator
+				end
 
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
@@ -195,7 +210,7 @@ class Score < DataProcess
 									den = 2**Math.log2(atp[0]).to_i
 									ntxt += "\\tuplet #{atp[0]}/#{den} {"
 								when 3
-									ntxt += "\\fractpl " # config.ly
+									ntxt += "\\fractpl " if @rtoTup!=nil # config.ly
 									ntxt += "\\tuplet #{atp[0]}/#{atp[1]} {"
 								end
 							else
@@ -237,7 +252,8 @@ class Score < DataProcess
 					# note value
 					nv = note_value(tp)[_du]
 					nv = note_value(16)[_du] if nv==nil
-#	p [_du, tp, note_value(tp), nv]
+
+					raise "\nLo >> There isn't note value for dur (#{_du}) on tuplet (#{tp})\n#{note_value(tp)}" if nv==nil
 					ntxt += nv if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
 					

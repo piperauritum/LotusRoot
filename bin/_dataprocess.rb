@@ -87,7 +87,9 @@ class DataProcess
 		while ary.size>0
 			tp = tpl.on(idx)
 			me = meas.on(idx)
-			raise "\n## Unit length of tuplet (#{Rational(1,tp)}) is longer than beat length of measure (#{me}).\n" if tp<me.denominator
+			if Fixnum===tp && tp<me.denominator
+				raise "\nLo >> Unit length of tuplet (#{Rational(1,tp)}) is longer than beat length of measure (#{me}).\n"
+			end
 
 			if Fixnum===tp && Math.log2(tp)%1==0 && Rational===me
 				tp = [me*tp, me*tp, Rational(1,tp)]
@@ -208,9 +210,9 @@ class DataProcess
 			cd = false
 
 			while id<quad.size
-				fo, la = quad[id], quad[id+1]				
+				fo, la = quad[id], quad[id+1]
 				if la!=nil
-p fo.look, la.look
+
 					fol, laf = fo.last, la.first
 					cond = [
 						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
@@ -219,7 +221,6 @@ p fo.look, la.look
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
 					nval = note_value(dv)[fol.du + laf.du]
-p note_value(dv), nval
 					if cond.inject(false){|s,e| s||e} && nval!=nil
 						fol.du += laf.du
 						la.shift
@@ -232,7 +233,7 @@ p note_value(dv), nval
 			break if cd == false
 		end
 		
-		raise "## Invalid value data" if qv!=quad.dtotal
+		raise "\nLo >> Invalid value data\n" if qv!=quad.dtotal
 		quad.flatten!
 	end
 	
@@ -313,7 +314,7 @@ p note_value(dv), nval
 			meas = measure.on(idx)
 
 			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
-				raise "total duration of bar is different from the time signature"
+				raise "\nLo >> total duration of bar (#{bv}) is different from the time signature (#{meas})\n"
 			end
 
 			while 0
@@ -367,12 +368,14 @@ p note_value(dv), nval
 								}
 								te = 0
 								meas[0].each{|me|
-									cc[me].each{|nval, pos|
-										pos.each{|po|
-											co << [nval, po+te].map{|e| Rational(e, meas[1])}
+									if cc[me]!=nil
+										cc[me].each{|nval, pos|
+											pos.each{|po|
+												co << [nval, po+te].map{|e| Rational(e, meas[1])}
+											}
 										}
-									}
-									te += me
+										te += me
+									end
 								}
 
 								matchValue = co.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
@@ -403,7 +406,7 @@ p note_value(dv), nval
 				break if cd == false
 			end	
 
-			raise "## invalid value data" if bv!=bar.dtotal
+			raise "\nLo >> invalid value data\n" if bv!=bar.dtotal
 		}
 	end
 
