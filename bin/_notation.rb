@@ -145,37 +145,43 @@ module Notation
 	end
 
 	# Look inside of event structure
-	def look
+	def lookinside(type)
+		sel = ->(x){
+			case type
+			when :ar; x.ar
+			when :el; x.el
+			when :du; x.du
+			end
+		}		
 		case self
 		when Array
-			self.map{|e| Array === e ? e.look : e.ar}
+			self.map{|e|
+				case e
+				when Array
+					e.lookinside(type)
+				when Event
+					sel.call(e)
+				else
+					e	
+				end
+			}
 		when nil
 			nil
 		else
-			self.ar
+			sel.call(self)
 		end
 	end
-
+	
+	def look
+		self.lookinside(:ar)
+	end
+	
 	def elook
-		case self
-		when Array
-			self.map{|e| Array === e ? e.elook : e.el}
-		when nil
-			nil
-		else
-			self.el
-		end
+		self.lookinside(:el)
 	end
 
 	def dlook
-		case self
-		when Array
-			self.map{|e| Array === e ? e.dlook : e.du}
-		when nil
-			nil
-		else
-			self.du
-		end
+		self.lookinside(:du)
 	end
 	
 	# Total duration of event structure

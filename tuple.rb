@@ -1,17 +1,19 @@
 require_relative 'bin/LotusRoot'
 
-dur = [*0..80].map{rand(12)+1}
+dur = [*0..40].map{rand(16)+1}
 clipbd(dur)
-# dur = [11, 9, 10, ] # 7, 8, 5, 1, 6, 3, 10, 1, 5, 12, 3, 3, 9, 9, 8, 12, 8, 1]
-elm = dur.map{"@"}
-tpl = [5,4,4,4]
+elm = dur.map{|e| "@^\\markup{#{e}}"}
+# elm = dur.map{|e| "@"}
+# tpl = [[6,6,1/4r], [4,4,1/4r]]
+tpl = [4]
 pch = [12]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
-# sco.measure = [[[2,1],2]]
-sco.rtoTup = 0
-# sco.measure = [5]
+sco.measure = [[[3,2],1]]
+sco.measure = [5]
+# sco.rtoTuplet = 0
+
 # sco.finalBar = 4
 sco.pchShift = 12
 sco.gen

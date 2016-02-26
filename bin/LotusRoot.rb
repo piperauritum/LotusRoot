@@ -5,7 +5,7 @@ class Score < DataProcess
 	include Notation
 	attr_reader :output
 	attr_writer :instName, :noInstName, :measure, :pchShift, 
-	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :rtoTup, :pnoTrem, :finalBar, :subdiv
+	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :rtoTuplet, :pnoTrem, :finalBar, :subdiv
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -15,17 +15,17 @@ class Score < DataProcess
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @rtoTup, @finalBar, @subdiv = [nil]*8
+		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @rtoTuplet, @finalBar, @subdiv = [nil]*8
 		@gspat, @gsrep = [], []
 	end
 
 
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
-		@seq = make_tuplet(@seq, @tpl, @measure)
+		@seq, @tpl = make_tuplet(@seq, @tpl, @measure)
 		@seq = delete_suspension(@seq) if @noTie
 
-		ary = []
+		tuples = []
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
@@ -38,23 +38,24 @@ class Score < DataProcess
 			else
 				tick = Rational(1, tp)
 			end
-
 			quad, past = tuple_to_quad(tuple.deepcopy, past, tick)
 
 			# connect sub-measure
 			meas = tp[0]*tp[2]
-			if Array===tp && tp[0]==tp[1] && meas%1==0		
-				quad = connect_beat([quad], [meas.to_i])
+			if Array===tp && tp[0]==tp[1] && meas%1==0
+				qt = quad.map{|e| f=e.dtotal/tp[2]; [f,f,tp[2]]}
+
+				quad, t = connect_beat([quad], [meas.to_i], qt)
 			end
-		
+
 			dv = tuple.size
 			dv = 16 if Math.log2(tuple[0].du.denominator)%1==0
 			cq = connect_quad(quad, dv)
-			ary << cq
+			tuples << cq
 			idx += 1
 		}
 
-		bars = make_bar(ary, @measure, @finalBar)
+		bars = make_bar(tuples, @measure, @finalBar)
 		@note, @tpl = connect_beat(bars, @measure, @tpl)
 		slur_over_tremolo(@note)
 	end
@@ -90,7 +91,7 @@ class Score < DataProcess
 					tp = [tp[0], den, Rational(2*tp[1], den)]
 				end
 				tp = 1 if tuple[0].du.denominator==1
-p tuple.look, tp
+
 =begin				
 				if tuple.dlook.inject(false){|s,e| Math.log2(e.denominator)%1==0 || s}
 					tp = tuple.dlook.min.denominator
@@ -200,7 +201,7 @@ p tuple.look, tp
 									den = 2**Math.log2(atp[0]).to_i
 									ntxt += "\\tuplet #{atp[0]}/#{den} {"
 								when 3
-									ntxt += "\\fractpl " if @rtoTup!=nil # config.ly
+									ntxt += "\\fractpl " if @rtoTuplet!=nil # config.ly
 									ntxt += "\\tuplet #{atp[0]}/#{atp[1]} {"
 								end
 							else

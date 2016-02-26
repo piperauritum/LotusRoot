@@ -122,9 +122,7 @@ class DataProcess
 			arx << ay			
 			idx += 1
 		end
-		ary = arx.dup
-		@tpl = new_tpl.dup
-		ary
+		[arx.dup, new_tpl.dup]
 	end
 
 	
@@ -212,7 +210,6 @@ class DataProcess
 			while id<quad.size
 				fo, la = quad[id], quad[id+1]
 				if la!=nil
-
 					fol, laf = fo.last, la.first
 					cond = [
 						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
@@ -238,19 +235,19 @@ class DataProcess
 	end
 	
 	# Split into bar
-	def make_bar(ary, measure, final_bar)
+	def make_bar(tuples, measure, final_bar)
 		meas_id = 0
 		bars = []
 		bar_residue = 0
 
-		while ary.size>0 || bar_residue>0
+		while tuples.size>0 || bar_residue>0
 			meas = measure.on(meas_id)
 			meas = Rational(meas[0].sigma, meas[1]) if Array===meas
 
-			if ary.dtotal<meas
+			if tuples.dtotal<meas
 				filler = []
 				tpl_add = []
-				len = ary.dtotal+filler.dtotal+bar_residue
+				len = tuples.dtotal+filler.dtotal+bar_residue
 				gap = meas-len
 
 				while gap>0	
@@ -262,13 +259,13 @@ class DataProcess
 
 				filler.reverse!
 				tpl_add.reverse!
-				ary += filler
+				tuples += filler
 				@tpl += tpl_add
 			end
 				
 			bar = []
 			while bar.dtotal+bar_residue<meas
-				bar << ary.shift
+				bar << tuples.shift
 			end
 
 			bar_residue = bar.dtotal+bar_residue-meas
@@ -282,10 +279,10 @@ class DataProcess
 	
 	
 	# Add rests or cut bars for fit into final_bar length
-	def finish_bar(ary, measure, meas_id, final_bar)
+	def finish_bar(bars, measure, meas_id, final_bar)
 		if final_bar!=nil
-			if final_bar>ary.size
-				(final_bar-ary.size).times{
+			if final_bar>bars.size
+				(final_bar-bars.size).times{
 					meas = measure.on(meas_id)
 					ar = []
 					if Fixnum === meas
@@ -297,14 +294,14 @@ class DataProcess
 							ar << [Event.new("r!", Rational(e, meas[1]))]
 						}
 					end
-					ary << ar
+					bars << ar
 					meas_id += 1
 				}
 			else
-				ary = ary[0..final_bar-1]
+				bars = bars[0..final_bar-1]
 			end
 		end
-		ary
+		bars
 	end
 	
 
@@ -317,11 +314,10 @@ class DataProcess
 				z
 			}
 		}
-
+# p barr.look
 		barr.each.with_index{|bar, idx|
 			bv = bar.map{|e| e[0]}.dtotal
 			meas = measure.on(idx)
-			
 
 			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
 				raise "\nLo >> total duration of bar (#{bv}) is different from the time signature (#{meas})\n"
@@ -331,16 +327,12 @@ class DataProcess
 				id = 0
 				tm = 0
 				cd = false
-#				td = tpl_id
-				
+			
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
-
 					if la!=nil
 						fol, laf = fo[0].last, la[0].first
-
-						tm += fo[0..-2].map{|e| e[0]}.dtotal
-
+						tm += fo[0][0..-2].dtotal if fo[0].size>1
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
 
@@ -351,19 +343,19 @@ class DataProcess
 								}
 								if meas%2==0
 									co = {
-										1r => [[2, 0], [2, 0.5], [2, 1]],
-										1.5r => [[2, 0], [2, 0.5]],
-										2r => [[1, 0]],
-										3r => [[1, 0]],
+										1.0 => [[2, 0], [2, 0.5], [2, 1]],
+										1.5 => [[2, 0], [2, 0.5]],
+										2.0 => [[1, 0]],
+										3.0 => [[1, 0]],
 									}
-									matchValue = conds.call(co[nv]) if co[nv]!=nil
+									matchValue = conds.call(co[nv.to_f]) if co[nv.to_f]!=nil
 								elsif meas%3==0
 									co = {
-										1r => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
-										1.5r => [[3, 0], [3, 0.5], [3, 1]],
-										2r => [[1, 0]],
+										1.0 => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
+										1.5 => [[3, 0], [3, 0.5], [3, 1]],
+										2.0 => [[1, 0]],
 									}
-									matchValue = conds.call(co[nv]) if co[nv]!=nil
+									matchValue = conds.call(co[nv.to_f]) if co[nv.to_f]!=nil
 								end
 							else
 								co = []
@@ -403,38 +395,22 @@ class DataProcess
 							(laf.el=="r!" && fol.el=~/r!/) ||
 							(laf.el=="s!" && fol.el=~/s!/)
 						tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}
-				#		tup = ->(x){x.map(&:du).map{|e| e}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
-						
 						if matchValue && matchDup && homoElem && homoPlet
 							fol.du += laf.du						
 							la[0].shift
 							fo[1] = 16
 							bar.delete_if{|e| e[0]==[]}
 							cd = cd||true
-							
-=begin
-							if la==[]
-				c=0; bars.each{|e| e.each.with_index{|f,i| p [c,i,f.look]; c+=1}}
-				p [id+1, bar[id+1]]
-								bar.delete_at(id+1)
-				p [td+1, tpl[td+1]]
-								tpl.delete_at(td+1)
-				p tpl
-							end
-=end
 						end
+
 						tm += fo[0][-1].du
 					end
 					
 					id += 1
-#					td += 1
 				end
 
-				if cd == false
-#					tpl_id = td
-					break
-				end
+				break if cd == false
 			end	
 
 			raise "\nLo >> invalid value data\n" if bv!= bar.map{|e| e[0]}.dtotal
