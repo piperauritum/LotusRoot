@@ -73,6 +73,6 @@ end
 # copy to clipboard
 def clipbd(x)
 	x = x.inspect if Array === x
-	Win32::Clipboard.set_data(x)
+	Win32::Clipboard.set_data("#{x}")
 end
 

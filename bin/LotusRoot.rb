@@ -31,8 +31,7 @@ class Score < DataProcess
 			tp = @tpl.on(idx)
 			if Array===tp
 				if tp.size==2
-					den = 2**Math.log2(tp[0]).to_i
-					tp = [tp[0], den, Rational(2*tp[1], den)]
+					tp = convert_tuplet(tp)
 				end
 				tick = Rational(tp[2]*tp[1], tp[0])
 			else
@@ -44,7 +43,6 @@ class Score < DataProcess
 			meas = tp[0]*tp[2]
 			if Array===tp && tp[0]==tp[1] && meas%1==0
 				qt = quad.map{|e| f=e.dtotal/tp[2]; [f,f,tp[2]]}
-
 				quad, t = connect_beat([quad], [meas.to_i], qt)
 			end
 
@@ -86,11 +84,8 @@ class Score < DataProcess
 
 				# tuplet number
 				tp = @tpl.on(tpl_id)
-				if Array===tp && tp.size==2
-					den = 2**Math.log2(tp[0]).to_i
-					tp = [tp[0], den, Rational(2*tp[1], den)]
-				end
-				tp = 1 if tuple[0].du.denominator==1
+				tp = convert_tuplet(tp) if Array===tp && tp.size==2
+#				tp = 1 if tuple[0].du.denominator==1
 
 =begin				
 				if tuple.dlook.inject(false){|s,e| Math.log2(e.denominator)%1==0 || s}

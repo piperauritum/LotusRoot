@@ -100,8 +100,7 @@ class DataProcess
 			
 			if Array===tp
 				if tp.size==2
-					den = 2**Math.log2(tp[0]).to_i
-					tp = [tp[0], den, Rational(2*tp[1], den)]
+					tp = convert_tuplet(tp)
 				end
 				tick = Rational(tp[2]*tp[1], tp[0])
 			else
@@ -306,15 +305,18 @@ class DataProcess
 	
 
 	def connect_beat(bars, measure, tpl)
-		t = 0
+		# Associate tuplet and tuplet-number
+		tx = 0
 		barr = bars.map{|e|
 			e.map{|f|
-				z = [f, tpl[t]]
-				t += 1
+				t = tpl[tx]
+				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
+				z = [f, t]
+				tx += 1
 				z
 			}
 		}
-# p barr.look
+
 		barr.each.with_index{|bar, idx|
 			bv = bar.map{|e| e[0]}.dtotal
 			meas = measure.on(idx)
@@ -341,19 +343,19 @@ class DataProcess
 								conds = ->(co){
 									co.inject(false){|s,e| tm%e[0]==e[1] || s}						
 								}
-								if meas%2==0
+								if meas%3==0
+									co = {
+										1.0 => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
+										1.5 => [[3, 0], [3, 0.5], [3, 1]],
+										2.0 => [[1, 0]],
+									}
+									matchValue = conds.call(co[nv.to_f]) if co[nv.to_f]!=nil
+								elsif meas%2==0
 									co = {
 										1.0 => [[2, 0], [2, 0.5], [2, 1]],
 										1.5 => [[2, 0], [2, 0.5]],
 										2.0 => [[1, 0]],
 										3.0 => [[1, 0]],
-									}
-									matchValue = conds.call(co[nv.to_f]) if co[nv.to_f]!=nil
-								elsif meas%3==0
-									co = {
-										1.0 => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
-										1.5 => [[3, 0], [3, 0.5], [3, 1]],
-										2.0 => [[1, 0]],
 									}
 									matchValue = conds.call(co[nv.to_f]) if co[nv.to_f]!=nil
 								end

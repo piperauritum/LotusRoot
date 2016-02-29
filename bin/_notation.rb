@@ -15,7 +15,6 @@ module Notation
 
 	# Hash table of duration and note value in tuplet
 	def note_value(tpl)
-
 		if Array === tpl
 			if tpl.size==2
 				rto_nu = tpl[0]
@@ -143,6 +142,13 @@ module Notation
 		}
 		ans
 	end
+	
+	# [5, 1] => [5, 4, (1/4)]
+	def convert_tuplet(tp)
+		denom = 2**Math.log2(tp[0]).to_i
+		[tp[0], denom, Rational(tp[1], denom)]
+	end
+	
 
 	# Look inside of event structure
 	def lookinside(type)
