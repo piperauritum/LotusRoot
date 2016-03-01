@@ -16,17 +16,9 @@ module Notation
 	# Hash table of duration and note value in tuplet
 	def note_value(tpl)
 		if Array === tpl
-			if tpl.size==2
-				rto_nu = tpl[0]
-				rto_de = 2**Math.log2(tpl[0]).to_i
-				unit_nt = Rational(2*tpl[1], rto_de)
-					# [amount of notes, unit duration]
-					# [5, 1/4r] => \tuplet 5/4 {r16 r r r r } 
-			else
-				rto_nu, rto_de, unit_nt = tpl
-					# [numerator, denominator, unit duration]
-					# [3, 2, 1/2r] => \tuplet 3/2 {r8 r r }
-			end
+			rto_nu, rto_de, unit_nt = tpl
+				# [numerator, denominator, unit duration]
+				# [3, 2, 1/2r] => \tuplet 3/2 {r8 r r }
 		else
 			rto_nu = tpl
 			rto_de = 2**Math.log2(tpl).to_i
@@ -65,6 +57,15 @@ module Notation
 			
 			Hash[*nt.uniq.flatten]
 		end
+	end
+	
+	
+	def note_value_dot(tpl)
+		x = note_value(tpl)
+		y = note_value(16).select{|k,v|
+			k%(3/16r)==0 && x[k]!=nil
+		}
+		y=={} ? nil : y
 	end
 	
 	

@@ -159,7 +159,8 @@ class DataProcess
 =end
 	def tuple_to_quad(tuple, past, tick)
 		quad, evt = [], nil
-		sliced = tuple.each_slice(4).to_a
+		sliced = tuple.each_slice(2).to_a
+##		sliced = tuple.each_slice(4).to_a
 		sliced.each{|sl|
 			qa = []
 			sl.each_with_index{|ev, i|
@@ -199,7 +200,7 @@ class DataProcess
 	
 =>	[["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
 =end
-	def connect_quad(quad, dv)
+	def connect_quad(quad, tp)
 		qv = quad.dtotal
 
 		while 0
@@ -208,6 +209,7 @@ class DataProcess
 
 			while id<quad.size
 				fo, la = quad[id], quad[id+1]
+
 				if la!=nil
 					fol, laf = fo.last, la.first
 					cond = [
@@ -216,7 +218,14 @@ class DataProcess
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
-					nval = note_value(dv)[fol.du + laf.du]
+					
+					# dotted notation
+					if Array===tp && tp[0]!=tp[1] && note_value_dot(tp)!=nil
+						nval = note_value_dot(tp)[fol.du + laf.du]
+					else
+						nval = note_value(tp)[fol.du + laf.du]
+					end
+					
 					if cond.inject(false){|s,e| s||e} && nval!=nil
 						fol.du += laf.du
 						la.shift
@@ -230,6 +239,7 @@ class DataProcess
 		end
 		
 		raise "\nLo >> Invalid value data\n" if qv!=quad.dtotal
+
 		quad.flatten!
 	end
 	
@@ -332,6 +342,7 @@ class DataProcess
 			
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
+
 					if la!=nil
 						fol, laf = fo[0].last, la[0].first
 						tm += fo[0][0..-2].dtotal if fo[0].size>1
@@ -345,32 +356,33 @@ class DataProcess
 								}
 								if meas%3==0
 									co = {
-										1.0 => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
-										1.5 => [[3, 0], [3, 0.5], [3, 1]],
-										2.0 => [[1, 0]],
+										1r => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
+										1.5r => [[3, 0], [3, 0.5], [3, 1]],
+										2r => [[1, 0]],
 									}
-									matchValue = conds.call(co[nv.to_f]) if co[nv.to_f]!=nil
+									matchValue = conds.call(co[nv.to_r]) if co[nv.to_r]!=nil
 								elsif meas%2==0
 									co = {
-										1.0 => [[2, 0], [2, 0.5], [2, 1]],
-										1.5 => [[2, 0], [2, 0.5]],
-										2.0 => [[1, 0]],
-										3.0 => [[1, 0]],
+										1r => [[2, 0], [2, 0.5], [2, 1]],
+										1.5r => [[2, 0], [2, 0.5]],
+										2r => [[1, 0]],
+										3r => [[1, 0]],
 									}
-									matchValue = conds.call(co[nv.to_f]) if co[nv.to_f]!=nil
+									matchValue = conds.call(co[nv.to_r]) if co[nv.to_r]!=nil
 								end
 							else
 								co = []
 								cc = {
 									2 => [
 										[2, [0]],
-										[1.5, [0, 0.5]],
+										[1.5r, [0, 0.5]],
 									],
 									3 => [
 										[3, [0]],
 										[2, [0, 1]],
-										[1.5, [0, 0.5]],
+										[1.5r, [0, 0.5]],
 										[1, [*0..4].map{|e| e/2.0}],
+						#		[3/2r, [3/4r]],
 									],
 								}
 								te = 0
@@ -389,8 +401,14 @@ class DataProcess
 
 							end
 						end
+						
+						if Array===fo[1] && fo[1][0]!=fo[1][1] && note_value_dot(fo[1])!=nil &&
+						Array===la[1] && la[1][0]!=la[1][1] && note_value_dot(la[1])!=nil
+							duples = [1,2,3,4,6,8].map{|e| Rational(e*3,8)}
+						else
+							duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
+						end
 
-						duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						matchDup = [fol.du]-duples==[] && [laf.du]-duples==[]
 						homoElem = [laf.el]-%w(= =:)==[] ||
 							((fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/)) ||

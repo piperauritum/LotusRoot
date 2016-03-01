@@ -5,7 +5,7 @@ class Score < DataProcess
 	include Notation
 	attr_reader :output
 	attr_writer :instName, :noInstName, :measure, :pchShift, 
-	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :rtoTuplet, :pnoTrem, :finalBar, :subdiv
+	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :rtoTuplet, :dottedDuplet, :pnoTrem, :finalBar, :subdiv
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -15,7 +15,7 @@ class Score < DataProcess
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @rtoTuplet, @finalBar, @subdiv = [nil]*8
+		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @rtoTuplet, @dottedDuplet, @finalBar, @subdiv = [nil]*9
 		@gspat, @gsrep = [], []
 	end
 
@@ -46,15 +46,18 @@ class Score < DataProcess
 				quad, t = connect_beat([quad], [meas.to_i], qt)
 			end
 
-			dv = tuple.size
-			dv = 16 if Math.log2(tuple[0].du.denominator)%1==0
-			cq = connect_quad(quad, dv)
+		#	dv = tuple.size
+		#	dv = 16 if Math.log2(tuple[0].du.denominator)%1==0
+		#	cq = connect_quad(quad, dv)
+			cq = connect_quad(quad, tp)
 			tuples << cq
 			idx += 1
 		}
 
 		bars = make_bar(tuples, @measure, @finalBar)
+
 		@note, @tpl = connect_beat(bars, @measure, @tpl)
+
 		slur_over_tremolo(@note)
 	end
 
@@ -85,8 +88,9 @@ class Score < DataProcess
 				# tuplet number
 				tp = @tpl.on(tpl_id)
 				tp = convert_tuplet(tp) if Array===tp && tp.size==2
-#				tp = 1 if tuple[0].du.denominator==1
+				dotted = @dottedDuplet!=nil && Array===tp && tp[0]!=tp[1] && note_value_dot(tp)!=nil
 
+#				tp = 1 if tuple[0].du.denominator==1
 =begin				
 				if tuple.dlook.inject(false){|s,e| Math.log2(e.denominator)%1==0 || s}
 					tp = tuple.dlook.min.denominator
@@ -179,11 +183,8 @@ class Score < DataProcess
 					# tuplet bracket
 					if nte_id==0 && !brac
 					#	if Math.log2(tp[0])%1>0 && !brac
-						if (Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1])
+						if tuple.size>1 && !dotted && ((Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1]))
 							brac = true
-						#	mul = tuple.dtotal
-						#	nme = (tp[0]*mul).to_i
-						#	den = (2**(Math.log2(tp[0]).to_i)*mul).to_i
 							if @subdiv!=nil && basemom!=1
 								ntxt += "\\bsmY "	# config.ly
 								basemom = 1
@@ -235,10 +236,13 @@ class Score < DataProcess
 					# delete arrow
 				#	%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
 
-					# note value
-					nv = note_value(tp)[_du]
+					# note value					
+					if dotted
+						nv = note_value_dot(tp)[_du]
+					else
+						nv = note_value(tp)[_du]
+					end
 					nv = note_value(16)[_du] if nv==nil
-
 					raise "\nLo >> There is not a note value for the duration (#{_du}) on tuplet (#{tp})\n#{note_value(tp)}" if nv==nil
 					ntxt += nv if !(_el=~/%/) &&
 					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
