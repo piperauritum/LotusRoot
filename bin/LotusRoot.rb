@@ -41,7 +41,7 @@ class Score < DataProcess
 
 			# connect sub-measure
 			meas = tp[0]*tp[2]
-			if Array===tp && tp[0]==tp[1] && meas%1==0
+			if Array===tp && tp[0]==tp[1] && Math.log2(tp[2]).abs%1==0 && meas%1==0
 				qt = quad.map{|e| f=e.dtotal/tp[2]; [f,f,tp[2]]}
 				quad, t = connect_beat([quad], [meas.to_i], qt)
 			end
@@ -55,7 +55,6 @@ class Score < DataProcess
 		}
 
 		bars = make_bar(tuples, @measure, @finalBar)
-
 		@note, @tpl = connect_beat(bars, @measure, @tpl)
 
 		slur_over_tremolo(@note)
@@ -88,7 +87,7 @@ class Score < DataProcess
 				# tuplet number
 				tp = @tpl.on(tpl_id)
 				tp = convert_tuplet(tp) if Array===tp && tp.size==2
-				dotted = @dottedDuplet!=nil && Array===tp && tp[0]!=tp[1] && note_value_dot(tp)!=nil
+				dotted = @dottedDuplet!=nil && Array===tp && Math.log2(tp[0])%1==0 && tp[1]%3==0 && note_value_dot(tp)!=nil
 
 #				tp = 1 if tuple[0].du.denominator==1
 =begin				

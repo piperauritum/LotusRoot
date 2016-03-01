@@ -202,7 +202,6 @@ class DataProcess
 =end
 	def connect_quad(quad, tp)
 		qv = quad.dtotal
-
 		while 0
 			id = 0
 			cd = false
@@ -220,7 +219,7 @@ class DataProcess
 					]
 					
 					# dotted notation
-					if Array===tp && tp[0]!=tp[1] && note_value_dot(tp)!=nil
+					if Array===tp && Math.log2(tp[0])%1==0 && tp[1]%3==0 && note_value_dot(tp)!=nil
 						nval = note_value_dot(tp)[fol.du + laf.du]
 					else
 						nval = note_value(tp)[fol.du + laf.du]
@@ -239,7 +238,6 @@ class DataProcess
 		end
 		
 		raise "\nLo >> Invalid value data\n" if qv!=quad.dtotal
-
 		quad.flatten!
 	end
 	
@@ -320,6 +318,7 @@ class DataProcess
 		barr = bars.map{|e|
 			e.map{|f|
 				t = tpl[tx]
+				t = convert_tuplet(t) if t.size==2
 				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
 				z = [f, t]
 				tx += 1
@@ -380,9 +379,9 @@ class DataProcess
 									3 => [
 										[3, [0]],
 										[2, [0, 1]],
-										[1.5r, [0, 0.5]],
+										[1.5r, [0, 0.5, 3/4r]],
 										[1, [*0..4].map{|e| e/2.0}],
-						#		[3/2r, [3/4r]],
+						#		[3/2r, [3/2r]],
 									],
 								}
 								te = 0
@@ -401,7 +400,7 @@ class DataProcess
 
 							end
 						end
-						
+		
 						if Array===fo[1] && fo[1][0]!=fo[1][1] && note_value_dot(fo[1])!=nil &&
 						Array===la[1] && la[1][0]!=la[1][1] && note_value_dot(la[1])!=nil
 							duples = [1,2,3,4,6,8].map{|e| Rational(e*3,8)}

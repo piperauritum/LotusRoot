@@ -69,6 +69,15 @@ module Notation
 	end
 	
 	
+	def convert_tuplet(tp)
+		num, total = tp
+			# [numerator, total duration]
+			# [5, 1] => [5, 4, (1/4)]
+		denom = 2**Math.log2(num).to_i
+		[tp[0], denom, Rational(total, denom)]
+	end
+	
+
 	def note_name(pc, acc=0)	
 		nname = [
 			%w(c cis d dis e f fis g gis a ais b),
@@ -142,12 +151,6 @@ module Notation
 			end		
 		}
 		ans
-	end
-	
-	# [5, 1] => [5, 4, (1/4)]
-	def convert_tuplet(tp)
-		denom = 2**Math.log2(tp[0]).to_i
-		[tp[0], denom, Rational(tp[1], denom)]
 	end
 	
 
