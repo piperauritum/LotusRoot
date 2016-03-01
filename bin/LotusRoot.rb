@@ -182,7 +182,8 @@ class Score < DataProcess
 					# tuplet bracket
 					if nte_id==0 && !brac
 					#	if Math.log2(tp[0])%1>0 && !brac
-						if tuple.size>1 && !dotted && ((Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1]))
+						if !dotted && ((Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1])) &&
+						(tuple.size>1 || (tuple.size==1 && note_value(16)[_du]==nil))
 							brac = true
 							if @subdiv!=nil && basemom!=1
 								ntxt += "\\bsmY "	# config.ly
