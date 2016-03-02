@@ -1,10 +1,10 @@
 ﻿class Event
 	attr_accessor :el, :du
-	
+
 	def initialize(e, d)
 		@el, @du = e, d		# element, duration
 	end
-	
+
 	def ar
 		[@el, @du]
 	end
@@ -25,12 +25,12 @@ module Notation
 			unit_nt = Rational(1, rto_de)
 		end
 
-		duple_note = [*-4..2].map{|e|
+		duple_note = [*-6..2].map{|e|
 			x = 2**e
 			[x, "#{(4/x).to_i}"]
 		}
 
-		dotted_note = [*-4..0].map{|e|
+		dotted_note = [*-6..0].map{|e|
 			x = 2**e
 			[Rational(x*3), "#{(2/x).to_i}."]
 		}
@@ -41,7 +41,7 @@ module Notation
 			nil
 		else
 			unit_du = unit_nt
-			nt = notation.select{|dur, note|	
+			nt = notation.select{|dur, note|
 				dur>=unit_du && (dur<=unit_du*rto_nu || Math.log2(rto_nu)%1==0)
 			}
 
@@ -54,21 +54,21 @@ module Notation
 			}.map{|dur, note|
 				[Rational(dur), note]
 			}
-			
+
 			Hash[*nt.uniq.flatten]
 		end
 	end
-	
-	
+
+
 	def note_value_dot(tpl)
 		x = note_value(tpl)
-		y = note_value(16).select{|k,v|
-			k%(3/16r)==0 && x[k]!=nil
+		y = note_value(64).select{|k,v|
+			k%(3/64r)==0 && x[k]!=nil
 		}
 		y=={} ? nil : y
 	end
-	
-	
+
+
 	def convert_tuplet(tp)
 		num, total = tp
 			# [numerator, total duration]
@@ -76,17 +76,17 @@ module Notation
 		denom = 2**Math.log2(num).to_i
 		[tp[0], denom, Rational(total, denom)]
 	end
-	
 
-	def note_name(pc, acc=0)	
+
+	def note_name(pc, acc=0)
 		nname = [
 			%w(c cis d dis e f fis g gis a ais b),
 			%w(c des d ees e f ges g aes a bes b),
 		]
-		
+
 		# quarter tone
 		qname = %w(cih deh dih eeh feh fih geh gih aeh aih beh ceh)
-		
+
 		# eighth tone
 		ename = [
 			%w(ci cise cisi de di dise eesi ee ei fe fi fise
@@ -105,19 +105,19 @@ module Notation
 
 		otv = (pc/12.0).floor
 		otv += 1 if na == "ceh" || na == "ce"
-		
+
 		otv.abs.times{
 			pc>0 ? na+="'" : na+=","
-		}	
-		
+		}
+
 		na
 	end
-	
+
 
 	def auto_accmode(chord, mode)
 		mo = mode
 		am = chord.map{|x| x%12}
-		[0,2,5,7,9].each{|e|			
+		[0,2,5,7,9].each{|e|
 			mo = 1 if am.include?(e) && am.include?(e+1)
 		}
 		[2,4,7,9,11].each{|e|
@@ -125,18 +125,18 @@ module Notation
 		}
 		mo
 	end
-	
-	
+
+
 	def natural?(pc)
 		[0,2,4,5,7,9,11].include?(pc%12)
 	end
-	
-	
+
+
 	def pitch_shift(pch, sum)
 		pch.add(sum)
 	end
-	
-	
+
+
 	def chk_range(pch, a, b)
 		pcs = pch.map{|e| Array === e ? e : [e]}-[[nil]]
 		ans = true
@@ -148,11 +148,11 @@ module Notation
 			elsif e.min < range.min
 				puts "out of lower limit #{range.min} > #{e}"
 				ans = false
-			end		
+			end
 		}
 		ans
 	end
-	
+
 
 	# Look inside of event structure
 	def lookinside(type)
@@ -162,7 +162,7 @@ module Notation
 			when :el; x.el
 			when :du; x.du
 			end
-		}		
+		}
 		case self
 		when Array
 			self.map{|e|
@@ -172,7 +172,7 @@ module Notation
 				when Event
 					sel.call(e)
 				else
-					e	
+					e
 				end
 			}
 		when nil
@@ -181,11 +181,11 @@ module Notation
 			sel.call(self)
 		end
 	end
-	
+
 	def look
 		self.lookinside(:ar)
 	end
-	
+
 	def elook
 		self.lookinside(:el)
 	end
@@ -193,7 +193,7 @@ module Notation
 	def dlook
 		self.lookinside(:du)
 	end
-	
+
 	# Total duration of event structure
 	def dtotal
 		if self!=[]
