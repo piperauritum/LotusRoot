@@ -46,7 +46,7 @@ class Score < DataProcess
 				quad, t = connect_beat([quad], [meas.to_i], qt)
 			end
 
-			cq = connect_quad(quad, tp)
+			cq = connect_quad(quad.deepcopy, tp)
 			tuples << cq
 			idx += 1
 		}

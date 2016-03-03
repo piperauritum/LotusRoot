@@ -123,11 +123,9 @@ class DataProcess
 			end
 
 			# Simplify tuplet
-			cond = [
-				ay-%w(= =:)==[],
-				ay[0]=~/@/ && ay[1..-1]-%w(= =:)==[],
-			]
-			if cond.inject(false){|s,e| s||e}
+			tie_only = ay-%w(= =:)==[]
+			atk_tie = ay[0]=~/@/ && ay[1..-1]-%w(= =:)==[]
+			if tie_only || atk_tie
 				du = tick*len
 				tick = Rational(1, du.denominator)
 				len = du.numerator
@@ -178,8 +176,8 @@ class DataProcess
 =end
 	def tuple_to_quad(tuple, past, tick)
 		quad, evt = [], nil
-		sliced = tuple.each_slice(2).to_a
-##		sliced = tuple.each_slice(4).to_a
+		@dotDuplet ? s=2 : s=4
+		sliced = tuple.each_slice(s).to_a
 
 		sliced.each{|sl|
 			qa = []
@@ -206,6 +204,7 @@ class DataProcess
 			}
 			qa << evt
 			quad << qa
+#	puts "#{sl.look} => #{qa.look}"
 		}
 		[quad, past]
 	end
@@ -222,8 +221,13 @@ class DataProcess
 =end
 	def connect_quad(quad, tp)
 		qv = quad.dtotal
+		tick = Rational(tp[2]*tp[1], tp[0])
+		meas = [[tp[0]], tick]
+		np = nval_pos(meas)
+		
 		while 0
 			id = 0
+			tm = 0
 			cd = false
 
 			while id<quad.size
@@ -231,26 +235,32 @@ class DataProcess
 
 				if la!=nil
 					fol, laf = fo.last, la.first
+					nv = fol.du + laf.du
+
+					if @dotDuplet && tp.dot?
+						nval = note_value_dot(tp)[nv]
+					else
+						nval = note_value(tp)[nv]
+					end
+					
+					unless np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
+						nval = nil
+					end
+
 					cond = [
 						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
 						fol.el=~/r!/ && laf.el=~/r!/,
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
-
-					# dotted notation
-					if Array===tp && Math.log2(tp[0])%1==0 && tp[1]%3==0 && note_value_dot(tp)!=nil
-						nval = note_value_dot(tp)[fol.du + laf.du]
-					else
-						nval = note_value(tp)[fol.du + laf.du]
-					end
-
 					if cond.inject(false){|s,e| s||e} && nval!=nil
 						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}
 						cd = cd||true
 					end
+
+					tm += fo.dtotal
 				end
 				id += 1
 			end
@@ -364,33 +374,45 @@ class DataProcess
 					fo, la = bar[id], bar[id+1]
 
 					if la!=nil
-						fol, laf = fo[0].last, la[0].first
-						tm += fo[0][0..-2].dtotal if fo[0].size>1
+						fo_e, fo_t = fo
+						la_e, la_t = la
+						fol, laf = fo_e.last, la_e.first
+						tm += fo_e[0..-2].dtotal if fo_e.size>1
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
 
 						if matchValue
 							if Fixnum===meas
+								np = nval_pos(meas)
+								matchValue = np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
+
+=begin
 								conds = ->(co){
 									co.inject(false){|s,e| tm%e[0]==e[1] || s}
 								}
-								if meas%3==0
-									co = {
-										1r => [[2, 0], [2, 0.5], [2, 1], [2, 2]],
-										1.5r => [[3, 0], [3, 0.5], [3, 1]],
-										2r => [[1, 0]],
-									}
-									matchValue = conds.call(co[nv.to_r]) if co[nv.to_r]!=nil
-								elsif meas%2==0
-									co = {
+								cc = {
+									2 => {
 										1r => [[2, 0], [2, 0.5], [2, 1]],
 										1.5r => [[2, 0], [2, 0.5]],
 										2r => [[1, 0]],
 										3r => [[1, 0]],
+									},
+									3 => {
+										1r => [[2, 0], [2, 0.5], [2, 1]],
+										1.5r => [[3, 0], [3, 0.5], [3, 1]],
+										2r => [[1, 0]],
 									}
-									matchValue = conds.call(co[nv.to_r]) if co[nv.to_r]!=nil
+								}
+								if meas%3==0
+									co = cc[3][nv.to_r]
+									matchValue = conds.call(co) if co!=nil
+								elsif meas%2==0
+									co = cc[2][nv.to_r]
+									matchValue = conds.call(co) if co!=nil
 								end
+=end
 							else
+=begin
 								co = []
 								cc = {
 									2 => [
@@ -415,40 +437,42 @@ class DataProcess
 										te += me
 									end
 								}
+=end
 
-								matchValue = co.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
+								np = nval_pos(meas)
+								matchValue = np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
 
 							end
 						end
 
-						if Array===fo[1] && fo[1][0]!=fo[1][1] && note_value_dot(fo[1])!=nil &&
-						Array===la[1] && la[1][0]!=la[1][1] && note_value_dot(la[1])!=nil
-							duples = [1,2,3,4,6,8].map{|e| Rational(e*3,8)}
+						if @dotDuplet && fo_t.dot? && la_t.dot?
+							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)}
 						else
-							duples = [1,2,3,4,6,8].map{|e| Rational(e,2)}
+							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						end
 
-						matchDup = [fol.du]-duples==[] && [laf.du]-duples==[]
-						homoElem = [laf.el]-%w(= =:)==[] ||
-							((fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/)) ||
-							(laf.el=="r!" && fol.el=~/r!/) ||
-							(laf.el=="s!" && fol.el=~/s!/)
+						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
+						cond = [
+							[laf.el]-%w(= =:)==[],
+							(fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
+							laf.el=="r!" && fol.el=~/r!/,
+							laf.el=="s!" && fol.el=~/s!/,
+						]
+						homoElem = cond.inject(false){|s,e| s||e}
 						tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
 						if matchValue && matchDup && homoElem && homoPlet
 							fol.du += laf.du
-							la[0].shift
-							fo[1] = 16
+							la_e.shift
+							fo_t = 16
 							bar.delete_if{|e| e[0]==[]}
 							cd = cd||true
 						end
 
-						tm += fo[0][-1].du
+						tm += fo_e[-1].du
 					end
-
 					id += 1
 				end
-
 				break if cd == false
 			end
 
