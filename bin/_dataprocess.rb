@@ -224,7 +224,7 @@ class DataProcess
 		tick = Rational(tp[2]*tp[1], tp[0])
 		meas = [[tp[0]], tick]
 		np = nval_pos(meas)
-		
+
 		while 0
 			id = 0
 			tm = 0
@@ -236,13 +236,14 @@ class DataProcess
 				if la!=nil
 					fol, laf = fo.last, la.first
 					nv = fol.du + laf.du
+					tm += fo[0..-2].dtotal if fo.size>1
 
 					if @dotDuplet && tp.dot?
 						nval = note_value_dot(tp)[nv]
 					else
 						nval = note_value(tp)[nv]
 					end
-					
+
 					unless np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
 						nval = nil
 					end
@@ -254,6 +255,7 @@ class DataProcess
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
 					if cond.inject(false){|s,e| s||e} && nval!=nil
+
 						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}

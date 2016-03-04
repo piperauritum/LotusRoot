@@ -189,10 +189,17 @@ module Notation
 
 		nvpo = {
 			2 => [
+			#	[8, [0]],
+			#	[6, [0]],
+			#	[4, [0]],
+			#	[3, [0]],
 				[2, [0]],
 				[1.5r, [0, 0.5]],
 			],
 			3 => [
+			#	[8, [0]],
+			#	[6, [0]],
+			#	[4, [0]],
 				[3, [0]],
 				[2, [0, 1]],
 				[1.5r, [0, 0.5, 3/4r]],
@@ -206,7 +213,9 @@ module Notation
 			if nvpo[m]!=nil
 				nvpo[m].each{|nval, pos|
 					pos.each{|po|
-						ary << [nval, po+tm].map{|e| Rational(e, meas[1])}
+						ary << [nval, po+tm].map{|e|
+							Rational(e)*meas[1]
+						}
 					}
 				}
 				tm += m
