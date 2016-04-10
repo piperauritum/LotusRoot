@@ -93,11 +93,15 @@ class DataProcess
 				raise "\nLo >> Unit length of tuplet (#{Rational(1,tp)}) is longer than beat length of measure (#{me}).\n"
 			end
 
-			# Change tuplet number for fractional beat
-			# tp = 4; me = (1/2)
-			# => [2, 2, (1/4)]
-			if Fixnum===tp && Math.log2(tp)%1==0 && Rational===me
-				tp = [me*tp, me*tp, Rational(1,tp)]
+			if Fixnum===tp
+				if Math.log2(tp)%1==0 && Rational===me
+					# Change tuplet number for fractional beat
+					# tp = 4; me = (1/2)
+					# => [2, 2, (1/4)]
+					tp = [me*tp, me*tp, Rational(1,tp)]
+				else
+					tp = [tp, 1]
+				end
 				new_tpl << tp
 			else
 				new_tpl << tpl.on(idx)
