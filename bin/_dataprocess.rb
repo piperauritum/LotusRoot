@@ -8,56 +8,46 @@ class DataProcess
 		@tpl = _tpl
 	end
 
-	# dur = [4]; elem = ["@"]
-	# =>  ["@", "=", "=", "="]
-	def unfold_element(dur, elem)
-		ary = []
-		elem.zip(dur).each{|el, du|
+
+	def unfold_elements(dur, elem)
+		elem.zip(dur).map{|el, du|
 			if du>0
 				case el
-				when /@/			# attack
-					ary << el
-					if el=~/@:/		# tremolo
-						(du-1).times{ ary << "=:" }
-					else
-						(du-1).times{ ary << "=" }
-					end
+				when /@/	# attack
+					[el]+["="]*(du-1)
+					
+				when /@:/	# tremolo
+					[el]+["=:"]*(du-1)
 
 				when /(r!|s!|rrr|sss)/	# rest, spacer rest
-					du.times{|i| i==0 ? ary << el : ary << $1}
+					[el]+[$1]*(du-1)
 
-				when /%/			# two-notes tremolo
-					du.times{|n|
-						if n==0
-							ary << el.sub("%", "%%")
-						else
-							ary << el.scan(/%\d+/)[0] + el.scan(/\[.+\]/)[0]
-						end
-					}
+				when /%/	# two-notes tremolo
+					head = el.sub("%", "%%")
+					rept = el.scan(/%\d+/)[0] + el.scan(/\[.+\]/)[0]
+					[head]+[rept]*(du-1)
 
-				when /=/			# tie
-					du.times{ ary << el }
+				when /=/	# tie
+					[el]*du
 
-				when Array			# staccato
-					eel, edu = el
-					if edu>0
-						ary << eel
-						if eel=~/@:/
-							([edu, du].min-1).times{ ary << "=:" }
-						else
-							([edu, du].min-1).times{ ary << "=" }
-						end
+				when Array	# staccato
+					stacc_el, stacc_du = el
+					sdu = [stacc_du, du].min-1
+					rest = ["r!"]*(du-stacc_du)
+					
+					if stacc_el=~/@:/
+						[stacc_el]+["=:"]*sdu+rest
+					else
+						[stacc_el]+["="]*sdu+rest
 					end
-					(du-edu).times{ ary << "r!" }
+
 				end
 			end
-		}
-		ary
+		}.flatten
 	end
 
 
-	# [3, [[2, 1], 2]] => [1, 1, 1, (1/1), (1/2)]
-	def unfold_measure(measure)
+	def divide_measures_into_beats(measure)
 		measure.map{|e|
 			if Array===e
 				e[0].map{|f| Rational(f, e[1])}
@@ -80,8 +70,8 @@ class DataProcess
 			]]
 =>	tpl = [2, 3, 2]
 =end
-	def make_tuplet(ary, tpl, measure)
-		meas = unfold_measure(measure)
+	def assemble_tuplets(ary, tpl, measure)
+		meas = divide_measures_into_beats(measure)
 		new_tpl = []
 		arx = []
 		idx = 0
@@ -148,7 +138,7 @@ class DataProcess
 
 	# [["@", "="], ["=", "@", "="], ["=", "r!"]]
 	# =>  [["@", "="], ["r!", "@", "="], ["r!", "r!"]]
-	def delete_suspension(ary)
+	def delete_suspensions(ary)
 		ary.map{|e|
 			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
 				re = true
@@ -178,7 +168,7 @@ class DataProcess
 				["r!", (1/3)]
 			]]
 =end
-	def tuple_to_quad(tuple, past, tick)
+	def subdivide_tuplet_into_particles(tuple, past, tick)
 		quad, evt = [], nil
 		@dotDuplet ? s=2 : s=4
 		sliced = tuple.each_slice(s).to_a
@@ -223,7 +213,7 @@ class DataProcess
 
 =>	[["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
 =end
-	def connect_quad(quad, tp)
+	def combine_subdivided_particles(quad, tp)
 		qv = quad.dtotal
 		tick = Rational(tp[2]*tp[1], tp[0])
 		meas = [[tp[0]], tick]
@@ -278,7 +268,7 @@ class DataProcess
 	end
 
 	# Split into bar
-	def make_bar(tuples, measure, final_bar)
+	def assemble_bars(tuples, measure, final_bar)
 		meas_id = 0
 		bars = []
 		bar_residue = 0
@@ -316,13 +306,13 @@ class DataProcess
 			meas_id += 1
 		end
 
-		bars = finish_bar(bars, measure, meas_id, final_bar)
+		bars = fit_into_final_bar_length(bars, measure, meas_id, final_bar)
 		bars
 	end
 
 
 	# Add rests or cut bars for fit into final_bar length
-	def finish_bar(bars, measure, meas_id, final_bar)
+	def fit_into_final_bar_length(bars, measure, meas_id, final_bar)
 		if final_bar!=nil
 			if final_bar>bars.size
 				(final_bar-bars.size).times{

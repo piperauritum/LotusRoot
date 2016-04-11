@@ -10,7 +10,7 @@ class Score < DataProcess
 
 	def initialize(_dur, _elm, _tpl, _pch)
 		super(_tpl)
-		@seq = unfold_element(_dur, _elm)
+		@seq = unfold_elements(_dur, _elm)
 		@pch = _pch-[nil]
 		@instName = "hoge"
 		@measure = [4]
@@ -22,8 +22,8 @@ class Score < DataProcess
 
 	def sequence
 		@pch = pitch_shift(@pch, @pchShift)
-		@seq, @tpl = make_tuplet(@seq, @tpl, @measure)
-		@seq = delete_suspension(@seq) if @noTie
+		@seq, @tpl = assemble_tuplets(@seq, @tpl, @measure)
+		@seq = delete_suspensions(@seq) if @noTie
 
 		tuples = []
 		idx = 0
@@ -37,7 +37,7 @@ class Score < DataProcess
 			else
 				tick = Rational(1, tp)
 			end
-			quad, past = tuple_to_quad(tuple.deepcopy, past, tick)
+			quad, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick)
 
 			# Connecting sub-measure
 			meas = tp[0]*tp[2]
@@ -46,12 +46,12 @@ class Score < DataProcess
 				quad, t = connect_beat([quad], [meas.to_i], qt)
 			end
 
-			cq = connect_quad(quad.deepcopy, tp)
+			cq = combine_subdivided_particles(quad.deepcopy, tp)
 			tuples << cq
 			idx += 1
 		}
 
-		bars = make_bar(tuples, @measure, @finalBar)
+		bars = assemble_bars(tuples, @measure, @finalBar)
 		@note, @tpl = connect_beat(bars, @measure, @tpl)
 		slur_over_tremolo(@note)
 	end
