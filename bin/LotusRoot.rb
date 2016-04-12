@@ -30,9 +30,9 @@ class Score < DataProcess
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
 			if Array===tp
-				if tp.size==2
-					tp = convert_tuplet(tp)
-				end
+#				if tp.size==2
+#					tp = convert_tuplet(tp)
+#				end
 				tick = Rational(tp[2]*tp[1], tp[0])
 			else
 				tick = Rational(1, tp)
@@ -81,7 +81,7 @@ class Score < DataProcess
 
 				# tuplet number
 				tp = @tpl.on(tpl_id)
-				tp = convert_tuplet(tp) if Array===tp && tp.size==2
+#				tp = convert_tuplet(tp) if Array===tp && tp.size==2
 				dotted = @dotDuplet!=nil && Array===tp && Math.log2(tp[0])%1==0 && tp[1]%3==0 && note_value_dot(tp)!=nil
 
 				tuple.each.with_index{|nte, nte_id|

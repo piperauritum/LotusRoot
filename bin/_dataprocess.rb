@@ -58,49 +58,30 @@ class DataProcess
 	end
 
 
-=begin
-	ary = ["@", "=", "=", "@", "=", "="]
-	tpl = [2, 3]
-=>	ary = [[
-				["@", (1/2)], ["=", (1/2)]
-			], [
-				["=", (1/3)], ["@", (1/3)], ["=", (1/3)]
-			], [
-				["=", (1/2)], ["r!", (1/2)]
-			]]
-=>	tpl = [2, 3, 2]
-=end
 	def assemble_tuplets(ary, tpl, measure)
-		meas = divide_measures_into_beats(measure)
 		new_tpl = []
-		arx = []
+		new_ary = []
+		beats = divide_measures_into_beats(measure)
 		idx = 0
 
 		while ary.size>0
 			tp = tpl.on(idx)
-			me = meas.on(idx)
-			if Fixnum===tp && tp<me.denominator
-				raise "\nLo >> Unit length of tuplet (#{Rational(1,tp)}) is longer than beat length of measure (#{me}).\n"
-			end
+			bt = beats.on(idx)
+#			if Fixnum===tp && tp<bt.denominator
+#				raise "\nLo >> Unit length of tuplet (#{Rational(1,tp)}) is longer than beat length of measure (#{bt}).\n"
+#			end
 
 			if Fixnum===tp
-				if Math.log2(tp)%1==0 && Rational===me
-					# Change tuplet number for fractional beat
-					# tp = 4; me = (1/2)
-					# => [2, 2, (1/4)]
-					tp = [me*tp, me*tp, Rational(1,tp)]
-				else
-					tp = [tp, 1]
-				end
+				tp = tuplet_num_to_array(tp, bt)
 				new_tpl << tp
 			else
 				new_tpl << tpl.on(idx)
 			end
 
 			if Array===tp
-				if tp.size==2
-					tp = convert_tuplet(tp)
-				end
+#				if tp.size==2
+#					tp = convert_tuplet(tp)
+#				end
 				tick = Rational(tp[2]*tp[1], tp[0])
 			else
 				tick = Rational(1, tp)
@@ -128,11 +109,11 @@ class DataProcess
 			end
 
 			ay = ay.map{|e| Event.new(e, tick)}
-			arx << ay
+			new_ary << ay
 			idx += 1
 		end
 
-		[arx.dup, new_tpl.dup]
+		[new_ary.dup, new_tpl.dup]
 	end
 
 
@@ -345,7 +326,7 @@ class DataProcess
 		barr = bars.map{|e|
 			e.map{|f|
 				t = tpl[tx]
-				t = convert_tuplet(t) if t.size==2
+#				t = convert_tuplet(t) if t.size==2
 				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
 				z = [f, t]
 				tx += 1

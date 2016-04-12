@@ -92,18 +92,34 @@ module Notation
 
 
 	## Duration
+	def tuplet_num_to_array(tpl, beat=1)
+		if Array === tpl
+			tpl
+		else
+			if (tpl*beat)%1==0
+				numer = (tpl*beat).to_i
+				denom = 2**Math.log2(numer).to_i
+				unit_dur = Rational(1, denom)*beat
+				[numer, denom, unit_dur]	# [3, 2, 1/2r] => \tuplet 3/2 {r8 r r }
+			else
+				raise "\nLo >> Tuplet #{tpl} could not divide by beat #{beat}.\n"
+			end
+		end
+	end
+	
+=begin
+	def convert_tuplet(tp)
+		num, total = tp
+			# [numerator, total duration]
+			# [5, 1] => [5, 4, (1/4)]
+		denom = 2**Math.log2(num).to_i
+		[tp[0], denom, Rational(total, denom)]
+	end
+=end
 
 	# Hash table of duration and note value in tuplet
 	def note_value(tpl)
-		if Array === tpl
-			rto_nu, rto_de, unit_nt = tpl
-				# [numerator, denominator, unit duration]
-				# [3, 2, 1/2r] => \tuplet 3/2 {r8 r r }
-		else
-			rto_nu = tpl
-			rto_de = 2**Math.log2(tpl).to_i
-			unit_nt = Rational(1, rto_de)
-		end
+		rto_nu, rto_de, unit_nt = tuplet_num_to_array(tpl)
 
 		duple_note = [*-6..2].map{|e|
 			x = 2**e
@@ -146,15 +162,6 @@ module Notation
 			k%(3/64r)==0 && x[k]!=nil
 		}
 		y=={} ? nil : y
-	end
-
-
-	def convert_tuplet(tp)
-		num, total = tp
-			# [numerator, total duration]
-			# [5, 1] => [5, 4, (1/4)]
-		denom = 2**Math.log2(num).to_i
-		[tp[0], denom, Rational(total, denom)]
 	end
 
 
