@@ -100,10 +100,17 @@ module Notation
 				numer = (tpl*beat).to_i
 				denom = 2**Math.log2(numer).to_i
 				unit_dur = Rational(1, denom)*beat
-				[numer, denom, unit_dur]	# [3, 2, 1/2r] => \tuplet 3/2 {r8 r r }
+			elsif beat<1
+				numer = tpl
+				denom = 2**Math.log2(numer).to_i
+				unit_dur = Rational(1, denom)*beat			
 			else
-				raise "\nLo >> Tuplet #{tpl} could not divide by beat #{beat}.\n"
+				numer = tpl
+				denom = beat.numerator
+				unit_dur = Rational(1, beat.denominator)
 			end
+			
+			[numer, denom, unit_dur]
 		end
 	end
 	
