@@ -98,18 +98,25 @@ module Notation
 		else
 			if (tpl*beat)%1==0
 				numer = (tpl*beat).to_i
-				denom = 2**Math.log2(numer).to_i
-				unit_dur = Rational(1, denom)*beat
-			elsif beat<1
-				numer = tpl
-				denom = 2**Math.log2(numer).to_i
-				unit_dur = Rational(1, denom)*beat			
+				if Math.log2(beat)%1==0
+					denom = 2**Math.log2(numer).to_i
+					unit_dur = Rational(beat, denom)
+				else
+					unit_dur = Rational(numer, beat)
+					unit_dur = Rational(1, 2**Math.log2(unit_dur.ceil).to_i)
+					denom = (beat/unit_dur).to_i
+				end
 			else
 				numer = tpl
-				denom = beat.numerator
-				unit_dur = Rational(1, beat.denominator)
+				if beat<1
+					denom = 2**Math.log2(numer).to_i
+					unit_dur = Rational(beat, denom)
+				else
+					unit_dur = Rational(numer, beat)
+					unit_dur = Rational(1, 2**Math.log2(unit_dur.ceil).to_i)
+					denom = (beat/unit_dur).to_i
+				end
 			end
-			
 			[numer, denom, unit_dur]
 		end
 	end
