@@ -29,14 +29,7 @@ class Score < DataProcess
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
-			if Array===tp
-#				if tp.size==2
-#					tp = convert_tuplet(tp)
-#				end
-				tick = Rational(tp[2]*tp[1], tp[0])
-			else
-				tick = Rational(1, tp)
-			end
+			tick = Rational(tp[1]*tp[2], tuple.size)
 			quad, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick)
 
 			# Connecting sub-measure
@@ -81,7 +74,6 @@ class Score < DataProcess
 
 				# tuplet number
 				tp = @tpl.on(tpl_id)
-#				tp = convert_tuplet(tp) if Array===tp && tp.size==2
 				dotted = @dotDuplet!=nil && Array===tp && Math.log2(tp[0])%1==0 && tp[1]%3==0 && note_value_dot(tp)!=nil
 
 				tuple.each.with_index{|nte, nte_id|
@@ -180,14 +172,14 @@ class Score < DataProcess
 
 							atp = @tpl.on(tpl_id)
 							if Array===atp
-								case atp.size
-								when 2
-									den = 2**Math.log2(atp[0]).to_i
-									ntxt += "\\tuplet #{atp[0]}/#{den} {"
-								when 3
+					#			case atp.size
+					#			when 2
+					#				den = 2**Math.log2(atp[0]).to_i
+					#				ntxt += "\\tuplet #{atp[0]}/#{den} {"
+					#			when 3
 									ntxt += "\\fractpl " if @fracTuplet!=nil # config.ly
 									ntxt += "\\tuplet #{atp[0]}/#{atp[1]} {"
-								end
+					#			end
 							else
 								den = 2**Math.log2(atp).to_i
 								ntxt += "\\tuplet #{atp}/#{den} {"

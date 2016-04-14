@@ -48,7 +48,7 @@ class DataProcess
 
 
 	def divide_measures_into_beats(measure)
-		measure.map{|e|
+		measure.map{|e|			
 			if Array===e
 				e[0].map{|f| Rational(f, e[1])}
 			else
@@ -67,49 +67,59 @@ class DataProcess
 		while ary.size>0
 			tp = tpl.on(idx)
 			bt = beats.on(idx)
-#			if Fixnum===tp && tp<bt.denominator
-#				raise "\nLo >> Unit length of tuplet (#{Rational(1,tp)}) is longer than beat length of measure (#{bt}).\n"
-#			end
+			rept = 1
 
-			if Fixnum===tp
-				tp = tuplet_num_to_array(tp, bt)
-				new_tpl << tp
+		if Fixnum===tp
+				tp_a = tuplet_num_to_array(tp, bt)
+				rto = Rational(tp_a[0], tp_a[1])
+
+				if tp_a[0]!=tp_a[1] && tp_a[0]!=rto.numerator && tp_a[1]!=rto.denominator # &&
+			#	rto.numerator==tp
+					rept = tp_a[0]/rto.numerator
+					tp_a = [rto.numerator, rto.denominator, tp_a[2]]
+					rept.times{
+						new_tpl << tp_a
+					}
+				else
+					new_tpl << tp_a
+				end
 			else
+				tp_a = tp
 				new_tpl << tpl.on(idx)
 			end
+			
+			# Extract tuplet
+			rept.times{
+				len = tp_a[0]
+				tick = Rational(tp_a[1]*tp_a[2], tp_a[0])
+				
+				if Fixnum===tp && tick.numerator>1
+					len = tp
+					tick *= Rational(tp_a[0], tp)
+				end
 
-			if Array===tp
-#				if tp.size==2
-#					tp = convert_tuplet(tp)
-#				end
-				tick = Rational(tp[2]*tp[1], tp[0])
-			else
-				tick = Rational(1, tp)
-			end
+				if ary.size>len
+					ay = ary.slice!(0, len)
+				else
+					ay = ary.slice!(0, ary.size)
+					ay += Array.new(len-ay.size, "r!")
+				end
 
-			len = tp
-			len = tp[0] if Array===tp
+				# Simplify tuplet
+				tie_only = ay-%w(= =:)==[]
+				atk_tie = ay[0]=~/@/ && ay[1..-1]-%w(= =:)==[]
+				if tie_only || atk_tie
+					du = tick*len
+					tick = Rational(1, du.denominator)
+					len = du.numerator
+					ay = [ay[0]] + [ay[1]]*(len-1)
+					new_tpl[-1] = [len, len, tick]
+				end
 
-			if ary.size>len
-				ay = ary.slice!(0, len)
-			else
-				ay = ary.slice!(0, ary.size)
-				ay += Array.new(len-ay.size, "r!")
-			end
-
-			# Simplify tuplet
-			tie_only = ay-%w(= =:)==[]
-			atk_tie = ay[0]=~/@/ && ay[1..-1]-%w(= =:)==[]
-			if tie_only || atk_tie
-				du = tick*len
-				tick = Rational(1, du.denominator)
-				len = du.numerator
-				ay = [ay[0]] + [ay[1]]*(len-1)
-				new_tpl[-1] = [len, len, tick]
-			end
-
-			ay = ay.map{|e| Event.new(e, tick)}
-			new_ary << ay
+				ay = ay.map{|e| Event.new(e, tick)}
+				new_ary << ay
+			}
+			
 			idx += 1
 		end
 
@@ -136,7 +146,7 @@ class DataProcess
 				}
 			else
 				e
-			end 
+			end
 		}
 	end
 
@@ -179,7 +189,7 @@ class DataProcess
 			}
 			qa << evt
 			quad << qa
-#	puts "#{sl.look} => #{qa.look}"
+#			puts "#{sl.look} => #{qa.look}"
 		}
 		[quad, past]
 	end

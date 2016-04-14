@@ -13,7 +13,7 @@ end
 
 module Notation
 
-	## Pitch
+## Pitch ##
 
 	def note_name(pc, acc=0)
 		nname = [
@@ -91,45 +91,50 @@ module Notation
 	end
 
 
-	## Duration
+## Duration ##
+
 	def tuplet_num_to_array(tpl, beat=1)
 		if Array === tpl
 			tpl
 		else
 			if (tpl*beat)%1==0
 				numer = (tpl*beat).to_i
-				if Math.log2(beat)%1==0
-					denom = 2**Math.log2(numer).to_i
-					unit_dur = Rational(beat, denom)
-				else
+#				if Math.log2(beat)%1==0
+#					xdenom = 2**Math.log2(numer).to_i
+#					xunit_dur = Rational(beat, xdenom)
+#				else
 					unit_dur = Rational(numer, beat)
 					unit_dur = Rational(1, 2**Math.log2(unit_dur.ceil).to_i)
-					denom = (beat/unit_dur).to_i
-				end
+					denom = beat/unit_dur
+#				end
+
 			else
 				numer = tpl
-				if beat<1
-					denom = 2**Math.log2(numer).to_i
-					unit_dur = Rational(beat, denom)
-				else
-					unit_dur = Rational(numer, beat)
-					unit_dur = Rational(1, 2**Math.log2(unit_dur.ceil).to_i)
-					denom = (beat/unit_dur).to_i
-				end
+				unit_dur = Rational(beat, numer)
+				unit_dur = 2**(Math.log2(unit_dur).to_i)
+				denom = beat/unit_dur
+				
+				if denom%1!=0
+					if note_value(64)[Rational(beat, numer)]!=nil
+						unit_dur = Rational(beat, numer)
+						numer = beat/unit_dur
+						denom = beat/unit_dur
+						
+					else						
+						d = Rational(denom, denom.numerator)
+						numer /= d
+						denom /= d
+						unit_dur *= d
+						
+					end
+				end							
 			end
+			
+			numer = numer.to_i
+			denom = denom.to_i
 			[numer, denom, unit_dur]
 		end
 	end
-	
-=begin
-	def convert_tuplet(tp)
-		num, total = tp
-			# [numerator, total duration]
-			# [5, 1] => [5, 4, (1/4)]
-		denom = 2**Math.log2(num).to_i
-		[tp[0], denom, Rational(total, denom)]
-	end
-=end
 
 	# Hash table of duration and note value in tuplet
 	def note_value(tpl)
@@ -246,7 +251,7 @@ module Notation
 	end
 
 
-	## Event
+## Event ##
 
 	# Look inside of event structure
 	def lookinside(type)
