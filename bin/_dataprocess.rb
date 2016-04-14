@@ -69,12 +69,11 @@ class DataProcess
 			bt = beats.on(idx)
 			rept = 1
 
-		if Fixnum===tp
+			if Fixnum===tp
 				tp_a = tuplet_num_to_array(tp, bt)
 				rto = Rational(tp_a[0], tp_a[1])
 
-				if tp_a[0]!=tp_a[1] && tp_a[0]!=rto.numerator && tp_a[1]!=rto.denominator # &&
-			#	rto.numerator==tp
+				if tp_a[0]!=tp_a[1] && tp_a[0]!=rto.numerator && Rational(tp, rto.numerator)%1==0
 					rept = tp_a[0]/rto.numerator
 					tp_a = [rto.numerator, rto.denominator, tp_a[2]]
 					rept.times{
@@ -127,8 +126,6 @@ class DataProcess
 	end
 
 
-	# [["@", "="], ["=", "@", "="], ["=", "r!"]]
-	# =>  [["@", "="], ["r!", "@", "="], ["r!", "r!"]]
 	def delete_suspensions(ary)
 		ary.map{|e|
 			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
@@ -151,14 +148,6 @@ class DataProcess
 	end
 
 
-=begin
-	tuple =	[["@", (1/6)], ["@", (1/6)], ["=", (1/6)], ["=", (1/6)], ["r!", (1/6)], ["r!", (1/6)]]
-=>	quad = [[
-				["@", (1/6)], ["@", (1/2)]
-			], [
-				["r!", (1/3)]
-			]]
-=end
 	def subdivide_tuplet_into_particles(tuple, past, tick)
 		quad, evt = [], nil
 		@dotDuplet ? s=2 : s=4
@@ -195,15 +184,6 @@ class DataProcess
 	end
 
 
-=begin
-	[[
-		["@", (1/6)], ["@", (1/3)], ["r!", (1/6)]
-	], [
-		["r!", (1/3)]
-	]]
-
-=>	[["@", (1/6)], ["@", (1/3)], ["r!", (1/2)]]
-=end
 	def combine_subdivided_particles(quad, tp)
 		qv = quad.dtotal
 		tick = Rational(tp[2]*tp[1], tp[0])
