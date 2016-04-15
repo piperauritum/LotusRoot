@@ -72,22 +72,14 @@ class DataProcess
 			if Fixnum===tp
 				tp_a = tuplet_num_to_array(tp, bt)
 				rto = Rational(tp_a[0], tp_a[1])
-
 				if tp_a[0]!=tp_a[1] && tp_a[0]!=rto.numerator && Rational(tp, rto.numerator)%1==0
 					rept = tp_a[0]/rto.numerator
 					tp_a = [rto.numerator, rto.denominator, tp_a[2]]
-					rept.times{
-						new_tpl << tp_a
-					}
-				else
-					new_tpl << tp_a
 				end
 			else
-				tp_a = tp
-				new_tpl << tpl.on(idx)
+				tp_a = tp				
 			end
 			
-			# Extract tuplet
 			rept.times{
 				len = tp_a[0]
 				tick = Rational(tp_a[1]*tp_a[2], tp_a[0])
@@ -96,7 +88,18 @@ class DataProcess
 					len = tp
 					tick *= Rational(tp_a[0], tp)
 				end
+				
+				if note_value(tp_a)[tick]==nil
+					msg = <<-EOS
 
+LotusRoot >> Too big tuplet:
+LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tp_a}).
+LotusRoot >> #{note_value(tp_a)}
+					EOS
+					raise msg
+				end
+
+				# Extract tuplet from array
 				if ary.size>len
 					ay = ary.slice!(0, len)
 				else
@@ -106,22 +109,29 @@ class DataProcess
 
 				# Simplify tuplet
 				tie_only = ay-%w(= =:)==[]
-				atk_tie = ay[0]=~/@/ && ay[1..-1]-%w(= =:)==[]
-				if tie_only || atk_tie
+				rest_only = ay-["r!"]==[]
+				atk_tie = !!(ay[0]=~/@/) && ay[1..-1]-%w(= =:)==[]
+
+				if tie_only || rest_only || atk_tie
 					du = tick*len
 					tick = Rational(1, du.denominator)
 					len = du.numerator
 					ay = [ay[0]] + [ay[1]]*(len-1)
-					new_tpl[-1] = [len, len, tick]
+					new_tpl << [len, len, tick]
+				else
+					if Fixnum===tp
+						new_tpl << tp_a
+					else
+						new_tpl << tpl.on(idx)
+					end					
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
 				new_ary << ay
-			}
-			
+			}			
 			idx += 1
 		end
-
+		
 		[new_ary.dup, new_tpl.dup]
 	end
 
@@ -148,7 +158,7 @@ class DataProcess
 	end
 
 
-	def subdivide_tuplet_into_particles(tuple, past, tick)
+	def subdivide_tuplet_into_particles(tuple, past, tick, tp_a)
 		quad, evt = [], nil
 		@dotDuplet ? s=2 : s=4
 		sliced = tuple.each_slice(s).to_a
@@ -166,8 +176,9 @@ class DataProcess
 					c_tie = [ev.el]-%w(= =:)==[]
 					c_trem = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%%/)
 					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && ev.el=~/#{e}/ ? 1:0 }.sigma>0
+					c_xval = note_value(tp_a)[evt.du+tick]==nil
 
-					if ev.el=~/(@|%%|rrr|sss)/ ||n_rest
+					if ev.el=~/(@|%%|rrr|sss)/ || n_rest || c_xval
 						qa << evt
 						evt = ev
 					elsif c_tie || c_trem || c_rest
@@ -234,7 +245,7 @@ class DataProcess
 			break if cd == false
 		end
 
-		raise "\nLo >> Invalid value data\n" if qv!=quad.dtotal
+		raise "\nLotusRoot >> Invalid value data\n" if qv!=quad.dtotal
 		quad.flatten!
 	end
 
@@ -329,7 +340,7 @@ class DataProcess
 			meas = measure.on(idx)
 
 			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
-				raise "\nLo >> total duration of bar (#{bv}) is different from the time signature (#{meas})\n"
+				raise "\nLotusRoot >> total duration of bar (#{bv}) is different from the time signature (#{meas})\n"
 			end
 
 			while 0
@@ -443,7 +454,7 @@ class DataProcess
 				break if cd == false
 			end
 
-			raise "\nLo >> invalid value data\n" if bv!= bar.map{|e| e[0]}.dtotal
+			raise "\nLotusRoot >> invalid value data\n" if bv!= bar.map{|e| e[0]}.dtotal
 		}
 		b = barr.map{|e| e.map{|f| f[0]}}
 		t = barr.inject([]){|s,e| s += e.map{|f| f[1]}}

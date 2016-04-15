@@ -30,7 +30,7 @@ class Score < DataProcess
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
 			tick = Rational(tp[1]*tp[2], tuple.size)
-			quad, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick)
+			quad, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick, tp)
 
 			# Connecting sub-measure
 			meas = tp[0]*tp[2]
@@ -170,19 +170,13 @@ class Score < DataProcess
 								basemom = 1
 							end
 
-							atp = @tpl.on(tpl_id)
-							if Array===atp
-					#			case atp.size
-					#			when 2
-					#				den = 2**Math.log2(atp[0]).to_i
-					#				ntxt += "\\tuplet #{atp[0]}/#{den} {"
-					#			when 3
-									ntxt += "\\fractpl " if @fracTuplet!=nil # config.ly
-									ntxt += "\\tuplet #{atp[0]}/#{atp[1]} {"
-					#			end
+							tp_a = @tpl.on(tpl_id)
+							if Array===tp_a
+								ntxt += "\\fractpl " if @fracTuplet!=nil # config.ly
+								ntxt += "\\tuplet #{tp_a[0]}/#{tp_a[1]} {"
 							else
-								den = 2**Math.log2(atp).to_i
-								ntxt += "\\tuplet #{atp}/#{den} {"
+								den = 2**Math.log2(tp_a).to_i
+								ntxt += "\\tuplet #{tp_a}/#{den} {"
 							end
 						else
 							if @subdiv!=nil && basemom!=0
@@ -226,8 +220,13 @@ class Score < DataProcess
 					
 					if nv==nil
 						dotted ? vv = note_value_dot(tp) : vv = note_value(tp)
-						p tuple.look
-						raise "\nLo >> There is not a note value for the duration (#{_du}) on tuplet (#{tp})\n#{vv}"
+						msg = <<-EOS
+
+LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tp}).
+LotusRoot >> #{tuple.look}
+LotusRoot >> #{vv}
+						EOS
+						raise msg
 					end
 					
 					ntxt += nv if !(_el=~/%/) &&
