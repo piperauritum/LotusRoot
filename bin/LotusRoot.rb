@@ -31,16 +31,17 @@ class Score < DataProcess
 			tp = @tpl.on(idx)
 			tick = Rational(tp[1]*tp[2], tuple.size)
 			quad, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick, tp)
-
+=begin
 			# Connecting sub-measure
 			meas = tp[0]*tp[2]
 			if Array===tp && tp[0]==tp[1] && Math.log2(tp[2]).abs%1==0 && meas%1==0
 				qt = quad.map{|e| f=e.dtotal/tp[2]; [f,f,tp[2]]}
 				quad, t = connect_beat([quad], [meas.to_i], qt)
 			end
-
+=end
 			cq = combine_subdivided_particles(quad.deepcopy, tp)
-			tuples << cq
+			tuples << tuple.flatten
+#			tuples << cq
 			idx += 1
 		}
 

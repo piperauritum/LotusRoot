@@ -3,14 +3,14 @@
 # int tpl = div each beats
 # ary tpl = explicit
 
-tpl = [[9,8,1/2r]]
-dur = [*1..20].map{rand(8)+1}
+tpl = [6]
+dur = [*1..20].map{rand(4)+1}
 clipbd(dur)
+dur = [2, 2, 1, 4, 2, 4, 1, 2, 3, 3, 1, 4, 1, 2, 1, 1, 4, 1, 4, 2]
 elm = dur.map{"@"}
 pch = [0].add(12)
 sco = Score.new(dur, elm, tpl, pch)
-me = [*1..48].map{|e| [[e],4]}
-# sco.measure = me
+# sco.measure = [[[2,2,2,2],2]]
 # sco.noTie = 0
 sco.fracTuplet = 0
 sco.dotDuplet = 0
