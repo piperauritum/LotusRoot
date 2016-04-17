@@ -73,8 +73,14 @@ class DataProcess
 				tp_a = tuplet_num_to_array(tp, bt)
 				rto = Rational(tp_a[0], tp_a[1])
 				if tp_a[0]!=tp_a[1] && tp_a[0]!=rto.numerator && Rational(tp, rto.numerator)%1==0
-					rept = tp_a[0]/rto.numerator
-					tp_a = [rto.numerator, rto.denominator, tp_a[2]]
+					if bt%1==0
+						rept = tp_a[0]/tp
+						tp_a = [tp, tp_a[1]/rept, tp_a[2]]
+					else
+						rept = tp_a[0]/rto.numerator
+						tp_a = [rto.numerator, rto.denominator, tp_a[2]]
+					end
+					
 				end
 			else
 				tp_a = tp				
