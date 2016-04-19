@@ -29,9 +29,9 @@ class Score < DataProcess
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
-p tp
+
 			tick = Rational(tp[1]*tp[2], tuple.size)
-			s_tuplet, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick, tp)			
+			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)			
 =begin
 			# Connecting sub-measure
 			meas = tp[0]*tp[2]
@@ -41,10 +41,10 @@ p tp
 			end
 =end
 
-			meas = [[tp[0]], tp[2]]			
-			c_tuplet = combine_subdivided_particles(s_tuplet.deepcopy, meas, tp)
-			tuples << s_tuplet.flatten
-#			tuples << c_tuplet
+			meas = [[tp[0]], tp[2]]
+			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, meas, tp)
+#			tuples << s_tuplet.flatten
+			tuples << c_tuplet
 			idx += 1
 		}
 

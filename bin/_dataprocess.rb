@@ -163,26 +163,23 @@ LotusRoot >> #{note_value(tp_a)}
 	end
 
 
-	def subdivide_tuplet_into_particles(tuple, past, tick, tp_a)
+	def subdivide_tuplet(tuple, past, tick, tp_a)
 		quad, evt = [], nil
-		
-#		@dotDuplet ? s=2 : s=4
-#		sliced = tuple.each_slice(s).to_a
 
 		t = tp_a[0]
-		s = [t]
+		beats = [t]
 		if @dotDuplet
-			s = [2]*(t/2)+[t%2]
+			beats = [2]*(t/2)+[t%2]
 		elsif t%3==0
-			s = [3]*(t/3)
+			beats = [3]*(t/3)
 		else
-			s = [4]*(t/4)+[t%4]
+			beats = [4]*(t/4)+[t%4]
 		end
-		s -= [0]
-		
+		beats -= [0]
+
 		sliced = []
-		s.each{|n|
-			sliced << tuple.shift(n)
+		beats.each{|e|
+			sliced << tuple.shift(e)
 		}
 
 		sliced.each{|sl|
@@ -211,18 +208,13 @@ LotusRoot >> #{note_value(tp_a)}
 			}
 			qa << evt
 			quad << qa
-#			puts "#{sl.look} => #{qa.look}"
 		}
+
 		[quad, past]
 	end
 
 
-	def combine_subdivided_particles(quad, measure, tp)
-#		qv = quad.dtotal
-#		tick = Rational(tp[2]*tp[1], tp[0])
-#		meas = [[tp[0]], tick]
-
-
+	def recombine_tuplet(quad, measure, tp)
 		while 0
 			id = 0
 			tm = 0
@@ -242,9 +234,7 @@ LotusRoot >> #{note_value(tp_a)}
 						nval = note_value(tp)[nv]
 					end
 
-					np = allowed_pos(measure, nv)
-
-					unless np.any?{|e| tm==e}
+					unless allowed_pos(measure, nv).any?{|e| tm==e}
 						nval = nil
 					end
 
@@ -254,7 +244,8 @@ LotusRoot >> #{note_value(tp_a)}
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
-					if cond.inject(false){|s,e| s||e} && nval!=nil
+					
+					if cond.any? && nval!=nil
 						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}
@@ -267,8 +258,7 @@ LotusRoot >> #{note_value(tp_a)}
 			end
 			break if cd == false
 		end
-
-#		raise "\nLotusRoot >> Invalid value data\n" if qv!=quad.dtotal
+		
 		quad.flatten!
 	end
 
@@ -460,6 +450,7 @@ LotusRoot >> #{note_value(tp_a)}
 							laf.el=="s!" && fol.el=~/s!/,
 						]
 						homoElem = cond.inject(false){|s,e| s||e}
+p homoElem == cond.any?
 						tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
 						if matchValue && matchDup && homoElem && homoPlet
