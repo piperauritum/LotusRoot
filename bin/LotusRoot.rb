@@ -29,24 +29,28 @@ class Score < DataProcess
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
+p tp
 			tick = Rational(tp[1]*tp[2], tuple.size)
-			quad, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick, tp)
+			s_tuplet, past = subdivide_tuplet_into_particles(tuple.deepcopy, past, tick, tp)			
 =begin
 			# Connecting sub-measure
 			meas = tp[0]*tp[2]
 			if Array===tp && tp[0]==tp[1] && Math.log2(tp[2]).abs%1==0 && meas%1==0
-				qt = quad.map{|e| f=e.dtotal/tp[2]; [f,f,tp[2]]}
-				quad, t = connect_beat([quad], [meas.to_i], qt)
+				qt = s_tuplet.map{|e| f=e.dtotal/tp[2]; [f,f,tp[2]]}
+				s_tuplet, t = connect_beat([s_tuplet], [meas.to_i], qt)
 			end
 =end
-			cq = combine_subdivided_particles(quad.deepcopy, tp)
-			tuples << tuple.flatten
-#			tuples << cq
+
+			meas = [[tp[0]], tp[2]]			
+			c_tuplet = combine_subdivided_particles(s_tuplet.deepcopy, meas, tp)
+			tuples << s_tuplet.flatten
+#			tuples << c_tuplet
 			idx += 1
 		}
 
 		bars = assemble_bars(tuples, @measure, @finalBar)
-		@note, @tpl = connect_beat(bars, @measure, @tpl)
+#		@note, @tpl = connect_beat(bars, @measure, @tpl)
+		@note = bars
 		slur_over_tremolo(@note)
 	end
 

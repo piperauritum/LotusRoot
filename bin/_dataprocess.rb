@@ -79,8 +79,7 @@ class DataProcess
 					else
 						rept = tp_a[0]/rto.numerator
 						tp_a = [rto.numerator, rto.denominator, tp_a[2]]
-					end
-					
+					end					
 				end
 			else
 				tp_a = tp				
@@ -166,8 +165,25 @@ LotusRoot >> #{note_value(tp_a)}
 
 	def subdivide_tuplet_into_particles(tuple, past, tick, tp_a)
 		quad, evt = [], nil
-		@dotDuplet ? s=2 : s=4
-		sliced = tuple.each_slice(s).to_a
+		
+#		@dotDuplet ? s=2 : s=4
+#		sliced = tuple.each_slice(s).to_a
+
+		t = tp_a[0]
+		s = [t]
+		if @dotDuplet
+			s = [2]*(t/2)+[t%2]
+		elsif t%3==0
+			s = [3]*(t/3)
+		else
+			s = [4]*(t/4)+[t%4]
+		end
+		s -= [0]
+		
+		sliced = []
+		s.each{|n|
+			sliced << tuple.shift(n)
+		}
 
 		sliced.each{|sl|
 			qa = []
@@ -201,11 +217,11 @@ LotusRoot >> #{note_value(tp_a)}
 	end
 
 
-	def combine_subdivided_particles(quad, tp)
-		qv = quad.dtotal
-		tick = Rational(tp[2]*tp[1], tp[0])
-		meas = [[tp[0]], tick]
-		np = nval_pos(meas)
+	def combine_subdivided_particles(quad, measure, tp)
+#		qv = quad.dtotal
+#		tick = Rational(tp[2]*tp[1], tp[0])
+#		meas = [[tp[0]], tick]
+
 
 		while 0
 			id = 0
@@ -226,7 +242,9 @@ LotusRoot >> #{note_value(tp_a)}
 						nval = note_value(tp)[nv]
 					end
 
-					unless np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
+					np = allowed_pos(measure, nv)
+
+					unless np.any?{|e| tm==e}
 						nval = nil
 					end
 
@@ -237,7 +255,6 @@ LotusRoot >> #{note_value(tp_a)}
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
 					if cond.inject(false){|s,e| s||e} && nval!=nil
-
 						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}
@@ -251,7 +268,7 @@ LotusRoot >> #{note_value(tp_a)}
 			break if cd == false
 		end
 
-		raise "\nLotusRoot >> Invalid value data\n" if qv!=quad.dtotal
+#		raise "\nLotusRoot >> Invalid value data\n" if qv!=quad.dtotal
 		quad.flatten!
 	end
 
@@ -364,13 +381,13 @@ LotusRoot >> #{note_value(tp_a)}
 						tm += fo_e[0..-2].dtotal if fo_e.size>1
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
-
+=begin
 						if matchValue
 							if Fixnum===meas
 								np = nval_pos(meas)
 								matchValue = np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
 
-=begin
+
 								conds = ->(co){
 									co.inject(false){|s,e| tm%e[0]==e[1] || s}
 								}
@@ -394,9 +411,9 @@ LotusRoot >> #{note_value(tp_a)}
 									co = cc[2][nv.to_r]
 									matchValue = conds.call(co) if co!=nil
 								end
-=end
+
 							else
-=begin
+
 								co = []
 								cc = {
 									2 => [
@@ -421,14 +438,14 @@ LotusRoot >> #{note_value(tp_a)}
 										te += me
 									end
 								}
-=end
+
 
 								np = nval_pos(meas)
 								matchValue = np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
 
 							end
 						end
-
+=end
 						if @dotDuplet && fo_t.dot? && la_t.dot?
 							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)}
 						else

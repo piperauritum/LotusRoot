@@ -3,18 +3,19 @@
 # int tpl = div each beats
 # ary tpl = explicit
 
-tpl = [6]
-dur = [*1..200].map{rand(4)+1}
+tpl = [8]
+dur = [*0..50].map{rand(3)+2}
 clipbd(dur)
-dur = [2, 2, 1, 4, 2, 4, 1, 2, 3, 3, 1, 4, 1, 2, 1, 1, 4, 1, 4, 2]
-dur = [1]*500
+# dur = [2,4,4,2]
+# dur = [1]*500
+# elm = dur.map.with_index{|e,i| "@^\\markup{#{i}}"}
 elm = dur.map{"@"}
 pch = [0].add(12)
 sco = Score.new(dur, elm, tpl, pch)
-sco.measure = [*1..16].map{|e| [[e],2]}
+sco.measure = [*4].map{|e| [[e],1]}
 # sco.noTie = 0
 sco.fracTuplet = 0
-sco.dotDuplet = 0
+# sco.dotDuplet = 0
 sco.gen
 sco.print
 sco.export("sco.txt")

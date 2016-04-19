@@ -99,15 +99,9 @@ module Notation
 		else
 			if (tpl*beat)%1==0
 				numer = (tpl*beat).to_i
-#				if Math.log2(beat)%1==0
-#					xdenom = 2**Math.log2(numer).to_i
-#					xunit_dur = Rational(beat, xdenom)
-#				else
-					unit_dur = Rational(numer, beat)
-					unit_dur = Rational(1, 2**Math.log2(unit_dur.ceil).to_i)
-					denom = beat/unit_dur
-#				end
-
+				unit_dur = Rational(numer, beat)
+				unit_dur = Rational(1, 2**Math.log2(unit_dur.ceil).to_i)
+				denom = beat/unit_dur
 			else
 				numer = tpl
 				unit_dur = Rational(beat, numer)
@@ -118,14 +112,12 @@ module Notation
 					if note_value(64)[Rational(beat, numer)]!=nil
 						unit_dur = Rational(beat, numer)
 						numer = beat/unit_dur
-						denom = beat/unit_dur
-						
+						denom = beat/unit_dur						
 					else						
 						d = Rational(denom, denom.numerator)
 						numer /= d
 						denom /= d
-						unit_dur *= d
-						
+						unit_dur *= d						
 					end
 				end							
 			end
@@ -195,56 +187,55 @@ module Notation
 	end
 
 
-	def nval_pos(measure)
+	def allowed_pos(measure, notevalue)
+	
+		# beat structure
 		if Fixnum===measure
-			meas = [[measure], 1]
+			beats = [[measure], 1]
 		else
-			meas = measure.deepcopy
+			beats = measure.deepcopy
 		end
 
-		meas[0].each.with_index{|e,i|
+		beats[0].each.with_index{|e,i|
 			if Math.log2(e)%1==0 && e>1
-				meas[0][i] = [2]*(e/2)
+				beats[0][i] = [2]*(e/2)
 			elsif e%3==0
-				meas[0][i] = [3]*(e/3)
+				beats[0][i] = [3]*(e/3)
 			elsif e>3
-				meas[0][i] = [2]*(e/2-1)+[e%2+2]
+				beats[0][i] = [2]*(e/2-1)+[e%2+2]
 			end
-			meas[0].flatten!
+			beats[0].flatten!
 		}
 
 		nvpo = {
-			2 => [
+			2 => {
 			#	[8, [0]],
 			#	[6, [0]],
 			#	[4, [0]],
 			#	[3, [0]],
-				[2, [0]],
-				[1.5r, [0, 0.5]],
-			],
-			3 => [
+				2 => [0],
+				1.5r => [0, 0.5],
+				0.5r => [0, 0.5],
+			},
+			3 => {
 			#	[8, [0]],
 			#	[6, [0]],
 			#	[4, [0]],
-				[3, [0]],
-				[2, [0, 1]],
-				[1.5r, [0, 0.5, 3/4r]],
-				[1, [*0..4].map{|e| e/2.0}],
-			],
+			#	3 => [0],
+			#	2 => [0, 1],
+			#	1.5r => [0, 0.5, 3/4r],
+			#	1 => [*0..4].map{|e| e/2.0},
+			},
 		}
 		
 		tm = 0
 		ary = []
-		meas[0].each{|m|
-			if nvpo[m]!=nil
-				nvpo[m].each{|nval, pos|
-					pos.each{|po|
-						ary << [nval, po+tm].map{|e|
-							Rational(e)*meas[1]
-						}
-					}
+		beats[0].each{|bt|
+			if nvpo[bt][notevalue]!=nil
+				ary += nvpo[bt][notevalue].map{|po|
+					Rational(po+tm)*beats[1]
 				}
-				tm += m
+				tm += bt
 			end
 		}
 		ary
