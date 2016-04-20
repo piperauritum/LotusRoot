@@ -41,8 +41,7 @@ class Score < DataProcess
 			end
 =end
 
-			meas = [[tp[0]], tp[2]]
-			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, meas, tp)
+			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
 #			tuples << s_tuplet.flatten
 			tuples << c_tuplet
 			idx += 1
@@ -69,7 +68,7 @@ class Score < DataProcess
 		@note.each.with_index{|bar, bar_id|
 			tm = @measure[bar_id % @measure.size]
 			if Array === tm
-				beat_dur = Rational(1, tm[1])
+				beat_dur = tm[1]
 				bar_dur = tm[0].sigma*beat_dur
 			else
 				beat_dur = 1
@@ -135,7 +134,9 @@ class Score < DataProcess
 					# time signature
 					if bt_id==0 && tm!=pre_tm
 						if Array === tm
-							voice += "\\time #{tm[0].sigma}/#{4*tm[1]} "
+							nu = tm[0].sigma
+							de = (Rational(1, tm[1])*4).to_i
+							voice += "\\time #{nu}/#{de} "
 						else
 							voice += "\\time #{tm}/4 "
 						end

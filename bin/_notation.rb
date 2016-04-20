@@ -187,48 +187,50 @@ module Notation
 	end
 
 
-	def allowed_pos(measure, notevalue)
+	def allowed_pos(structure, notevalue)
 	
-		# beat structure
-		if Fixnum===measure
-			beats = [[measure], 1]
+		bt = structure[0]
+		bt = [bt] if Fixnum===bt
+		bt = bt.map{|e|
+			if Math.log2(e)%1==0 && e>2
+				[4]*(e/4)
+			elsif e%3==0
+				[3]*(e/3)
+			else
+				[4]*(e/4)+[e%4]
+			end
+		}.flatten
+		
+		if structure.size==2
+			beats = [bt, bt.sigma, structure[1]]
 		else
-			beats = measure.deepcopy
+			beats = [bt, structure[1], structure[2]]
 		end
 
-		beats[0].each.with_index{|e,i|
-			if Math.log2(e)%1==0 && e>1
-				beats[0][i] = [2]*(e/2)
-			elsif e%3==0
-				beats[0][i] = [3]*(e/3)
-			elsif e>3
-				beats[0][i] = [2]*(e/2-1)+[e%2+2]
-			end
-			beats[0].flatten!
-		}
-
 		nvpo = {
-			2 => {
-				1/2r => [0, 0.5],				
-				3/4r => [0, 0.5],
-				2 => [0],
-				3/2r => [0, 0.5],
-				3 => [0],
+			4 => {
+				2 => [0, 1, 2],
+				3 => [0, 1],
+				4 => [0, 2],
+				6 => [0, 2],
+				8 => [0],
 			},
 			3 => {
-#				1 => [*0..4].map{|e| e/2.0},
-				3/2r => [0, 0.5, 3/4r],
-#				2 => [0, 1],
-#				3 => [0],
+				2 => [0, 1, 2],
+				3 => [0],
+			#	4 => [0, 2],
+			#	6 => [0, 3],
 			},
 		}
 
 		tm = 0
 		ary = []
+		rto = Rational(beats[1]*beats[2], beats[0].sigma)
 		beats[0].each{|bt|
-			if nvpo[bt][notevalue]!=nil
-				ary += nvpo[bt][notevalue].map{|po|
-					Rational(po+tm)*beats[1]
+			nv = (notevalue/rto).to_i
+			if nvpo[bt][nv]!=nil
+				ary += nvpo[bt][nv].map{|po|
+					(po+tm)*rto
 				}
 				tm += bt
 			end

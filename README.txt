@@ -40,8 +40,8 @@ sco = Score.new(dur, elm, tpl, pch)
 sco.instName = "hoge"
 sco.measure = [				# Time signature (cyclic)
 	N,							# N/4
-	[[2,2,1], 2],				# 5/8 = (2+2+1)/(4*2) Numerators must be 1 or 2.
-	[[2,1], 4],					# 3/16 = (2+1)/(4*4)
+	[[2,2,1], 1/2r],			# 5/8 = (2+2+1)/(4*2) Numerators must be 1 or 2.
+	[[2,1], 1/4r],				# 3/16 = (2+1)/(4*4)
 ]
 sco.pchShift = 0			# Transposition
 sco.accMode = 0				# 0, 1 = Sharp, Flat

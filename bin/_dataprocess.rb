@@ -50,7 +50,7 @@ class DataProcess
 	def divide_measures_into_beats(measure)
 		measure.map{|e|			
 			if Array===e
-				e[0].map{|f| Rational(f, e[1])}
+				e[0].map{|f| Rational(f*e[1])}
 			else
 				[1]*e
 			end
@@ -214,7 +214,7 @@ LotusRoot >> #{note_value(tp_a)}
 	end
 
 
-	def recombine_tuplet(quad, measure, tp)
+	def recombine_tuplet(quad, tp)
 		while 0
 			id = 0
 			tm = 0
@@ -234,7 +234,7 @@ LotusRoot >> #{note_value(tp_a)}
 						nval = note_value(tp)[nv]
 					end
 
-					unless allowed_pos(measure, nv).any?{|e| tm==e}
+					unless allowed_pos(tp, nv).any?{|e| tm==e}
 						nval = nil
 					end
 
@@ -270,7 +270,7 @@ LotusRoot >> #{note_value(tp_a)}
 
 		while tuples.size>0 || bar_residue>0
 			meas = measure.on(meas_id)
-			meas = Rational(meas[0].sigma, meas[1]) if Array===meas
+			meas = Rational(meas[0].sigma*meas[1]) if Array===meas
 
 			if tuples.dtotal<meas
 				filler = []
@@ -319,7 +319,7 @@ LotusRoot >> #{note_value(tp_a)}
 						}
 					else
 						meas[0].each{|e|
-							ar << [Event.new("r!", Rational(e, meas[1]))]
+							ar << [Event.new("r!", Rational(e*meas[1]))]
 						}
 					end
 					bars << ar
@@ -352,7 +352,7 @@ LotusRoot >> #{note_value(tp_a)}
 			bv = bar.map{|e| e[0]}.dtotal
 			meas = measure.on(idx)
 
-			if (Array===meas && Rational(meas[0].sigma, meas[1])!=bv) || (Fixnum===meas && meas!=bv)
+			if (Array===meas && Rational(meas[0].sigma*meas[1])!=bv) || (Fixnum===meas && meas!=bv)
 				raise "\nLotusRoot >> total duration of bar (#{bv}) is different from the time signature (#{meas})\n"
 			end
 
