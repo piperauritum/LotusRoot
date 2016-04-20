@@ -209,8 +209,57 @@ LotusRoot >> #{note_value(tp_a)}
 			qa << evt
 			quad << qa
 		}
-
 		[quad, past]
+	end
+
+
+	def allowed_pos(structure, notevalue)	
+		bt = structure[0]
+		bt = [bt] if Fixnum===bt
+		bt = bt.map{|e|
+			if Math.log2(e)%1==0 && e>2
+				[4]*(e/4)
+			elsif e%3==0
+				[3]*(e/3)
+			else
+				[4]*(e/4)+[e%4]
+			end
+		}.flatten
+		
+		if structure.size==2
+			beats = [bt, bt.sigma, structure[1]]
+		else
+			beats = [bt, structure[1], structure[2]]
+		end
+
+		nvpo = {
+			4 => {
+				2 => [0, 1, 2],
+				3 => [0, 1],
+				4 => [0, 2],
+				6 => [0, 2],
+				8 => [0],
+			},
+			3 => {
+				2 => [0, 1, 2],
+				3 => [0],
+				4 => [0, 2],
+			},
+		}
+
+		tm = 0
+		ary = []
+		rto = Rational(beats[1]*beats[2], beats[0].sigma)
+		beats[0].each{|bt|
+			nv = (notevalue/rto).to_i
+			if nvpo[bt]!=nil && nvpo[bt][nv]!=nil
+				ary += nvpo[bt][nv].map{|po|
+					(po+tm)*rto
+				}
+				tm += bt
+			end
+		}
+		ary
 	end
 
 
@@ -301,28 +350,32 @@ LotusRoot >> #{note_value(tp_a)}
 			meas_id += 1
 		end
 
-		bars = fit_into_final_bar_length(bars, measure, meas_id, final_bar)
+		bars = fit_into_final_bar(bars, measure, meas_id, final_bar)
 		bars
 	end
 
 
 	# Add rests or cut bars for fit into final_bar length
-	def fit_into_final_bar_length(bars, measure, meas_id, final_bar)
+	def fit_into_final_bar(bars, measure, meas_id, final_bar)
 		if final_bar!=nil
 			if final_bar>bars.size
 				(final_bar-bars.size).times{
 					meas = measure.on(meas_id)
 					ar = []
+					tp = []
 					if Fixnum === meas
 						meas.times{
 							ar << [Event.new("r!", 1r)]
+							tp << [1, 1, 1]
 						}
 					else
 						meas[0].each{|e|
 							ar << [Event.new("r!", Rational(e*meas[1]))]
+							tp << [1, 1, Rational(e*meas[1])]
 						}
 					end
 					bars << ar
+					@tpl += tp
 					meas_id += 1
 				}
 			else
@@ -340,7 +393,6 @@ LotusRoot >> #{note_value(tp_a)}
 		barr = bars.map{|e|
 			e.map{|f|
 				t = tpl[tx]
-#				t = convert_tuplet(t) if t.size==2
 				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
 				z = [f, t]
 				tx += 1
@@ -443,14 +495,14 @@ LotusRoot >> #{note_value(tp_a)}
 						end
 
 						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
-						cond = [
+						homoElem = [
 							[laf.el]-%w(= =:)==[],
 							(fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 							laf.el=="r!" && fol.el=~/r!/,
 							laf.el=="s!" && fol.el=~/s!/,
-						]
-						homoElem = cond.inject(false){|s,e| s||e}
-p homoElem == cond.any?
+						].any?
+#						homoElem = cond.inject(false){|s,e| s||e}
+
 						tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
 						if matchValue && matchDup && homoElem && homoPlet

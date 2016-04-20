@@ -4,8 +4,9 @@ include Notation
 class Score < DataProcess
 	include Notation
 	attr_reader :output
-	attr_writer :instName, :noInstName, :measure, :pchShift, 
-	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :fracTuplet, :dotDuplet, :pnoTrem, :finalBar, :subdiv
+	attr_writer :instName, :measure, :accMode, :pchShift,
+	:noInstName, :autoAcc, :chordAcc, :beam, :pnoTrem,
+	:noTie, :fracTuplet, :dotDuplet, :finalBar, :subdiv, :fmRest
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -15,7 +16,6 @@ class Score < DataProcess
 		@instName = "hoge"
 		@measure = [4]
 		@accMode, @pchShift = 0, 0
-		@noInstName, @autoAcc, @chordAcc, @beam, @pnoTrem, @fracTuplet, @dotDuplet, @finalBar, @subdiv = [nil]*9
 		@gspat, @gsrep = [], []
 	end
 
@@ -48,8 +48,8 @@ class Score < DataProcess
 		}
 
 		bars = assemble_bars(tuples, @measure, @finalBar)
-#		@note, @tpl = connect_beat(bars, @measure, @tpl)
-		@note = bars
+		@note, @tpl = connect_beat(bars, @measure, @tpl)
+#		@note = bars
 		slur_over_tremolo(@note)
 	end
 
@@ -78,7 +78,13 @@ class Score < DataProcess
 
 				# tuplet number
 				tp = @tpl.on(tpl_id)
-				dotted = @dotDuplet!=nil && Array===tp && Math.log2(tp[0])%1==0 && tp[1]%3==0 && note_value_dot(tp)!=nil
+				dotted = [
+					@dotDuplet!=nil,
+					Array===tp,
+					Math.log2(tp[0])%1==0,
+					tp[1]%3==0,
+					note_value_dot(tp)!=nil
+				].all?
 
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
@@ -195,7 +201,12 @@ class Score < DataProcess
 					# put note
 					case _el
 					when /r!|rrr/
-						_du==bar_dur ? ntxt+="R" : ntxt+="r"
+						if _du==bar_dur && @fmRest!=nil
+						### not work when sco.measure = [[[2,2,1],1/2r]] ###
+							ntxt+="R"
+						else
+							ntxt+="r"
+						end
 					when /s!|sss/
 						ntxt += "s"
 					else
@@ -331,8 +342,6 @@ LotusRoot >> #{vv}
 					pre_tp = tp
 					pre_el = _el
 					voice += " "
-
-
 				}
 				tpl_id += 1
 			}

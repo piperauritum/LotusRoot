@@ -128,6 +128,7 @@ module Notation
 		end
 	end
 
+
 	# Hash table of duration and note value in tuplet
 	def note_value(tpl)
 		rto_nu, rto_de, unit_nt = tuplet_num_to_array(tpl)
@@ -184,58 +185,6 @@ module Notation
 			note_value_dot(self)!=nil
 		]
 		cond.inject(true){|s,e| s && e}
-	end
-
-
-	def allowed_pos(structure, notevalue)
-	
-		bt = structure[0]
-		bt = [bt] if Fixnum===bt
-		bt = bt.map{|e|
-			if Math.log2(e)%1==0 && e>2
-				[4]*(e/4)
-			elsif e%3==0
-				[3]*(e/3)
-			else
-				[4]*(e/4)+[e%4]
-			end
-		}.flatten
-		
-		if structure.size==2
-			beats = [bt, bt.sigma, structure[1]]
-		else
-			beats = [bt, structure[1], structure[2]]
-		end
-
-		nvpo = {
-			4 => {
-				2 => [0, 1, 2],
-				3 => [0, 1],
-				4 => [0, 2],
-				6 => [0, 2],
-				8 => [0],
-			},
-			3 => {
-				2 => [0, 1, 2],
-				3 => [0],
-			#	4 => [0, 2],
-			#	6 => [0, 3],
-			},
-		}
-
-		tm = 0
-		ary = []
-		rto = Rational(beats[1]*beats[2], beats[0].sigma)
-		beats[0].each{|bt|
-			nv = (notevalue/rto).to_i
-			if nvpo[bt][nv]!=nil
-				ary += nvpo[bt][nv].map{|po|
-					(po+tm)*rto
-				}
-				tm += bt
-			end
-		}
-		ary
 	end
 
 
