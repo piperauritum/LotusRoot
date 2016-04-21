@@ -41,8 +41,8 @@ class Score < DataProcess
 			end
 =end
 
-			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
 #			tuples << s_tuplet.flatten
+			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
 			tuples << c_tuplet
 			idx += 1
 		}

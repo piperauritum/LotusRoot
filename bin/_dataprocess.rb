@@ -211,59 +211,9 @@ LotusRoot >> #{note_value(tp_a)}
 		}
 		[quad, past]
 	end
-
-
-	def allowed_pos(structure, notevalue)	
-		bt = structure[0]
-		bt = [bt] if Fixnum===bt
-		bt = bt.map{|e|
-			if Math.log2(e)%1==0 && e>2
-				[4]*(e/4)
-			elsif e%3==0
-				[3]*(e/3)
-			else
-				[4]*(e/4)+[e%4]
-			end
-		}.flatten
-		
-		if structure.size==2
-			beats = [bt, bt.sigma, structure[1]]
-		else
-			beats = [bt, structure[1], structure[2]]
-		end
-
-		nvpo = {
-			4 => {
-				2 => [0, 1, 2],
-				3 => [0, 1],
-				4 => [0, 2],
-#				6 => [0, 2],
-#				8 => [0],
-			},
-			3 => {
-				2 => [0, 1, 2],
-				3 => [0],
-#				4 => [0, 2],
-			},
-		}
-
-		tm = 0
-		ary = []
-		rto = Rational(beats[1]*beats[2], beats[0].sigma)
-		beats[0].each{|bt|
-			nv = (notevalue/rto).to_i
-			if nvpo[bt]!=nil && nvpo[bt][nv]!=nil
-				ary += nvpo[bt][nv].map{|po|
-					(po+tm)*rto
-				}
-				tm += bt
-			end
-		}
-		ary
-	end
-
-
-	def recombine_tuplet(quad, tp)
+ 
+ 
+ 	def recombine_tuplet(quad, tp)
 		while 0
 			id = 0
 			tm = 0
@@ -283,7 +233,28 @@ LotusRoot >> #{note_value(tp_a)}
 						nval = note_value(tp)[nv]
 					end
 
-					unless allowed_pos(tp, nv).any?{|e| tm==e}
+					bt = [tp[0]].map{|e|
+						if e%3==0
+							[3]*(e/3)
+						else
+							[4]*(e/4)+[e%4]-[0]
+						end
+					}.flatten
+					
+					tp_a = [bt, tp[1], tp[2]]
+										
+					pos_table = {
+						4 => {
+							2 => [0, 1, 2],
+							3 => [0, 1],
+							4 => [0, 2],
+							6 => [0, 2],
+						},
+					}
+					
+					# formatting 8-plet (and 16-plet roughly)
+					npos = positions(tp_a, pos_table, nv)
+					if tp[0]%4==0 && tp[0]%3!=0 && npos.all?{|e| tm!=e}
 						nval = nil
 					end
 
@@ -423,6 +394,39 @@ LotusRoot >> #{note_value(tp_a)}
 						tm += fo_e[0..-2].dtotal if fo_e.size>1
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
+						
+					#	p [meas, nv, allowed_pos(meas, nv), tm]
+					#	unless allowed_pos(meas, nv).any?{|e| tm==e}
+					#		matchValue = false
+					#	end
+						
+						if Array===meas
+							bt, ud = meas
+						else
+							bt = [meas]
+							ud = 1
+						end
+							
+						bt = bt.map{|e|
+							if e%3==0
+								[3]*(e/3)
+							else
+								[2]*(e/2)+[e%2]-[0]
+							end
+						}.flatten
+						
+						tp_a = [bt, bt.sigma, ud]
+p tp_a											
+						pos_table = {
+							4 => {
+								2 => [0, 1, 2],
+								3 => [0, 1],
+								4 => [0, 2],
+								6 => [0, 2],
+							},
+						}
+					
+						npos = positions(tp_a, pos_table, nv)
 =begin
 						if matchValue
 							if Fixnum===meas
@@ -493,8 +497,8 @@ LotusRoot >> #{note_value(tp_a)}
 						else
 							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						end
-
 						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
+						
 						homoElem = [
 							[laf.el]-%w(= =:)==[],
 							(fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
@@ -505,6 +509,7 @@ LotusRoot >> #{note_value(tp_a)}
 
 						tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}
 						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
+				
 						if matchValue && matchDup && homoElem && homoPlet
 							fol.du += laf.du
 							la_e.shift
