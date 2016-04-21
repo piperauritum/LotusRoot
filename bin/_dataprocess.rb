@@ -416,17 +416,20 @@ LotusRoot >> #{note_value(tp_a)}
 						}.flatten
 						
 						tp_a = [bt, bt.sigma, ud]
-p tp_a											
+											
 						pos_table = {
-							4 => {
-								2 => [0, 1, 2],
-								3 => [0, 1],
-								4 => [0, 2],
-								6 => [0, 2],
+							2 => {
+								1 => [0, 0.5r, 1],
+								1.5r  => [0, 0.5r],
+								2 => [0, 1],
 							},
 						}
 					
 						npos = positions(tp_a, pos_table, nv)
+						p [nv, npos]
+						if npos.all?{|e| tm!=e}
+							matchValue = false
+						end
 =begin
 						if matchValue
 							if Fixnum===meas
