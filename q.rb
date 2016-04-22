@@ -4,14 +4,14 @@
 # ary tpl = explicit
 
 tpl = [2]
-dur = [*0..20].map{rand(4)+1}
+dur = [*0..50].map{rand(4)+1}
 clipbd(dur)
 
 # elm = dur.map.with_index{|e,i| "@^\\markup{#{i}}"}
 elm = dur.map{"@"}
 pch = [0].add(12)
 sco = Score.new(dur, elm, tpl, pch)
-# sco.measure = [3]
+sco.measure = [[[5],1]]
 
 # sco.noTie = 0
 # sco.fracTuplet = 0
@@ -20,5 +20,5 @@ sco = Score.new(dur, elm, tpl, pch)
 # sco.fmRest = 0
 # sco.noTie = 0
 sco.gen
-sco.print
+# sco.print
 sco.export("sco.txt")

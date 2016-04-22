@@ -282,6 +282,7 @@ LotusRoot >> #{note_value(tp_a)}
 		quad.flatten!
 	end
 
+
 	# Split into bar
 	def assemble_bars(tuples, measure, final_bar)
 		meas_id = 0
@@ -414,19 +415,27 @@ LotusRoot >> #{note_value(tp_a)}
 								[2]*(e/2)+[e%2]-[0]
 							end
 						}.flatten
-						
+				
 						tp_a = [bt, bt.sigma, ud]
-											
+p tp_a											
 						pos_table = {
 							2 => {
-								1 => [0, 0.5r, 1],
-								1.5r  => [0, 0.5r],
+								1 => [0, 1/2r, 1],
+								3/2r => [0, 1/2r],
 								2 => [0, 1],
+								3 => [0, 1],
+								4 => [0],
+							},
+							3 => {
+								1 => [0, 1/2r, 1, 3/2r, 2],
+								3/2r => [0, 1/2r, 1, 3/2r],
+								2 => [0, 1, 2],
+								3 => [0],
+								6 => [0],
 							},
 						}
-					
+				
 						npos = positions(tp_a, pos_table, nv)
-						p [nv, npos]
 						if npos.all?{|e| tm!=e}
 							matchValue = false
 						end

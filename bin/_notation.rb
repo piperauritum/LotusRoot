@@ -194,71 +194,21 @@ module Notation
 		ary = []
 		rto = Rational(unit_num*unit_dur, bt_struct.sigma)
 		bt_struct.each{|bt|
-			nv = (notevalue/rto).to_i
-			if pos_table[bt]!=nil && pos_table[bt][nv]!=nil
-				ary += pos_table[bt][nv].map{|po|
-					(po+tme)*rto
-				}
+			nv = Rational(notevalue, rto)
+			tbl = pos_table[bt]			
+			if tbl!=nil 
+				sel = tbl.select{|k,v| k==nv}.values[0]
+				if sel!=nil
+					ary += sel.map{|po|
+						(po+tme)*rto
+					}
+				end
 				tme += bt
 			end
 		}
 		ary
 	end
 
-=begin	
-	def allowed_pos(structure, notevalue)
-		if Array===structure
-			bt = structure[0]
-			bt = [bt] if Fixnum===bt
-		else
-			bt = [structure]
-		end
-		
-		bt = bt.map{|e|
-			if Math.log2(e)%1==0 && e>2
-				[4]*(e/4)
-			elsif e%3==0
-				[3]*(e/3)
-			else
-				[4]*(e/4)+[e%4]
-			end
-		}.flatten
-		
-		if Fixnum===structure
-			beats = [bt, bt.sigma, 1/2r]
-		elsif structure.size==2
-			beats = [bt, bt.sigma, structure[1]]
-		else
-			beats = [bt, structure[1], structure[2]]
-		end
-
-		nvpo = {
-			4 => {
-				2 => [0, 1, 2],
-				3 => [0, 1],
-			},
-			3 => {
-				2 => [0, 1, 2],
-				3 => [0],
-				6 => [0],
-			},
-		}
-
-		tm = 0
-		ary = []
-		rto = Rational(beats[1]*beats[2], beats[0].sigma)
-		beats[0].each{|bt|
-			nv = (notevalue/rto).to_i
-			if nvpo[bt]!=nil && nvpo[bt][nv]!=nil
-				ary += nvpo[bt][nv].map{|po|
-					(po+tm)*rto
-				}
-				tm += bt
-			end
-		}
-		ary
-	end
-=end	
 	
 ## Event ##
 
