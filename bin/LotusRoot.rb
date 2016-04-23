@@ -29,7 +29,6 @@ class Score < DataProcess
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
-
 			tick = Rational(tp[1]*tp[2], tuple.size)
 			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)			
 =begin
@@ -40,7 +39,6 @@ class Score < DataProcess
 				s_tuplet, t = connect_beat([s_tuplet], [meas.to_i], qt)
 			end
 =end
-
 			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
 			tuples << c_tuplet
 #			tuples << s_tuplet.flatten

@@ -79,12 +79,12 @@ class DataProcess
 					else
 						rept = tp_a[0]/rto.numerator
 						tp_a = [rto.numerator, rto.denominator, tp_a[2]]
-					end					
+					end	
 				end
 			else
 				tp_a = tp				
 			end
-			
+	
 			rept.times{
 				len = tp_a[0]
 				tick = Rational(tp_a[1]*tp_a[2], tp_a[0])
@@ -97,7 +97,7 @@ class DataProcess
 				if note_value(tp_a)[tick]==nil
 					msg = <<-EOS
 
-LotusRoot >> Too big tuplet:
+LotusRoot >> beat: (#{bt})
 LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tp_a}).
 LotusRoot >> #{note_value(tp_a)}
 					EOS
@@ -166,7 +166,8 @@ LotusRoot >> #{note_value(tp_a)}
 	def subdivide_tuplet(tuple, past, tick, tp_a)
 		quad, evt = [], nil
 
-		t = tp_a[0]
+#		t = tp_a[0]
+		t = tuple.size
 		beats = [t]
 		if @dotDuplet
 			beats = [2]*(t/2)+[t%2]
@@ -377,7 +378,13 @@ LotusRoot >> #{note_value(tp_a)}
 			meas = measure.on(idx)
 
 			if (Array===meas && Rational(meas[0].sigma*meas[1])!=bv) || (Fixnum===meas && meas!=bv)
-				raise "\nLotusRoot >> total duration of bar (#{bv}) is different from the time signature (#{meas})\n"
+				msg = <<-EOS
+				
+LotusRoot >> #{meas}
+LotusRoot >> #{bar.look}
+LotusRoot >> total duration of bar (#{bv}) is different from the time signature (#{meas})
+				EOS
+				raise msg
 			end
 
 			while 0
@@ -387,7 +394,7 @@ LotusRoot >> #{note_value(tp_a)}
 
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
-
+# p fo.look, la.look
 					if la!=nil
 						fo_e, fo_t = fo
 						la_e, la_t = la
@@ -417,7 +424,7 @@ LotusRoot >> #{note_value(tp_a)}
 						}.flatten
 				
 						tp_a = [bt, bt.sigma, ud]
-p tp_a											
+# p tp_a											
 						pos_table = {
 							2 => {
 								1 => [0, 1/2r, 1],
@@ -436,6 +443,7 @@ p tp_a
 						}
 				
 						npos = positions(tp_a, pos_table, nv)
+# p [nv, npos]
 						if npos.all?{|e| tm!=e}
 							matchValue = false
 						end
