@@ -30,18 +30,10 @@ class Score < DataProcess
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl.on(idx)
 			tick = Rational(tp[1]*tp[2], tuple.size)
-			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)			
-=begin
-			# Connecting sub-measure
-			meas = tp[0]*tp[2]
-			if Array===tp && tp[0]==tp[1] && Math.log2(tp[2]).abs%1==0 && meas%1==0
-				qt = s_tuplet.map{|e| f=e.dtotal/tp[2]; [f,f,tp[2]]}
-				s_tuplet, t = connect_beat([s_tuplet], [meas.to_i], qt)
-			end
-=end
+			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
 			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
-			tuples << c_tuplet
 #			tuples << s_tuplet.flatten
+			tuples << c_tuplet
 			idx += 1
 		}
 

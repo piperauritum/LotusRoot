@@ -72,7 +72,12 @@ class DataProcess
 			if Fixnum===tp
 				tp_a = tuplet_num_to_array(tp, bt)
 				rto = Rational(tp_a[0], tp_a[1])
-				if tp_a[0]!=tp_a[1] && tp_a[0]!=rto.numerator && Rational(tp, rto.numerator)%1==0
+				if [
+					tp_a[0]!=tp_a[1],
+					tp_a[0]>tp,
+					tp_a[0]!=rto.numerator,
+					Rational(tp, rto.numerator)%1==0
+				].all?
 					if bt%1==0
 						rept = tp_a[0]/tp
 						tp_a = [tp, tp_a[1]/rept, tp_a[2]]
@@ -165,8 +170,6 @@ LotusRoot >> #{note_value(tp_a)}
 
 	def subdivide_tuplet(tuple, past, tick, tp_a)
 		quad, evt = [], nil
-
-#		t = tp_a[0]
 		t = tuple.size
 		beats = [t]
 		if @dotDuplet
@@ -215,6 +218,9 @@ LotusRoot >> #{note_value(tp_a)}
  
  
  	def recombine_tuplet(quad, tp)
+		bt = quad.map{|e| (e.dlook.sigma/tp[2]).to_i}
+		tp_a = [bt, tp[1], tp[2]]
+
 		while 0
 			id = 0
 			tm = 0
@@ -234,16 +240,6 @@ LotusRoot >> #{note_value(tp_a)}
 						nval = note_value(tp)[nv]
 					end
 
-					bt = [tp[0]].map{|e|
-						if e%3==0
-							[3]*(e/3)
-						else
-							[4]*(e/4)+[e%4]-[0]
-						end
-					}.flatten
-					
-					tp_a = [bt, tp[1], tp[2]]
-										
 					pos_table = {
 						4 => {
 							2 => [0, 1, 2],
@@ -252,11 +248,10 @@ LotusRoot >> #{note_value(tp_a)}
 							6 => [0, 2],
 						},
 					}
-					
-					# formatting 8-plet (and 16-plet roughly)
+	
 					npos = positions(tp_a, pos_table, nv)
-					if tp[0]%4==0 && tp[0]%3!=0 && npos.all?{|e| tm!=e}
-						nval = nil
+					if tp[0]==tp[1] || (tp[0]>=8 && tp[0]%2==0)	# to be investigated
+						nval = nil if npos.all?{|e| tm!=e}
 					end
 
 					cond = [
@@ -394,19 +389,14 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 
 				while id<bar.size
 					fo, la = bar[id], bar[id+1]
-# p fo.look, la.look
+
 					if la!=nil
-						fo_e, fo_t = fo
-						la_e, la_t = la
-						fol, laf = fo_e.last, la_e.first
-						tm += fo_e[0..-2].dtotal if fo_e.size>1
+						fo_ev, fo_tp = fo
+						la_ev, la_tp = la
+						fol, laf = fo_ev.last, la_ev.first
+						tm += fo_ev[0..-2].dtotal if fo_ev.size>1
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
-						
-					#	p [meas, nv, allowed_pos(meas, nv), tm]
-					#	unless allowed_pos(meas, nv).any?{|e| tm==e}
-					#		matchValue = false
-					#	end
 						
 						if Array===meas
 							bt, ud = meas
@@ -424,7 +414,7 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 						}.flatten
 				
 						tp_a = [bt, bt.sigma, ud]
-# p tp_a											
+											
 						pos_table = {
 							2 => {
 								1 => [0, 1/2r, 1],
@@ -443,76 +433,11 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 						}
 				
 						npos = positions(tp_a, pos_table, nv)
-# p [nv, npos]
 						if npos.all?{|e| tm!=e}
 							matchValue = false
 						end
-=begin
-						if matchValue
-							if Fixnum===meas
-								np = nval_pos(meas)
-								matchValue = np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
 
-
-								conds = ->(co){
-									co.inject(false){|s,e| tm%e[0]==e[1] || s}
-								}
-								cc = {
-									2 => {
-										1r => [[2, 0], [2, 0.5], [2, 1]],
-										1.5r => [[2, 0], [2, 0.5]],
-										2r => [[1, 0]],
-										3r => [[1, 0]],
-									},
-									3 => {
-										1r => [[2, 0], [2, 0.5], [2, 1]],
-										1.5r => [[3, 0], [3, 0.5], [3, 1]],
-										2r => [[1, 0]],
-									}
-								}
-								if meas%3==0
-									co = cc[3][nv.to_r]
-									matchValue = conds.call(co) if co!=nil
-								elsif meas%2==0
-									co = cc[2][nv.to_r]
-									matchValue = conds.call(co) if co!=nil
-								end
-
-							else
-
-								co = []
-								cc = {
-									2 => [
-										[2, [0]],
-										[1.5r, [0, 0.5]],
-									],
-									3 => [
-										[3, [0]],
-										[2, [0, 1]],
-										[1.5r, [0, 0.5, 3/4r]],
-										[1, [*0..4].map{|e| e/2.0}],
-									],
-								}
-								te = 0
-								meas[0].each{|me|
-									if cc[me]!=nil
-										cc[me].each{|nval, pos|
-											pos.each{|po|
-												co << [nval, po+te].map{|e| Rational(e, meas[1])}
-											}
-										}
-										te += me
-									end
-								}
-
-
-								np = nval_pos(meas)
-								matchValue = np.inject(false){|s,e| (nv==e[0] && tm==e[1]) || s}
-
-							end
-						end
-=end
-						if @dotDuplet && fo_t.dot? && la_t.dot?
+						if @dotDuplet && fo_tp.dot? && la_tp.dot?
 							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)}
 						else
 							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)}
@@ -525,20 +450,20 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 							laf.el=="r!" && fol.el=~/r!/,
 							laf.el=="s!" && fol.el=~/s!/,
 						].any?
-#						homoElem = cond.inject(false){|s,e| s||e}
-
-						tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}
-						homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
+						
+					#	tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}						
+					#	homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
+						homoPlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
 				
 						if matchValue && matchDup && homoElem && homoPlet
 							fol.du += laf.du
-							la_e.shift
-							fo_t = 16
+							la_ev.shift
+							fo_tp = 16
 							bar.delete_if{|e| e[0]==[]}
 							cd = cd||true
 						end
 
-						tm += fo_e[-1].du
+						tm += fo_ev[-1].du
 					end
 					id += 1
 				end
