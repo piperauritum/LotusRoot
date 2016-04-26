@@ -28,14 +28,30 @@ class Score < DataProcess
 		tuples = []
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
-			tp = @tpl.on(idx)
+			tp = @tpl[idx]
 			tick = Rational(tp[1]*tp[2], tuple.size)
 			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
-			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
-#			tuples << s_tuplet.flatten
+			r_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
+			
+
+			rd = reduced_tuplets(tp)
+			if rd!=[]
+				rd.each{|tq|
+					if r_tuplet.dlook.map{|d|							
+						note_value(tq)[d]!=nil							
+					}.all?
+						tp = @tpl[idx] = tq						
+					end
+				}
+			end
+
+			c_tuplet = recombine_tuplet([r_tuplet.deepcopy], tp)
 			tuples << c_tuplet
+
+
 			idx += 1
 		}
+
 
 		bars = assemble_bars(tuples, @measure, @finalBar)
 		@note, @tpl = connect_beat(bars, @measure, @tpl)

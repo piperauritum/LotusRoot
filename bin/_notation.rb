@@ -127,6 +127,21 @@ module Notation
 			[numer, denom, unit_dur]
 		end
 	end
+	
+	
+	def reduced_tuplets(tp)
+		divisor = [*1..tp[0]-1].reverse.select{|e| (tp[0].to_f/e)%1==0}
+		rto = Rational(tp[1], 2**Math.log2(tp[0]).to_i)
+		divisor.map{|numer|
+			denom = 2**Math.log2(numer).to_i*rto
+			unit_dur = Rational(tp[1]*tp[2], denom)
+			if denom%1==0
+				[numer, denom.to_i, unit_dur]
+			else
+				nil
+			end
+		}-[nil]
+	end
 
 
 	# Hash table of duration and note value in tuplet
