@@ -218,14 +218,26 @@ LotusRoot >> #{note_value(tp_a)}
  
  
  	def recombine_tuplet(quad, tp)
-#		bt = quad.map{|e| (e.dlook.sigma/tp[2]).to_i}
-		bt = quad.map{|e| (e.dlook.sigma/Rational(tp[1]*tp[2], tp[0])).to_i} 
+		tick = Rational(tp[1]*tp[2], tp[0])
+		bt = quad.map{|e| (e.dlook.sigma/tick).to_i}
+		
+		if tp[0]==tp[1]
+			bt = [tp[0]].map{|e|
+				if e%3==0
+					[3]*(e/3)
+				else
+					[4]*(e/4)+[e%4]-[0]
+				end
+			}.flatten
+		end
+		
 		tp_a = [bt, tp[1], tp[2]]
 
 		while 0
 			id = 0
 			tm = 0
 			cd = false
+			bu = false
 
 			while id<quad.size
 				fo, la = quad[id], quad[id+1]
@@ -233,7 +245,10 @@ LotusRoot >> #{note_value(tp_a)}
 				if la!=nil
 					fol, laf = fo.last, la.first
 					nv = fol.du + laf.du
-					tm += fo[0..-2].dtotal if fo.size>1
+					if fo.size>1
+						tm += fo[0..-2].dtotal
+						bu = true
+					end
 
 					if @dotDuplet && tp.dot?
 						nval = note_value_dot(tp)[nv]
@@ -243,21 +258,24 @@ LotusRoot >> #{note_value(tp_a)}
 
 					pos_table = {
 						3 => {
+							2 => [0, 1],
+							3 => [0],
 							6 => [0],
-							12 => [0],
 						},
 						4 => {
 							2 => [0, 1, 2],
 							3 => [0, 1],
 							4 => [0, 2],
 							6 => [0, 2],
+							8 => [0],
 						},
 					}
 
-					npos = positions(tp_a, pos_table, nv)
-
-					if tp[0]==tp[1] || tp[0]>=8	# to be investigated
-						nval = nil if npos.all?{|e| tm!=e}
+					npos = positions(tp_a, pos_table, nv)					
+					if tp[0]==tp[1] || tp[0]>=8		# to be investigated
+						if @tidyTuplet!=nil && npos.all?{|e| tm!=e}
+							nval = nil
+						end
 					end
 
 					cond = [
@@ -274,6 +292,7 @@ LotusRoot >> #{note_value(tp_a)}
 						cd = cd||true
 					end
 
+					tm -= fo[0..-2].dtotal if bu
 					tm += fo.dtotal
 				end
 				id += 1

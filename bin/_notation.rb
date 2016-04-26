@@ -210,7 +210,7 @@ module Notation
 		rto = Rational(unit_num*unit_dur, bt_struct.sigma)
 		bt_struct.each{|bt|
 			nv = Rational(notevalue, rto)
-			tbl = pos_table[bt]			
+			tbl = pos_table[bt]	
 			if tbl!=nil 
 				sel = tbl.select{|k,v| k==nv}.values[0]
 				if sel!=nil

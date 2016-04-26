@@ -6,7 +6,7 @@ class Score < DataProcess
 	attr_reader :output
 	attr_writer :instName, :measure, :accMode, :pchShift,
 	:noInstName, :autoAcc, :chordAcc, :beam, :pnoTrem,
-	:noTie, :fracTuplet, :dotDuplet, :finalBar, :subdiv, :fmRest
+	:noTie, :fracTuplet, :tidyTuplet, :dotDuplet, :finalBar, :subdiv, :fmRest
 
 
 	def initialize(_dur, _elm, _tpl, _pch)
@@ -29,33 +29,32 @@ class Score < DataProcess
 		idx = 0
 		@seq.inject("r!"){|past, tuple|
 			tp = @tpl[idx]
-			tick = Rational(tp[1]*tp[2], tuple.size)
-			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
-			r_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)
+			tick = Rational(tp[1]*tp[2], tuple.size)			
 			
+			reduc = ->(qt){
+				rd = reduced_tuplets(tp)
+				if rd!=[]
+					rd.each{|tq|
+						if qt.dlook.flatten.map{|d|							
+							note_value(tq)[d]!=nil							
+						}.all?
+							tp = @tpl[idx] = tq						
+						end
+					}
+				end
+			}
 
-			rd = reduced_tuplets(tp)
-			if rd!=[]
-				rd.each{|tq|
-					if r_tuplet.dlook.map{|d|							
-						note_value(tq)[d]!=nil							
-					}.all?
-						tp = @tpl[idx] = tq						
-					end
-				}
-			end
-
-			c_tuplet = recombine_tuplet([r_tuplet.deepcopy], tp)
+			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
+			reduc.call(s_tuplet)			
+			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)					
+			reduc.call(c_tuplet)
 			tuples << c_tuplet
-
-
+			
 			idx += 1
 		}
 
-
 		bars = assemble_bars(tuples, @measure, @finalBar)
 		@note, @tpl = connect_beat(bars, @measure, @tpl)
-#		@note = bars
 		slur_over_tremolo(@note)
 	end
 
