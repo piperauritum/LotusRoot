@@ -5,7 +5,7 @@ class Score < DataProcess
 	include Notation
 	attr_reader :output
 	attr_writer :pitchShift, :metre, :finalBar, :instName, :noInstName,
-	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :pnoTrem,
+	:accMode, :autoAcc, :chordAcc, :altNoteName, :beam, :noTie, :pnoTrem,
 	:fracTuplet, :tidyTuplet, :dotDuplet
 
 
@@ -103,7 +103,7 @@ class Score < DataProcess
 							acmd = @accMode
 							acmd = auto_accmode(pc, @accMode) if @autoAcc
 							eg = pc.map{|e|
-								n = note_name(e, acmd)
+								n = note_name(e, acmd, @altNoteName)
 								n += "!" if prev_pch.include?(e) && !natural?(e) && @chordAcc
 								n
 							}.join(' ')
@@ -112,7 +112,7 @@ class Score < DataProcess
 						else
 							pc = pc[0] if Array === pc
 							prev_pch = [pc]
-							eg = note_name(pc, @accMode)
+							eg = note_name(pc, @accMode, @altNoteName)
 						end
 					}
 
@@ -291,10 +291,10 @@ LotusRoot >> #{vv}
 					if @beam!=nil
 						if nte_id==0
 							n = nte_id
-							bm, go = true, true
+							bm = true
 							elz = []
 
-							while go
+							while 0
 								n_el, n_va = tuple[n].ar
 								elz << n_el
 
@@ -305,7 +305,7 @@ LotusRoot >> #{vv}
 								n += 1
 
 								# search forward
-								go = false if n==tuple.size # || va_sum%beat_dur==0
+								break if n==tuple.size
 							end
 
 							# only the first note

@@ -14,7 +14,7 @@
     \override Accidental.glyph-name-alist = \arrowGlyphs
     \override AccidentalCautionary.glyph-name-alist = \arrowGlyphs
     \override TrillPitchAccidental.glyph-name-alist = \arrowGlyphs
-    \override AmbitusAccidental.glyph-name-alist = \arrowGlyphs
+    \override AmbitusAccidental.glyph-name-alist = \arrowGlyphs    
   }
 }
 

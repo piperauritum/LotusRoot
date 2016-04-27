@@ -6,7 +6,12 @@
 %#(set-default-paper-size "a4" 'landscape)
 
 \score {
-  { \set subdivideBeams = ##t \hoge }
+  { 
+    \set subdivideBeams = ##t
+    \set Staff.extraNatural = ##f
+    \accidentalStyle neo-modern
+    \hoge
+  }
   \layout {}
   \midi {}
 }

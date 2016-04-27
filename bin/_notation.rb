@@ -15,38 +15,60 @@ module Notation
 
 ### Pitch ###
 
-	def note_name(pc, acc=0)
-		nname = [
-			%w(c cis d dis e f fis g gis a ais b),
-			%w(c des d ees e f ges g aes a bes b),
-		]
+	def note_name(pc, acc=0, alt=nil)
+		diatonic = %w(c d e f g a b)
 
-		# quarter tone
-		qname = %w(cih deh dih eeh feh fih geh gih aeh aih beh ceh)
+		chromatic = [[2,6],[0,3]].map.with_index{|x,i|
+			diatonic.map.with_index{|n,deg|
+				if [deg]-x==[]
+					n
+				else
+					[[n, n+"is"], [n+"es", n]][i]
+				end
+			}.flatten
+		}.at(acc%2)
 
-		# eighth tone
-		ename = [
-			%w(ci cise cisi de di dise eesi ee ei fe fi fise
-			fisi ge gi gise gisi ae ai aise besi be bi ce),
-			%w(ci dese desi de di eese eesi ee ei fe fi gese
-			gesi ge gi aese aesi ae ai bese besi be bi ce),
-		]
-
-		if pc%1 == 0.5
-			na = qname[(pc%12).to_i]
-		elsif pc%0.5 == 0.25
-			na = ename[acc][(pc%12-0.25)*2]
+		if acc<2
+			qtone = chromatic.map{|n|
+				[[n, n+"ih"], [n+"eh", n]][acc%2]
+			}.flatten
 		else
-			na = nname[acc][pc%12]
+			qtone = chromatic.map.with_index{|n,i|
+				case i
+				when 0,2,5,7,9
+					[n+"eh", n, n+"ih"]
+				when 4,11
+					[n+"eh", n]
+				else
+					n
+				end
+			}.flatten
 		end
+		qtone = qtone.rotate(qtone.index("c"))
 
+		etone = qtone.map.with_index{|n,i|
+			if i%2==0
+				[n+"e", n, n+"i"]
+			else
+				n
+			end
+		}.flatten
+		etone = etone.rotate(etone.index("c"))
+		
+		if alt!=nil
+			alt.each{|e|
+				pitch, nname = e
+				etone[pitch*4] = nname
+			}
+		end
+		
+		na = etone[pc*4%48]
+		
 		otv = (pc/12.0).floor
-		otv += 1 if na == "ceh" || na == "ce"
-
+		otv += 1 if na=~/ce/
 		otv.abs.times{
 			pc>0 ? na+="'" : na+=","
 		}
-
 		na
 	end
 
