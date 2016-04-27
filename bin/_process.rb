@@ -4,8 +4,9 @@ require_relative '_notation'
 class DataProcess
 	include Notation
 
-	def initialize(_tpl)
-		@tpl = _tpl
+
+	def initialize(_tuplets)
+		@tpl_param = _tuplets
 	end
 
 
@@ -47,8 +48,8 @@ class DataProcess
 	end
 
 
-	def divide_measures_into_beats(measure)
-		measure.map{|e|			
+	def divide_metres_into_beats(metre)
+		metre.map{|e|			
 			if Array===e
 				e[0].map{|f| Rational(f*e[1])}
 			else
@@ -58,10 +59,10 @@ class DataProcess
 	end
 
 
-	def assemble_tuplets(ary, tpl, measure)
+	def assemble_tuplets(ary, tpl, metre)
 		new_tpl = []
 		new_ary = []
-		beats = divide_measures_into_beats(measure)
+		beats = divide_metres_into_beats(metre)
 		idx = 0
 
 		while ary.size>0
@@ -272,7 +273,7 @@ LotusRoot >> #{note_value(tp_a)}
 					}
 
 					npos = positions(tp_a, pos_table, nv)					
-					if tp[0]==tp[1] || tp[0]>=8		# to be investigated
+					if tp[0]==tp[1] || tp[0]>=8		# (to be investigated)
 						if @tidyTuplet!=nil && npos.all?{|e| tm!=e}
 							nval = nil
 						end
@@ -304,21 +305,20 @@ LotusRoot >> #{note_value(tp_a)}
 	end
 
 
-	# Split into bar
-	def assemble_bars(tuples, measure, final_bar)
-		meas_id = 0
+	def assemble_bars(tuples, metre, final_bar)
+		mtr_id = 0
 		bars = []
 		bar_residue = 0
 
 		while tuples.size>0 || bar_residue>0
-			meas = measure.on(meas_id)
-			meas = Rational(meas[0].sigma*meas[1]) if Array===meas
+			mtr = metre.on(mtr_id)
+			mtr = Rational(mtr[0].sigma*mtr[1]) if Array===mtr
 
-			if tuples.dtotal<meas
+			if tuples.dtotal<mtr
 				filler = []
 				tpl_add = []
 				len = tuples.dtotal+filler.dtotal+bar_residue
-				gap = meas-len
+				gap = mtr-len
 
 				while gap>0
 					tk = note_value(16).select{|e| e<=gap}.max[0]
@@ -330,46 +330,45 @@ LotusRoot >> #{note_value(tp_a)}
 				filler.reverse!
 				tpl_add.reverse!
 				tuples += filler
-				@tpl += tpl_add
+				@tpl_param += tpl_add
 			end
 
 			bar = []
-			while bar.dtotal+bar_residue<meas
+			while bar.dtotal+bar_residue<mtr
 				bar << tuples.shift
 			end
 
-			bar_residue = bar.dtotal+bar_residue-meas
+			bar_residue = bar.dtotal+bar_residue-mtr
 			bars << bar
-			meas_id += 1
+			mtr_id += 1
 		end
 
-		bars = fit_into_final_bar(bars, measure, meas_id, final_bar)
+		bars = fit_into_final_bar(bars, metre, mtr_id, final_bar)
 		bars
 	end
 
 
-	# Add rests or cut bars for fit into final_bar length
-	def fit_into_final_bar(bars, measure, meas_id, final_bar)
+	def fit_into_final_bar(bars, metre, mtr_id, final_bar)
 		if final_bar!=nil
 			if final_bar>bars.size
 				(final_bar-bars.size).times{
-					meas = measure.on(meas_id)
+					mtr = metre.on(mtr_id)
 					ar = []
 					tp = []
-					if Fixnum === meas
-						meas.times{
+					if Fixnum === mtr
+						mtr.times{
 							ar << [Event.new("r!", 1r)]
 							tp << [1, 1, 1]
 						}
 					else
-						meas[0].each{|e|
-							ar << [Event.new("r!", Rational(e*meas[1]))]
-							tp << [1, 1, Rational(e*meas[1])]
+						mtr[0].each{|e|
+							ar << [Event.new("r!", Rational(e*mtr[1]))]
+							tp << [1, 1, Rational(e*mtr[1])]
 						}
 					end
 					bars << ar
-					@tpl += tp
-					meas_id += 1
+					@tpl_param += tp
+					mtr_id += 1
 				}
 			else
 				bars = bars[0..final_bar-1]
@@ -379,7 +378,7 @@ LotusRoot >> #{note_value(tp_a)}
 	end
 
 
-	def connect_beat(bars, measure, tpl)
+	def connect_beat(bars, metre, tpl)
 
 		# Associate tuplet and tuplet-number
 		tx = 0
@@ -395,14 +394,14 @@ LotusRoot >> #{note_value(tp_a)}
 
 		barr.each.with_index{|bar, idx|
 			bv = bar.map{|e| e[0]}.dtotal
-			meas = measure.on(idx)
+			mtr = metre.on(idx)
 
-			if (Array===meas && Rational(meas[0].sigma*meas[1])!=bv) || (Fixnum===meas && meas!=bv)
+			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bv) || (Fixnum===mtr && mtr!=bv)
 				msg = <<-EOS
 				
-LotusRoot >> #{meas}
+LotusRoot >> #{mtr}
 LotusRoot >> #{bar.look}
-LotusRoot >> total duration of bar (#{bv}) is different from the time signature (#{meas})
+LotusRoot >> total duration of bar (#{bv}) is different from the time signature (#{mtr})
 				EOS
 				raise msg
 			end
@@ -423,10 +422,10 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
 						
-						if Array===meas
-							bt, ud = meas
+						if Array===mtr
+							bt, ud = mtr
 						else
-							bt = [meas]
+							bt = [mtr]
 							ud = 1
 						end
 							
@@ -476,8 +475,6 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 							laf.el=="s!" && fol.el=~/s!/,
 						].any?
 						
-					#	tup = ->(x){x[0].map{|e| e.du}.map(&:denominator).max}						
-					#	homoPlet = Math.log2(tup.(fo))%1==0 && Math.log2(tup.(la))%1==0
 						homoPlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
 				
 						if matchValue && matchDup && homoElem && homoPlet

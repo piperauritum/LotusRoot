@@ -1,8 +1,8 @@
 ﻿class Event
 	attr_accessor :el, :du
 
-	def initialize(e, d)
-		@el, @du = e, d		# element, duration
+	def initialize(element, duration)
+		@el, @du = element, duration
 	end
 
 	def ar
@@ -13,7 +13,7 @@ end
 
 module Notation
 
-## Pitch ##
+### Pitch ###
 
 	def note_name(pc, acc=0)
 		nname = [
@@ -91,7 +91,7 @@ module Notation
 	end
 
 
-## Duration ##
+### Duration ###
 
 	def tuplet_num_to_array(tpl, beat=1)
 		if Array === tpl
@@ -144,7 +144,6 @@ module Notation
 	end
 
 
-	# Hash table of duration and note value in tuplet
 	def note_value(tpl)
 		rto_nu, rto_de, unit_nt = tuplet_num_to_array(tpl)
 
@@ -225,10 +224,9 @@ module Notation
 	end
 
 	
-## Event ##
+### Event Structure ###
 
-	# Look inside of event structure
-	def lookinside(type)
+	def lookInside(type)
 		sel = ->(x){
 			case type
 			when :ar; x.ar
@@ -241,7 +239,7 @@ module Notation
 			self.map{|e|
 				case e
 				when Array
-					e.lookinside(type)
+					e.lookInside(type)
 				when Event
 					sel.call(e)
 				else
@@ -256,18 +254,17 @@ module Notation
 	end
 
 	def look
-		self.lookinside(:ar)
+		self.lookInside(:ar)
 	end
 
 	def elook
-		self.lookinside(:el)
+		self.lookInside(:el)
 	end
 
 	def dlook
-		self.lookinside(:du)
+		self.lookInside(:du)
 	end
 
-	# Total duration of event structure
 	def dtotal
 		if self!=[]
 			self.look.flatten.inject(0){|s,e| Numeric === e ? s+e : s}

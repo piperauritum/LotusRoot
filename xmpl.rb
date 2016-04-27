@@ -12,7 +12,7 @@ elm = ["TMP4;48;@("] + ["@"]*6 + ["@)"]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
-sco.pchShift = 12
+sco.pitchShift = 12
 sco.gen
 sco.print
 sco.export("sco.txt")

@@ -9,7 +9,7 @@ elm = dur.map{|e| "@^\\markup{#{e}}"}
 pch = [12]
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
-# sco.measure = [3]
+# sco.metre = [3]
 
 sco.fracTuplet = 0
 # sco.dotDuplet = 0

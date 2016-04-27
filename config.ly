@@ -21,16 +21,3 @@
 fractpl = {
   \once \override TupletNumber.text = #tuplet-number::calc-fraction-text
 }
-
-%%%% Subdivided beams
-% sco.subdiv = 0
-% \set subdivideBeams = ##t
-
-bsmX = {
-  \set baseMoment = #(ly:make-moment 1/4)
-  \set beatStructure = #'(1 1 1 1)
-}
-bsmY = {
-  \set baseMoment = #(ly:make-moment 1/8) 
-  \set beatStructure = #'(2 2 2 2)
-}

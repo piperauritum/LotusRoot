@@ -1,96 +1,99 @@
-﻿require_relative '_dataprocess'
+﻿require_relative '_process'
 include Notation
 
 class Score < DataProcess
 	include Notation
 	attr_reader :output
-	attr_writer :instName, :measure, :accMode, :pchShift,
-	:noInstName, :autoAcc, :chordAcc, :beam, :pnoTrem,
-	:noTie, :fracTuplet, :tidyTuplet, :dotDuplet, :finalBar, :subdiv, :fmRest
+	attr_writer :pitchShift, :metre, :finalBar, :instName, :noInstName,
+	:accMode, :autoAcc, :chordAcc, :beam, :noTie, :pnoTrem,
+	:fracTuplet, :tidyTuplet, :dotDuplet
 
 
-	def initialize(_dur, _elm, _tpl, _pch)
-		super(_tpl)
-		@seq = unfold_elements(_dur, _elm)
-		@pch = _pch-[nil]
+	def initialize(_durations, _elements, _tuplets, _pitches)
+		super(_tuplets)
+		@tpl_data = unfold_elements(_durations, _elements)
+		@pitch = _pitches-[nil]
 		@instName = "hoge"
-		@measure = [4]
-		@accMode, @pchShift = 0, 0
+		@metre = [4]
+		@accMode, @pitchShift = 0, 0
 		@gspat, @gsrep = [], []
 	end
 
 
 	def sequence
-		@pch = pitch_shift(@pch, @pchShift)
-		@seq, @tpl = assemble_tuplets(@seq, @tpl, @measure)
-		@seq = delete_suspensions(@seq) if @noTie
+		@pitch = pitch_shift(@pitch, @pitchShift)
+		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
+		@tpl_data = delete_suspensions(@tpl_data) if @noTie
 
 		tuples = []
 		idx = 0
-		@seq.inject("r!"){|past, tuple|
-			tp = @tpl[idx]
+		@tpl_data.inject("r!"){|past, tuple|
+			tp = @tpl_param[idx]
 			tick = Rational(tp[1]*tp[2], tuple.size)			
 			
 			reduc = ->(qt){
 				rd = reduced_tuplets(tp)
+				rd.select!{|e| e[0]==e[1]} if tp[0]==tp[1]				
 				if rd!=[]
 					rd.each{|tq|
 						if qt.dlook.flatten.map{|d|							
 							note_value(tq)[d]!=nil							
 						}.all?
-							tp = @tpl[idx] = tq						
+							tp = @tpl_param[idx] = tq						
 						end
 					}
 				end
 			}
 
-			s_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
-			reduc.call(s_tuplet)			
-			c_tuplet = recombine_tuplet(s_tuplet.deepcopy, tp)					
-			reduc.call(c_tuplet)
-			tuples << c_tuplet
+			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
+			reduc.call(sd_tuplet)			
+			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tp)					
+			reduc.call(rc_tuplet)
+			tuples << rc_tuplet
 			
 			idx += 1
 		}
 
-		bars = assemble_bars(tuples, @measure, @finalBar)
-		@note, @tpl = connect_beat(bars, @measure, @tpl)
-		slur_over_tremolo(@note)
+		ba = assemble_bars(tuples, @metre, @finalBar)
+		@seq, @tpl_param = connect_beat(ba, @metre, @tpl_param)
+		slur_over_tremolo(@seq)
 	end
 
 
 	def scribe
 		self.sequence
 
-		pc_id = -1
-		pre_pc, pre_du, pre_el, pre_tm = [], nil, nil, nil
-		tp, pre_tp, tp_id = nil, nil, -1
-		brac, beamed = nil, nil
+		pch_id = -1
+		tp, prev_tpl, tpp_id = nil, nil, 0
+		prev_pch, prev_dur, prev_elm, prev_mtr = [], nil, nil, nil
+		bracketing, beaming = nil, nil
 		voice = ""
-		basemom = nil
-		tpl_id = 0
 
-		@note.each.with_index{|bar, bar_id|
-			tm = @measure[bar_id % @measure.size]
-			if Array === tm
-				beat_dur = tm[1]
-				bar_dur = tm[0].sigma*beat_dur
+		##### MEASURE #####
+		@seq.each.with_index{|bar, bar_id|
+			mtr = @metre[bar_id % @metre.size]
+			
+			if Array === mtr
+				beat_dur = mtr[1]
+				bar_dur = mtr[0].sigma*beat_dur
 			else
 				beat_dur = 1
-				bar_dur = tm*beat_dur
+				bar_dur = mtr*beat_dur
 			end
-			bar.each.with_index{|tuple, bt_id|
-
-				# tuplet number
-				tp = @tpl.on(tpl_id)
+		
+			##### TUPLET #####
+			bar.each.with_index{|tuple, beat_id|
+				tp = @tpl_param.on(tpp_id)
+				
 				dotted = [
 					@dotDuplet!=nil,
-					Array===tp,
+					Array === tp,
 					Math.log2(tp[0])%1==0,
 					tp[1]%3==0,
 					note_value_dot(tp)!=nil
 				].all?
 
+				##### NOTE #####
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
 
@@ -101,14 +104,14 @@ class Score < DataProcess
 							acmd = auto_accmode(pc, @accMode) if @autoAcc
 							eg = pc.map{|e|
 								n = note_name(e, acmd)
-								n += "!" if pre_pc.include?(e) && !natural?(e) && @chordAcc
+								n += "!" if prev_pch.include?(e) && !natural?(e) && @chordAcc
 								n
 							}.join(' ')
-							pre_pc = pc
+							prev_pch = pc
 							eg = "<#{eg}>"
 						else
 							pc = pc[0] if Array === pc
-							pre_pc = [pc]
+							prev_pch = [pc]
 							eg = note_name(pc, @accMode)
 						end
 					}
@@ -120,19 +123,19 @@ class Score < DataProcess
 					if nte_id==0
 
 						# close beam
-						if beamed
+						if beaming
 							voice += "]"
-							beamed = false
+							beaming = false
 						end
 
 						# close bracket
-						if brac
+						if bracketing
 							voice += "} "
-							brac = false
+							bracketing = false
 						end
 
 						# line break
-						voice += "\n" if bt_id==0
+						voice += "\n" if beat_id==0
 					end
 
 					# tempo mark
@@ -143,33 +146,33 @@ class Score < DataProcess
 					end
 
 					# time signature
-					if bt_id==0 && tm!=pre_tm
-						if Array === tm
-							nu = tm[0].sigma
-							de = (Rational(1, tm[1])*4).to_i
+					if beat_id==0 && mtr!=prev_mtr
+						if Array === mtr
+							nu = mtr[0].sigma
+							de = (Rational(1, mtr[1])*4).to_i
 							voice += "\\time #{nu}/#{de} "
 						else
-							voice += "\\time #{tm}/4 "
+							voice += "\\time #{mtr}/4 "
 						end
-					end
-					pre_tm = tm
+					end					
+					prev_mtr = mtr
 
 					# grace note
 					if /((GRC)(.*;))/ =~ _el
 						gval, gnum = $3.split(/;/).map(&:to_i)
 						gtxt = ""
 						gnum.times{|i|
-							pc_id += 1
-							gtxt += abc.call(@pch.on(pc_id))
+							pch_id += 1
+							gtxt += abc.call(@pitch.on(pch_id))
 							gtxt += "#{gval}" if i==0
 							gtxt += " " if i<gnum-1
 						}
 						voice += "\\acciaccatura {#{gtxt}} "
 						_el = _el.sub(/GRC.*;/, "")
-						pre_du = gval
+						prev_dur = gval
 					end
 
-					### main note
+					### main note ###
 					ntxt = ""
 
 					# before note
@@ -178,27 +181,16 @@ class Score < DataProcess
 					}
 
 					# tuplet bracket
-					if nte_id==0 && !brac
-						if !dotted && ((Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1])) # &&
-					#	(tuple.size>1 || (tuple.size==1 && note_value(16)[_du]==nil))
-							brac = true
-							if @subdiv!=nil && basemom!=1
-								ntxt += "\\bsmY "	# config.ly
-								basemom = 1
-							end
-
-							tp_a = @tpl.on(tpl_id)
-							if Array===tp_a
+					if nte_id==0 && !bracketing
+						if !dotted && ((Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1]))
+							bracketing = true
+							tp_a = @tpl_param.on(tpp_id)
+							if Array === tp_a
 								ntxt += "\\fractpl " if @fracTuplet!=nil # config.ly
 								ntxt += "\\tuplet #{tp_a[0]}/#{tp_a[1]} {"
 							else
 								den = 2**Math.log2(tp_a).to_i
 								ntxt += "\\tuplet #{tp_a}/#{den} {"
-							end
-						else
-							if @subdiv!=nil && basemom!=0
-								ntxt += "\\bsmX "
-								basemom = 0
 							end
 						end
 					end
@@ -206,16 +198,11 @@ class Score < DataProcess
 					# put note
 					case _el
 					when /r!|rrr/
-						if _du==bar_dur && @fmRest!=nil
-						### not work when sco.measure = [[[2,2,1],1/2r]] ###
-							ntxt+="R"
-						else
-							ntxt+="r"
-						end
+						ntxt+="r"		# (whole bar rest should not be used)
 					when /s!|sss/
 						ntxt += "s"
 					else
-						pc_id += 1 if _el=~/@|%%/	# next pitch
+						pch_id += 1 if _el=~/@|%%/	# next pitch
 						if _el=~/%/		# two-notes tremolo
 							/((%+)(C?)(\d+))/ =~ _el
 							tr_dur = $4.to_i
@@ -225,12 +212,9 @@ class Score < DataProcess
 							ntxt += "\\repeat tremolo #{tr_times} {"
 							ntxt += "\\change Staff = lower " if @pnoTrem
 						else
-							ntxt += abc.call(@pch.on(pc_id))
+							ntxt += abc.call(@pitch.on(pch_id))
 						end
 					end
-
-					# delete arrow
-				#	%w(\\eup \\edn).each{|e| ntxt.sub!(e, "")} if _el=~/=/
 
 					# note value
 					if dotted
@@ -238,10 +222,13 @@ class Score < DataProcess
 					else
 						nv = note_value(tp)[_du]
 					end
-					nv = note_value(16)[_du] if nv==nil
 					
 					if nv==nil
-						dotted ? vv = note_value_dot(tp) : vv = note_value(tp)
+						if dotted
+							vv = note_value_dot(tp)
+						else
+							vv = note_value(tp)
+						end
 						msg = <<-EOS
 
 LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tp}).
@@ -251,8 +238,12 @@ LotusRoot >> #{vv}
 						raise msg
 					end
 					
-					ntxt += nv if !(_el=~/%/) &&
-					((pre_du!=_du || pre_tp!=tp || pre_el=~/%/) || (_du==bar_dur && (_el=~/r!|s!/)))
+					if !(_el=~/%/) && (
+						(prev_dur!=_du || prev_tpl!=tp || prev_elm=~/%/) || 
+						(_du==bar_dur && (_el=~/r!|s!/))
+						)
+						ntxt += nv
+					end
 
 					# tremolo
 					ntxt += ":" if _el=="=:"
@@ -264,10 +255,10 @@ LotusRoot >> #{vv}
 
 					# two-notes tremolo
 					if _el=~/%/
-						ta = @pch.on(pc_id)
+						ta = @pitch.on(pch_id)
 						tr_txt = _el.sub(/.*%+C?\d+/, "")
 						tr_dat = _el.scan(/\[.+\]/)[0]
-						tr_note = tr_dat.gsub(/\[|\]|\s/, "").split(",").map{|e| e.to_f+@pchShift}
+						tr_note = tr_dat.gsub(/\[|\]|\s/, "").split(",").map{|e| e.to_f+@pitchShift}
 
 						if !(Array===ta) && tr_note.size==1
 							tr_abc = abc.call([ta, tr_note[0]])
@@ -296,7 +287,7 @@ LotusRoot >> #{vv}
 
 					voice += ntxt
 
-					### beam
+					##### beam #####
 					if @beam!=nil
 						if nte_id==0
 							n = nte_id
@@ -307,7 +298,7 @@ LotusRoot >> #{vv}
 								n_el, n_va = tuple[n].ar
 								elz << n_el
 
-								nv = note_value(@tpl.on(tpl_id))[n_va]
+								nv = note_value(@tpl_param.on(tpp_id))[n_va]
 								%w(4 2 1).each{|e|
 									bm = false if nv!=nil && nv.gsub(".","")==e
 								}
@@ -334,27 +325,27 @@ LotusRoot >> #{vv}
 							bm = false if eq==0
 
 							# already beamed
-							bm = false if beamed==true
+							bm = false if beaming==true
 
 							if bm
 								voice += "["
-								beamed = true
+								beaming = true
 							end
 						end
 					end
 
-					pre_du = _du
-					pre_tp = tp
-					pre_el = _el
+					prev_dur = _du
+					prev_tpl = tp
+					prev_elm = _el
 					voice += " "
 				}
-				tpl_id += 1
+				tpp_id += 1
 			}
 		}
 
 		# close voice
-		voice += "]" if beamed
-		voice += "}" if brac
+		voice += "]" if beaming
+		voice += "}" if bracketing
 		if @noInstName==nil
 			voice = "#{@instName} = {#{voice}\n}"
 		end

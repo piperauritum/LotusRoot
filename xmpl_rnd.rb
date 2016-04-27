@@ -16,7 +16,7 @@ p dur, elm, tpl, pch
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.autoAcc = 0
-sco.pchShift = 12
-sco.measure = [*0..99].map{rand(3)>1 ? rand(4)+1 : [[[2]*(rand(3)+1),1].flatten,2]}
+sco.pitchShift = 12
+sco.metre = [*0..99].map{rand(3)>1 ? rand(4)+1 : [[[2]*(rand(3)+1),1].flatten,2]}
 sco.gen
 sco.export("sco.txt")

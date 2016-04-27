@@ -6,7 +6,7 @@
 %#(set-default-paper-size "a4" 'landscape)
 
 \score {
-  { \hoge }
+  { \set subdivideBeams = ##t \hoge }
   \layout {}
   \midi {}
 }
