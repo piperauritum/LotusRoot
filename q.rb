@@ -3,6 +3,9 @@ require_relative 'bin/LotusRoot'
 # int tpl = div each beats
 # ary tpl = explicit
 
+### TODO
+# altNoteName for n-octaves
+# raise input error
 
 tpl = [7]
 pch = [*0..99].map{
