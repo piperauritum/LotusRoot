@@ -54,16 +54,18 @@ module Notation
 			end
 		}.flatten
 		etone = etone.rotate(etone.index("c"))
-		
+
 		if alt!=nil
+			rep = alt.transpose[0]
+			rep = rep.max/12+1
+			etone = etone*rep
 			alt.each{|e|
 				pitch, nname = e
 				etone[pitch*4] = nname
 			}
 		end
-		
-		na = etone[pc*4%48]
-		
+
+		na = etone.on(pc*4)
 		otv = (pc/12.0).floor
 		otv += 1 if na=~/ce/
 		otv.abs.times{
@@ -129,28 +131,28 @@ module Notation
 				unit_dur = Rational(beat, numer)
 				unit_dur = 2**(Math.log2(unit_dur).to_i)
 				denom = beat/unit_dur
-				
+
 				if denom%1!=0
 					if note_value(64)[Rational(beat, numer)]!=nil
 						unit_dur = Rational(beat, numer)
 						numer = beat/unit_dur
-						denom = beat/unit_dur						
-					else						
+						denom = beat/unit_dur
+					else
 						d = Rational(denom, denom.numerator)
 						numer /= d
 						denom /= d
-						unit_dur *= d						
+						unit_dur *= d
 					end
-				end							
+				end
 			end
-			
+
 			numer = numer.to_i
 			denom = denom.to_i
 			[numer, denom, unit_dur]
 		end
 	end
-	
-	
+
+
 	def reduced_tuplets(tp)
 		divisor = [*1..tp[0]-1].reverse.select{|e| (tp[0].to_f/e)%1==0}
 		rto = Rational(tp[1], 2**Math.log2(tp[0]).to_i)
@@ -225,13 +227,13 @@ module Notation
 
 
 	def positions(tp_a, pos_table, notevalue)
-		bt_struct, unit_num, unit_dur = tp_a.deepcopy		
+		bt_struct, unit_num, unit_dur = tp_a.deepcopy
 		tme = 0
 		ary = []
 		rto = Rational(unit_num*unit_dur, bt_struct.sigma)
 		bt_struct.each{|bt|
 			nv = Rational(notevalue, rto)
-			tbl = pos_table[bt]	
+			tbl = pos_table[bt]
 			if tbl!=nil 
 				sel = tbl.select{|k,v| k==nv}.values[0]
 				if sel!=nil
@@ -245,7 +247,7 @@ module Notation
 		ary
 	end
 
-	
+
 ### Event Structure ###
 
 	def lookInside(type)

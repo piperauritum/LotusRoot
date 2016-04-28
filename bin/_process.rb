@@ -16,7 +16,7 @@ class DataProcess
 				case el
 				when /@/	# attack
 					[el]+["="]*(du-1)
-					
+
 				when /@:/	# tremolo
 					[el]+["=:"]*(du-1)
 
@@ -35,7 +35,7 @@ class DataProcess
 					stacc_el, stacc_du = el
 					sdu = [stacc_du, du].min-1
 					rest = ["r!"]*(du-stacc_du)
-					
+
 					if stacc_el=~/@:/
 						[stacc_el]+["=:"]*sdu+rest
 					else
@@ -49,13 +49,19 @@ class DataProcess
 
 
 	def divide_metres_into_beats(metre)
-		metre.map{|e|			
+	begin
+		metre.map{|e|
 			if Array===e
 				e[0].map{|f| Rational(f*e[1])}
 			else
 				[1]*e
 			end
 		}.flatten
+	rescue
+		puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
+		raise
+	end
+	
 	end
 
 
@@ -66,7 +72,13 @@ class DataProcess
 		idx = 0
 
 		while ary.size>0
-			tp = tpl.on(idx)
+			begin
+				tp = tpl.on(idx)
+			rescue
+				puts "LotusRoot >> Parameter of tuplet must be [Fixnum..] or [[Fixnum, Fixnum, Rational]..]"
+				raise
+			end
+
 			bt = beats.on(idx)
 			rept = 1
 
@@ -85,26 +97,32 @@ class DataProcess
 					else
 						rept = tp_a[0]/rto.numerator
 						tp_a = [rto.numerator, rto.denominator, tp_a[2]]
-					end	
+					end
 				end
 			else
-				tp_a = tp				
+				tp_a = tp
 			end
-	
+
 			rept.times{
-				len = tp_a[0]
-				tick = Rational(tp_a[1]*tp_a[2], tp_a[0])
-				
+				begin
+					len = tp_a[0]
+					tick = Rational(tp_a[1]*tp_a[2], tp_a[0])
+				rescue
+					puts "LotusRoot >> Parameter of tuplet must be [Fixnum..] or [[Fixnum, Fixnum, Rational]..]"
+					raise
+				end
+
 				if Fixnum===tp && tick.numerator>1
 					len = tp
 					tick *= Rational(tp_a[0], tp)
 				end
-				
+
 				if note_value(tp_a)[tick]==nil
 					msg = <<-EOS
 
-LotusRoot >> beat: (#{bt})
-LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tp_a}).
+LotusRoot >> Unexpected error
+LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tp_a})
+LotusRoot >> Beat: (#{bt})
 LotusRoot >> #{note_value(tp_a)}
 					EOS
 					raise msg
@@ -134,15 +152,15 @@ LotusRoot >> #{note_value(tp_a)}
 						new_tpl << tp_a
 					else
 						new_tpl << tpl.on(idx)
-					end					
+					end
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
 				new_ary << ay
-			}			
+			}
 			idx += 1
 		end
-		
+
 		[new_ary.dup, new_tpl.dup]
 	end
 
@@ -221,7 +239,7 @@ LotusRoot >> #{note_value(tp_a)}
  	def recombine_tuplet(quad, tp)
 		tick = Rational(tp[1]*tp[2], tp[0])
 		bt = quad.map{|e| (e.dlook.sigma/tick).to_i}
-		
+
 		if tp[0]==tp[1]
 			bt = [tp[0]].map{|e|
 				if e%3==0
@@ -231,7 +249,7 @@ LotusRoot >> #{note_value(tp_a)}
 				end
 			}.flatten
 		end
-		
+
 		tp_a = [bt, tp[1], tp[2]]
 
 		while 0
@@ -272,7 +290,7 @@ LotusRoot >> #{note_value(tp_a)}
 						},
 					}
 
-					npos = positions(tp_a, pos_table, nv)					
+					npos = positions(tp_a, pos_table, nv)
 					if tp[0]==tp[1] || tp[0]>=8		# (to be investigated)
 						if @tidyTuplet!=nil && npos.all?{|e| tm!=e}
 							nval = nil
@@ -285,7 +303,7 @@ LotusRoot >> #{note_value(tp_a)}
 						fol.el=~/s!/ && laf.el=~/s!/,
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 					]
-					
+
 					if cond.any? && nval!=nil
 						fol.du += laf.du
 						la.shift
@@ -300,7 +318,7 @@ LotusRoot >> #{note_value(tp_a)}
 			end
 			break if cd == false
 		end
-		
+
 		quad.flatten!
 	end
 
@@ -398,10 +416,11 @@ LotusRoot >> #{note_value(tp_a)}
 
 			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bv) || (Fixnum===mtr && mtr!=bv)
 				msg = <<-EOS
-				
+
+LotusRoot >> Unexpected error
+LotusRoot >> Total duration of bar (#{bv}) is different from the time signature (#{mtr})
 LotusRoot >> #{mtr}
 LotusRoot >> #{bar.look}
-LotusRoot >> total duration of bar (#{bv}) is different from the time signature (#{mtr})
 				EOS
 				raise msg
 			end
@@ -421,14 +440,14 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 						tm += fo_ev[0..-2].dtotal if fo_ev.size>1
 						nv = fol.du + laf.du
 						matchValue = note_value(16)[nv]!=nil
-						
+
 						if Array===mtr
 							bt, ud = mtr
 						else
 							bt = [mtr]
 							ud = 1
 						end
-							
+
 						bt = bt.map{|e|
 							if e%3==0
 								[3]*(e/3)
@@ -436,9 +455,9 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 								[2]*(e/2)+[e%2]-[0]
 							end
 						}.flatten
-				
+
 						tp_a = [bt, bt.sigma, ud]
-											
+
 						pos_table = {
 							2 => {
 								1 => [0, 1/2r, 1],
@@ -455,7 +474,7 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 								6 => [0],
 							},
 						}
-				
+
 						npos = positions(tp_a, pos_table, nv)
 						if npos.all?{|e| tm!=e}
 							matchValue = false
@@ -467,16 +486,16 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)}
 						end
 						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
-						
+
 						homoElem = [
 							[laf.el]-%w(= =:)==[],
 							(fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
 							laf.el=="r!" && fol.el=~/r!/,
 							laf.el=="s!" && fol.el=~/s!/,
 						].any?
-						
+
 						homoPlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
-				
+
 						if matchValue && matchDup && homoElem && homoPlet
 							fol.du += laf.du
 							la_ev.shift
@@ -491,12 +510,11 @@ LotusRoot >> total duration of bar (#{bv}) is different from the time signature 
 				end
 				break if cd == false
 			end
-
-			raise "\nLotusRoot >> invalid value data\n" if bv!= bar.map{|e| e[0]}.dtotal
 		}
 		b = barr.map{|e| e.map{|f| f[0]}}
 		t = barr.inject([]){|s,e| s += e.map{|f| f[1]}}
 		[b, t]
 	end
+
 
 end

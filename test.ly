@@ -7,7 +7,7 @@
 
 \score {
   { 
-    \set subdivideBeams = ##t
+%    \set subdivideBeams = ##t
     \set Staff.extraNatural = ##f
     \accidentalStyle neo-modern
     \hoge
