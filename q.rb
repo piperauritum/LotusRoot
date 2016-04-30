@@ -1,36 +1,25 @@
-﻿require_relative 'bin/LotusRoot'
+require_relative 'bin/LotusRoot'
 
-# int tpl = div each beats
-# ary tpl = explicit
+# todo
+# tremolo
+# fingered trem
 
-### TODO
-# altNoteName for n-octaves
-# raise input error
+dur = [*0..99].map{rand(8)+1}
 
-tpl = [4]
-pch = [*0..72]
-dur = pch.map{1}
-# clipbd(dur)
-# elm = dur.map{rand(2)==0 ? "@GRC16;#{rand(8)+1};" : "r!"}
-# elm = pch.map{|e| ["%32[#{e+2}]", "r!"]}.flatten
-# elm = dur.map.with_index{|e,i| "@^\\markup{#{e}}"}
-# elm[0] += "TMP4;666;" 
-elm = pch.map{"@"}
+pch = dur.map{Array.new(rand(5)+1).map{rand(24)}}
+
+elm = pch.map{|e|
+	%W(@ r! @:64 @GRC16;#{rand(4)+1}; ).at(rand(4))
+}
+# %64#{e.map{|f|f+5}} 
+tpl = [*3..7]
+
 sco = Score.new(dur, elm, tpl, pch)
-sco.beam = 0
-# sco.pitchShift = 12
-# sco.autoAcc = 0
-# sco.chordAcc = 0
-# sco.accMode = 0
-sco.altNoteName = [[1,12+3,24+6],%w(des ees ges)].transpose
-# sco.metre = [*1..16].map{|e| [[e],1/4r]}
-# sco.metre = [[[5],1/2r]]
-# sco.noTie = 0
-# sco.fracTuplet = 0
-# sco.tidyTuplet = 0
-# sco.dotDuplet = 0
-# sco.finalBar = 5
-# sco.noTie = 0
+sco.metre = [*1..8].map{|e| [[e],1/2r]}
+sco.pitchShift = 12
+sco.autoChordAcc = 0
+sco.beamOverRest = 0
+sco.fracTuplet = 0
 sco.gen
 sco.print
 sco.export("sco.txt")

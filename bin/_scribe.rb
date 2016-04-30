@@ -1,29 +1,4 @@
-﻿def slur_over_tremolo(seq)
-	past = nil
-	u,v,w = nil, nil, nil 
-	id = 0
-	seq.each.with_index{|bar,x|
-		bar.each.with_index{|tuple,y|
-			tuple.each.with_index{|note,z|
-				if past!=nil
-					ntr = note.el.scan(/%+/)[0]
-					ptr = past.el.scan(/%+/)[0]
-					if (ptr=="%%" && ntr=="%") || (ptr=="%" && ntr==nil)
-						seq[u][v][w].el = ptr + "C" + past.el.sub(ptr, "")
-					elsif ntr=="%" && id==seq.flatten.size-1
-						seq[x][y][z].el = ntr + "C" + note.el.sub(ntr, "")
-					end
-				end
-				u,v,w = x,y,z
-				past = seq[x][y][z]
-				id += 1
-			}
-		}
-	}
-end
-
-
-def close_bracket(nte_id, beat_id)
+﻿def close_bracket(nte_id, beat_id)
 	if nte_id==0
 		if @beaming
 			@voice += "]"
@@ -43,10 +18,10 @@ end
 def put_note_name(pc)
 	if Array === pc && pc.size>1
 		acc = @accMode
-		acc = auto_accmode(pc, @accMode) if @autoAcc
+		acc = auto_accmode(pc, @accMode) if @autoChordAcc
 		nn = pc.map{|e|
 			n = note_name(e, acc, @altNoteName)
-			n += "!" if @prev_pch.include?(e) && !natural?(e) && @chordAcc
+			n += "!" if @prev_pch.include?(e) && !natural?(e) && @reptChordAcc
 			n
 		}.join(' ')
 		@prev_pch = pc
@@ -131,11 +106,17 @@ def put_note(nte, tp)
 		if _el=~/%/						# fingered tremolo
 			/((%+)(C?)(\d+))/ =~ _el
 			trem_dur = $4.to_i
-			t = [*0..4].map{|e| 2**e*tp[0]}.select{|e| e<=16}.max
+			t = [*0..4].map{|e| 2**e*tp[0]}.max
+#			t = [*0..4].map{|e| 2**e*tp[0]}.select{|e| e<=16}.max
+
 			tr_times = note_value(t).key((trem_dur/2).to_s)
 			tr_times = (_du/tr_times).to_i
+			if tr_times==0
+				puts "LotusRoot >> Note value is equal or shorter than fingered-tremolo notes (\\repeat tremolo 0)"
+				raise
+			end
 			@mainnote += "\\repeat tremolo #{tr_times} {"
-			@mainnote += "\\change Staff = lower " if @pnoTrem
+		#	@mainnote += "\\change Staff = lower " if @pnoTrem
 		else
 			@mainnote += put_note_name(@pitch.on(@pch_id))
 		end
@@ -204,13 +185,13 @@ def fingered_tremolo(nte, trem_dur)
 
 	@mainnote += tr_abc[0]
 	@mainnote += trem_dur.to_s
-	@mainnote += " \\change Staff = upper" if @pnoTrem
+#	@mainnote += " \\change Staff = upper" if @pnoTrem
 	@mainnote += tr_txt
 end
 
 
 def add_beam(tuple, nte_id)
-	if @beam!=nil
+	if @beamOverRest!=nil
 		if nte_id==0
 			n = nte_id
 			bm = true

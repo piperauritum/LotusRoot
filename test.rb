@@ -11,7 +11,7 @@ tpl = [2,3,2,2]
 elm = ["TMP4;48;@("] + ["@"]*6 + ["@)"]
 
 sco = Score.new(dur, elm, tpl, pch)
-sco.autoAcc = 0
+sco.autoChordAcc = 0
 sco.pitchShift = 12
 sco.gen
 sco.print

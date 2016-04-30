@@ -1,12 +1,12 @@
-﻿require_relative '_process'
-require_relative '_writing'
+﻿require_relative '_sequence'
+require_relative '_scribe'
 include Notation
 
 class Score < DataProcess
 	include Notation
 	attr_reader :output
-	attr_writer :pitchShift, :metre, :finalBar, :instName, :noInstName,
-	:accMode, :autoAcc, :chordAcc, :altNoteName, :beam, :noTie, :pnoTrem,
+	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
+	:accMode, :autoChordAcc, :reptChordAcc, :altNoteName, :beamOverRest, :noTieAcrossBeat, # :pnoTrem,
 	:fracTuplet, :tidyTuplet, :dotDuplet
 
 
@@ -14,7 +14,7 @@ class Score < DataProcess
 		super(_tuplets)
 		@tpl_data = unfold_elements(_durations, _elements)
 		@pitch = _pitches-[nil]
-		@instName = "hoge"
+		@namedMusic = "hoge"
 		@metre = [4]
 		@accMode, @pitchShift = 0, 0
 		@gspat, @gsrep = [], []
@@ -24,7 +24,7 @@ class Score < DataProcess
 	def sequence
 		@pitch = pitch_shift(@pitch, @pitchShift)
 		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
-		@tpl_data = delete_suspensions(@tpl_data) if @noTie
+		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
 
 		tuples = []
 		idx = 0
@@ -134,14 +134,14 @@ class Score < DataProcess
 		# close voice
 		@voice += "]" if @beaming
 		@voice += "}" if @bracketing
-		if @noInstName==nil
-			@voice = "#{@instName} = {#{@voice}\n}"
+		if @noMusBracket==nil
+			@voice = "#{@namedMusic} = {#{@voice}\n}"
 		end
 		@voice
 	end
 
 
-	def add_replace(pattern, replacement)
+	def textReplace(pattern, replacement)
 		@gspat << pattern
 		@gsrep << replacement
 	end

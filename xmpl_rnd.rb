@@ -15,7 +15,7 @@ elm = elm.map{|e| rand(4)==0 ? "@GRC8;#{rand(3)+1};" : e}
 p dur, elm, tpl, pch
 
 sco = Score.new(dur, elm, tpl, pch)
-sco.autoAcc = 0
+sco.autoChordAcc = 0
 sco.pitchShift = 12
 sco.metre = [*0..99].map{rand(3)>1 ? rand(4)+1 : [[[2]*(rand(3)+1),1].flatten,2]}
 sco.gen

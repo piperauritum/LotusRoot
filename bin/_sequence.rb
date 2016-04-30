@@ -10,8 +10,9 @@ class DataProcess
 	end
 
 
-	def unfold_elements(dur, elem)
-		elem.zip(dur).map{|el, du|
+	def unfold_elements(dur, elm)
+		elm.map.with_index{|el, i|
+			du = dur.on(i)
 			if du>0
 				case el
 				when /@/	# attack
@@ -165,7 +166,7 @@ LotusRoot >> #{note_value(tp_a)}
 	end
 
 
-	def delete_suspensions(ary)
+	def delete_ties_across_beats(ary)
 		ary.map{|e|
 			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
 				re = true
@@ -489,7 +490,12 @@ LotusRoot >> #{bar.look}
 
 						homoElem = [
 							[laf.el]-%w(= =:)==[],
-							(fo.size==1 || la.size==1) && fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
+							[
+								fo_ev.size==1 || la_ev.size==1,
+								fol.el=~/%/,
+								laf.el=~/%/,
+								!(laf.el=~/%%/)
+							].all?,
 							laf.el=="r!" && fol.el=~/r!/,
 							laf.el=="s!" && fol.el=~/s!/,
 						].any?
@@ -516,5 +522,36 @@ LotusRoot >> #{bar.look}
 		[b, t]
 	end
 
+
+	def slur_over_tremolo(seq)
+		past = nil
+		u,v,w = nil, nil, nil 
+		id = 0
+		seq.each.with_index{|bar,x|
+			bar.each.with_index{|tuple,y|
+				tuple.each.with_index{|note,z|
+					if past!=nil
+						elms = [past.el, note.el].map{|e| e.scan(/%+/)[0]}
+						ptr, ntr = elms
+
+						if [
+							elms==%w(%% %),
+							elms==%w(% %%),
+							elms==["%", nil],							
+						].any?
+							seq[u][v][w].el = ptr + "C" + past.el.sub(ptr, "")
+						end
+						
+						if ntr=="%" && id==seq.flatten.size-1
+							seq[x][y][z].el = ntr + "C" + note.el.sub(ntr, "")
+						end
+					end
+					u,v,w = x,y,z
+					past = seq[x][y][z]
+					id += 1
+				}
+			}
+		}
+	end
 
 end

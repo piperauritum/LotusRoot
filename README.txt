@@ -1,64 +1,145 @@
-LotusRoot (alpha)
-
+LotusRoot
 
 ## Overview
-
-An experimental Ruby program for computer-aided composition, that generates LilyPond code from pitch/duration data.
-
+Generates LilyPond code from arrays.
 
 ## Requirement
-
-Ruby 2.2
-LilyPond 2.18.2
-Frescobaldi 2.18 (recommended)
-
-
-## Example
-
-ruby xmpl.rb
-lilypond xmpl.ly
-
+Ruby 2.2 ~
+LilyPond 2.18.2 ~
+Frescobaldi 2.18 ~ (recommended)
 
 ## Usage
+ruby test.rb
+lilypond test.ly
 
-pch = [Fixnum/Float]		# Pitch (cyclic); Array = chord, .5 = 1/4 tone, .25 = 1/8 tone
-dur = [Fixnum]				# Duration (acyclic)
-tpl = [Fixnum]				# Tuplet (cyclic); Divide a quarter-note into 1 to 16
-elm = [String]				# Element (acyclic). See below
+## Reference
 
-elm = [
-	"@", "=", "r!", "rrr"	# Note/Attack (next pitch), Tie (not for rest), Rest, Individual Rest
-	["@", 1]				# Staccato
-	"\\hoge @ \\moge",		# '@' w/ LilyPond command
-	"@:N", "=:",			# Tremolo in Nth notes
-	"%N[pch]",				# Two-notes tremolo (Nth)
-	"@TMP4;60;",			# Note w/ Tempo mark (note value; bpm;)
-	"@GRC32;4;",			# Note w/ Grace notes (note value; number;)
-]
+# Duration
+dur = [a0, a1, a2, ...]		(cyclic sequence)
 
+a	Fixnum
+
+# Element
+elm = [a0, a1, a2, ...]		(linear sequence)
+
+a	String
+
+@				attack of note
+=				sustain of note (can not use for rest)
+r!				rest
+rrr				individual rest
+s!				invisible (spacer) rest
+sss				individual invisible rest
+(cmd)@(cmd)		attack with LilyPond command
+@:32			tremolo in Nth notes
+=:				sustain of tremolo
+%32[(pch)]		fingered tremolo in Nth notes
+@TMP4;60;		tempo mark (note value, BPM)
+@GRC32;4;		grace notes (note value, amount of notes)
+["@", 1]		staccato (shortened note)
+
+# Tuplet
+tpl = [a0, a1, a2, ...]		(cyclic sequence)
+
+a	number of division (Fixnum)
+
+	or
+
+a	[n, d, u]
+	n	numerator (Fixnum)
+	d	denominator (Fixnum)
+	u	unit duration (Rational)
+
+
+# Pitch
+pch = [a0, a1, a2, ...]		(cyclic sequence)
+
+a	Fixnum/Float/Rational (single note)
+
+	or
+
+a	[Fixnum/Float/Rational] (chord)
+
+Fixnum			chromatic scale
+Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
+
+
+# Initialize
 sco = Score.new(dur, elm, tpl, pch)
-sco.instName = "hoge"
-sco.measure = [				# Time signature (cyclic)
-	N,							# N/4
-	[[2,2,1], 1/2r],			# 5/8 = (2+2+1)/(4*2) Numerators must be 1 or 2.
-	[[2,1], 1/4r],				# 3/16 = (2+1)/(4*4)
-]
-sco.pchShift = 0			# Transposition
-sco.accMode = 0				# 0, 1 = Sharp, Flat
-sco.autoAcc = nil			# 0(!nil) = Auto select accidentals of chord
-sco.chordAcc = nil			# 0 = Engrave accidentals to the chord regardless of last chord
-sco.beam = nil				# 0 = Beam over rest on every quarter notes
-sco.subdiv = nil			# 0 = \set baseMoment & beatStructure for subdivideBeams (experimental)
-sco.pnoTrem = nil			# 0 = "\change Staff = upper" "\change Staff = lower"
-sco.noTie = nil				# 0 = Remove syncopation (without a certain case)
-sco.redTupRule = lambda{|num_tuplet, ratio| [num_tuplet*ratio, 1].max}
-							# Rule of reducing tuplets on shorter beat
-sco.finalBar = nil			# Last number of bars
-sco.add_replace(pattern, replacement)	# Add new text replacement
-ssco.noInstName = nil		# 0 = Output only notation
-sco.gen						# Generate LilyPond code
-sco.print					# Output to console
-sco.export("sco.txt")		# Export
+
+# Generates LilyPond code
+sco.gen
+
+# Outputs to console
+sco.print
+
+# Exports to a textfile
+sco.export("sco.txt")
+
+# Options
+sco.pitchShift = a
+	a	Fixnum/Float/Rational
+
+sco.metre = [a0, a1, a2, ...]		(cyclic sequence)
+	a	numerator (Fixnum)
+		(denominator = 4)
+
+		or
+
+	a	[[b], u]
+		b	beat structure ([Fixnum])
+		u	unit duration (Rational)
+		(e.g. [[2,2,1], 1/2r] => \time 5/8)
+
+sco.finalBar = a
+	a	the last bar number (Fixnum)
+
+sco.namedMusic = a
+	a	namedMusic (String)
+	
+sco.noMusBracket = 0
+	Removes namedMusic bracket.
+
+sco.accMode = a
+	a	Fixnum
+		0: sharp
+		1: flat
+		2: sharp, without 3/4-tones
+		3: flat, without 3/4-tones
+
+sco.autoChordAcc = 0
+	Selects sharp or flat for each chords automatically.
+
+sco.reptChordAcc = 0
+	Repeats accidentals to the next chord.
+
+sco.altNoteName = [a0, a1, a2, ...]
+	Replaces note-names.
+	
+	a	[p, n]
+		p	pitch (Fixnum/Float/Rational)
+		n	note-name (String)
+
+sco.beamOverRest = 0
+	Beams over rests.
+
+sco.noTieAcrossBeat = 0
+	Deletes ties across beats.
+	
+sco.fracTuplet = 0
+	Writes tuplet numbers in fraction form.
+	
+sco.tidyTuplet = 0
+	Grouping tuplets clearly.
+
+sco.dotDuplet = 0
+	Rewrites 2:3 tuplets into dotted duplets.
+
+sco.textReplace(p, r)
+	Replaces the text.
+	
+	p	pattern (String/Regexp)
+	r	replacement (String)
 
 
 ## Author
