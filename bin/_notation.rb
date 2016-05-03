@@ -170,12 +170,12 @@ module Notation
 
 	def note_value(tpl)
 		rto_nu, rto_de, unit_nt = tuplet_num_to_array(tpl)
-		duple_note = [*-6..2].map{|e|
+		duple_note = [*-16..2].map{|e|
 			x = 2**e
 			[x, "#{(4/x).to_i}"]
 		}
 
-		dotted_note = [*-6..0].map{|e|
+		dotted_note = [*-16..0].map{|e|
 			x = 2**e
 			[Rational(x*3), "#{(2/x).to_i}."]
 		}

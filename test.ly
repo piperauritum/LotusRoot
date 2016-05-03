@@ -9,7 +9,7 @@
   { 
 %    \set subdivideBeams = ##t
     \set Staff.extraNatural = ##f
-    \accidentalStyle forget
+    \accidentalStyle neo-modern
     \hoge
   }
   \layout {}

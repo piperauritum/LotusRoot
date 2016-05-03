@@ -98,19 +98,18 @@ def put_note(nte, tp)
 	_el, _du = nte.ar
 	case _el
 	when /r!|rrr/
-		@mainnote += "r"				# (whole bar rest should not be used)
+		@mainnote += "r"		# (whole bar rest should not be used)
 	when /s!|sss/
 		@mainnote += "s"
 	else
-		@pch_id += 1 if _el=~/@|%%/		# next pitch
-		if _el=~/%/						# fingered tremolo
-			/((%+)(C?)(\d+))/ =~ _el
-			trem_dur = $4.to_i
-			t = [*0..4].map{|e| 2**e*tp[0]}.max
-#			t = [*0..4].map{|e| 2**e*tp[0]}.select{|e| e<=16}.max
-
-			tr_times = note_value(t).key((trem_dur/2).to_s)
-			tr_times = (_du/tr_times).to_i
+		@pch_id += 1 if _el=~/@|%ATK/		# next pitch
+		if _el=~/%/							# fingered tremolo
+			/(%(ATK)?(SOT)?(\d+))/ =~ _el
+			trem_nval = $4.to_i
+			trem_dur = Rational(8, trem_nval)			
+			nval_dur = note_value(2**16).key(note_value(tp)[_du])
+			tr_times = (nval_dur/trem_dur).to_i
+			
 			if tr_times==0
 				puts "LotusRoot >> Note value is equal or shorter than fingered-tremolo notes (\\repeat tremolo 0)"
 				raise
@@ -121,7 +120,7 @@ def put_note(nte, tp)
 			@mainnote += put_note_name(@pitch.on(@pch_id))
 		end
 	end
-	trem_dur
+	trem_nval
 end
 
 
@@ -157,36 +156,38 @@ LotusRoot >> #{vv}
 end
 
 
-def fingered_tremolo(nte, trem_dur)
+def fingered_tremolo(nte, trem_nval)
 	_el = nte.el
-	ta = @pitch.on(@pch_id)
-	tr_txt = _el.sub(/.*%+C?\d+/, "")
-	tr_dat = _el.scan(/\[.+\]/)[0]
-	tr_note = tr_dat.gsub(/\[|\]|\s/, "").split(",").map{|e| e.to_f+@pitchShift}
+	main_pch = @pitch.on(@pch_id)	
+	trem_cmd = _el.sub(/.*%(ATK)?(SOT)?\d+/, "")
+	trem_pch = _el.scan(/\[.+\]/)[0]	
+	nnum = trem_pch.gsub(/\[|\]|\s/, "").split(",").map{|e|	
+		e.gsub(/\(|\)/, "").to_r+@pitchShift
+	}
 
-	if !(Array===ta) && tr_note.size==1
-		tr_abc = put_note_name([ta, tr_note[0]])
+	if Numeric===main_pch && nnum.size==1
+		tr_abc = put_note_name([main_pch, nnum[0]])
 		tr_abc = tr_abc.gsub(/<|>/, "").split(" ")
 	else
-		tr_abc = [put_note_name(ta), put_note_name(tr_note)]
+		tr_abc = [put_note_name(main_pch), put_note_name(nnum)]
 	end
-	tr_txt = tr_txt.sub(tr_dat, "")
+	trem_cmd = trem_cmd.sub(trem_pch, "")
 
 	case _el
-	when /%%C/
-		tr_txt = "#{tr_txt} (#{tr_abc[1]}}"
-	when /%C/
-		tr_txt = "#{tr_txt} #{tr_abc[1]})}"
-	when /%%/
-		tr_txt = "#{tr_txt} (#{tr_abc[1]})}"
+	when /%ATKSOT/
+		trem_cmd = "#{trem_cmd} (#{tr_abc[1]}}"
+	when /%SOT/
+		trem_cmd = "#{trem_cmd} #{tr_abc[1]})}"
+	when /%ATK/
+		trem_cmd = "#{trem_cmd} (#{tr_abc[1]})}"
 	else
-		tr_txt = "#{tr_txt} #{tr_abc[1]}}"
+		trem_cmd = "#{trem_cmd} #{tr_abc[1]}}"
 	end
 
 	@mainnote += tr_abc[0]
-	@mainnote += trem_dur.to_s
+	@mainnote += trem_nval.to_s
 #	@mainnote += " \\change Staff = upper" if @pnoTrem
-	@mainnote += tr_txt
+	@mainnote += trem_cmd
 end
 
 

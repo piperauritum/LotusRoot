@@ -25,7 +25,7 @@ class Score < DataProcess
 		@pitch = pitch_shift(@pitch, @pitchShift)
 		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
 		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
-
+		
 		tuples = []
 		idx = 0
 		@tpl_data.inject("r!"){|past, tuple|
@@ -54,7 +54,6 @@ class Score < DataProcess
 
 			idx += 1
 		}
-
 		ba = assemble_bars(tuples, @metre, @finalBar)
 		@seq, @tpl_param = connect_beat(ba, @metre, @tpl_param)
 		slur_over_tremolo(@seq)
@@ -108,7 +107,7 @@ class Score < DataProcess
 						}
 
 						add_tuplet_bracket(tp, nte_id)
-						trem_dur = put_note(nte, tp)
+						trem_nval = put_note(nte, tp)
 						add_note_value(nte, tp, bar_dur)
 						@mainnote += ":" if _el=="=:"
 
@@ -117,7 +116,7 @@ class Score < DataProcess
 							@mainnote += _el.sub(/.*#{e}/m, "") if _el=~/#{e}/
 						}
 
-						fingered_tremolo(nte, trem_dur) if _el=~/%/
+						fingered_tremolo(nte, trem_nval) if _el=~/%/
 					
 					@voice += @mainnote
 					add_beam(tuple, nte_id)
@@ -170,7 +169,7 @@ class Score < DataProcess
 
 
 	def export(fname)
-	#	Dir::chdir(File.dirname(__FILE__))
+#		Dir::chdir(File.dirname(__FILE__))
 		f = File.open(fname, 'w')
 		n = File.absolute_path(fname)
 		puts "exported > #{n}"

@@ -15,17 +15,17 @@ class DataProcess
 			du = dur.on(i)
 			if du>0
 				case el
-				when /@/	# attack
-					[el]+["="]*(du-1)
-
 				when /@:/	# tremolo
 					[el]+["=:"]*(du-1)
+
+				when /@/	# attack
+					[el]+["="]*(du-1)
 
 				when /(r!|s!|rrr|sss)/	# rest, spacer rest
 					[el]+[$1]*(du-1)
 
 				when /%/	# two-notes tremolo
-					head = el.sub("%", "%%")
+					head = el.sub("%", "%ATK")
 					rept = el.scan(/%\d+/)[0] + el.scan(/\[.+\]/)[0]
 					[head]+[rept]*(du-1)
 
@@ -50,19 +50,18 @@ class DataProcess
 
 
 	def divide_metres_into_beats(metre)
-	begin
-		metre.map{|e|
-			if Array===e
-				e[0].map{|f| Rational(f*e[1])}
-			else
-				[1]*e
-			end
-		}.flatten
-	rescue
-		puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
-		raise
-	end
-	
+		begin
+			metre.map{|e|
+				if Array===e
+					e[0].map{|f| Rational(f*e[1])}
+				else
+					[1]*e
+				end
+			}.flatten
+		rescue
+			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
+			raise
+		end	
 	end
 
 
@@ -129,7 +128,7 @@ LotusRoot >> #{note_value(tp_a)}
 					raise msg
 				end
 
-				# Extract tuplet from array
+				# Cut tuplet out from array
 				if ary.size>len
 					ay = ary.slice!(0, len)
 				else
@@ -138,11 +137,13 @@ LotusRoot >> #{note_value(tp_a)}
 				end
 
 				# Simplify tuplet
-				tie_only = ay-%w(= =:)==[]
-				rest_only = ay-["r!"]==[]
-				atk_tie = !!(ay[0]=~/@/) && ay[1..-1]-%w(= =:)==[]
+				only_rest = ay-["r!"]==[]
+				only_tie = ay-%w(= =:)==[]
+				only_trem = ay.map{|e| !!(e=~/%\d+/)}.all?
+				atk_tie = !!(ay[0]=~/@/) && ay[1..-1]-%w(= =:)==[]				
+				atk_trem = !!(ay[0]=~/%ATK/) && ay[1..-1].map{|e| !!(e=~/%\d+/)}.all?
 
-				if tie_only || rest_only || atk_tie
+				if [only_rest, only_tie, only_trem, atk_tie, atk_trem].any?
 					du = tick*len
 					tick = Rational(1, du.denominator)
 					len = du.numerator
@@ -217,11 +218,11 @@ LotusRoot >> #{note_value(tp_a)}
 						xelm ? 1:0
 					}.sigma>0
 					c_tie = [ev.el]-%w(= =:)==[]
-					c_trem = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%%/)
+					c_trem = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && ev.el=~/#{e}/ ? 1:0 }.sigma>0
 					c_xval = note_value(tp_a)[evt.du+tick]==nil
 
-					if ev.el=~/(@|%%|rrr|sss)/ || n_rest || c_xval
+					if ev.el=~/(@|%ATK|rrr|sss)/ || n_rest || c_xval
 						qa << evt
 						evt = ev
 					elsif c_tie || c_trem || c_rest
@@ -302,7 +303,7 @@ LotusRoot >> #{note_value(tp_a)}
 						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
 						fol.el=~/r!/ && laf.el=~/r!/,
 						fol.el=~/s!/ && laf.el=~/s!/,
-						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%%/),
+						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%ATK/),
 					]
 
 					if cond.any? && nval!=nil
@@ -494,7 +495,7 @@ LotusRoot >> #{bar.look}
 								fo_ev.size==1 || la_ev.size==1,
 								fol.el=~/%/,
 								laf.el=~/%/,
-								!(laf.el=~/%%/)
+								!(laf.el=~/%ATK/)
 							].all?,
 							laf.el=="r!" && fol.el=~/r!/,
 							laf.el=="s!" && fol.el=~/s!/,
@@ -531,19 +532,19 @@ LotusRoot >> #{bar.look}
 			bar.each.with_index{|tuple,y|
 				tuple.each.with_index{|note,z|
 					if past!=nil
-						elms = [past.el, note.el].map{|e| e.scan(/%+/)[0]}
+						elms = [past.el, note.el].map{|e| e.scan(/%[A-Z]*/)[0]}
 						ptr, ntr = elms
 
 						if [
-							elms==%w(%% %),
-							elms==%w(% %%),
+							elms==%w(%ATK %),
+							elms==%w(% %ATK),
 							elms==["%", nil],							
 						].any?
-							seq[u][v][w].el = ptr + "C" + past.el.sub(ptr, "")
+							seq[u][v][w].el = ptr + "SOT" + past.el.sub(ptr, "")
 						end
 						
 						if ntr=="%" && id==seq.flatten.size-1
-							seq[x][y][z].el = ntr + "C" + note.el.sub(ntr, "")
+							seq[x][y][z].el = ntr + "SOT" + note.el.sub(ntr, "")
 						end
 					end
 					u,v,w = x,y,z
