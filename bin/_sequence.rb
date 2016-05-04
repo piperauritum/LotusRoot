@@ -214,12 +214,11 @@ LotusRoot >> #{note_value(tp_a)}
 					evt = ev
 				else
 					n_rest = %w(r! s!).map{|e|
-						xelm = !(past=~/#{e}/) && ev.el=~/#{e}/
-						xelm ? 1:0
-					}.sigma>0
+						(!(past=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./						
+					}.any?
 					c_tie = [ev.el]-%w(= =:)==[]
 					c_trem = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
-					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && ev.el=~/#{e}/ ? 1:0 }.sigma>0
+					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && ev.el=="#{e}"}.any?
 					c_xval = note_value(tp_a)[evt.du+tick]==nil
 
 					if ev.el=~/(@|%ATK|rrr|sss)/ || n_rest || c_xval
@@ -301,8 +300,8 @@ LotusRoot >> #{note_value(tp_a)}
 
 					cond = [
 						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
-						fol.el=~/r!/ && laf.el=~/r!/,
-						fol.el=~/s!/ && laf.el=~/s!/,
+						fol.el=="r!" && laf.el=="r!",
+						fol.el=="s!" && laf.el=="s!",
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%ATK/),
 					]
 
@@ -482,10 +481,11 @@ LotusRoot >> #{bar.look}
 							matchValue = false
 						end
 
+						Array===mtr ? mt=mtr[1] : mt=1
 						if @dotDuplet && fo_tp.dot? && la_tp.dot?
-							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)}
+							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)*mt}
 						else
-							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)}
+							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)*mt}
 						end
 						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
 

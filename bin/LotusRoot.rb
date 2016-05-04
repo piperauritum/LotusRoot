@@ -51,7 +51,6 @@ class Score < DataProcess
 			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tp)
 			reduc.call(rc_tuplet)
 			tuples << rc_tuplet
-
 			idx += 1
 		}
 		ba = assemble_bars(tuples, @metre, @finalBar)

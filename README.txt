@@ -1,4 +1,4 @@
-LotusRoot
+LotusRoot (beta)
 
 ## Overview
 Generates LilyPond code from arrays.
@@ -50,7 +50,6 @@ a	[n, d, u]
 	d	denominator (Fixnum)
 	u	unit duration (Rational)
 
-
 # Pitch
 pch = [a0, a1, a2, ...]		(cyclic sequence)
 
@@ -62,7 +61,6 @@ a	[Fixnum/Float/Rational] (chord)
 
 Fixnum			chromatic scale
 Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
-
 
 # Initialize
 sco = Score.new(dur, elm, tpl, pch)
@@ -141,11 +139,9 @@ sco.textReplace(p, r)
 	p	pattern (String/Regexp)
 	r	replacement (String)
 
-
 ## Author
 
 Takumi Ikeda
-
 
 ## Copyright
 
