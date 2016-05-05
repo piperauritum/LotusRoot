@@ -1,4 +1,4 @@
-require 'bigdecimal'
+﻿require 'bigdecimal'
 require 'win32/clipboard'	# gem install win32-clipboard
 
 
@@ -20,26 +20,26 @@ class Array
 	def on(idx)
 		self.at(idx%self.size)
 	end
-	
+
 	# sum of array
 	def sigma
 		inject(:+)
 	end
-	
+
 	# average
 	def avg
 		self.sigma.to_f/self.size
 	end
-	
+
 	# calc multi-dimensional array
 	def add(x)
 		self.map{|e| Array === e ? e.add(x) : e+x }
 	end
-	
+
 	def mod(x)
 		self.map{|e| Array === e ? e.mod(x) : e%x }
 	end
-	
+
 	# conditional slice
 	def slice_by(&block)
 		x, y = [], []
@@ -53,9 +53,15 @@ class Array
 		x << y
 		x
 	end
+
+	# deep copy
+	def deepcopy
+		Marshal.load(Marshal.dump(self))
+	end
 end
 
 
+# export to file
 def export(str, filepath)
 #	Dir::chdir(File.dirname(__FILE__))
 	f = File.open(filepath, 'w')
@@ -64,9 +70,9 @@ def export(str, filepath)
 end
 
 
-
-def set_clipboard(x)
+# copy to clipboard
+def clipbd(x)
 	x = x.inspect if Array === x
-	Win32::Clipboard.set_data(x)
+	Win32::Clipboard.set_data("#{x}")
 end
 
