@@ -1,5 +1,19 @@
 \include "micro.ly"
 
+%%%% longer stem for tremolo
+#(define (stem-stretch stem-tremolo-grob)
+   (let ((flag-count (ly:grob-property stem-tremolo-grob 'flag-count)))
+     (if (> flag-count 1) 1.5 0)))
+
+#(define (longer-for-tremolo stem-grob)
+   (let* (
+           (stem-tremolo-grob (ly:grob-object stem-grob 'tremolo-flag))
+           (plain-stem? (< (ly:grob-property stem-grob 'duration-log) 8))
+           )
+     (+ (ly:stem::calc-length stem-grob)
+       (if (and (ly:grob? stem-tremolo-grob) plain-stem?)
+           (stem-stretch stem-tremolo-grob) 0))))
+
 %%%% flat tuplet bracket
 #(define flat-brackets
    (lambda (grob)
@@ -55,6 +69,8 @@ config = {
   \override Staff.DynamicLineSpanner.outside-staff-priority = #500
   \override TupletNumber.font-size = #0
   \override TupletNumber.font-series = #'bold
+  \set tupletFullLength = ##t
+  \override TupletBracket.full-length-to-extent = ##f
   \tupletUp
   \overrideTimeSignatureSettings	%% fix odd beaming
   4/4        % timeSignatureFraction

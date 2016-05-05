@@ -141,7 +141,7 @@ def add_note_value(nte, tp, bar_dur)
 		msg = <<-EOS
 
 LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tp}).
-LotusRoot >> #{tuple.look}
+LotusRoot >> #{nte.look}
 LotusRoot >> #{vv}
 		EOS
 		raise msg

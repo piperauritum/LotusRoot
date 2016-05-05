@@ -1,14 +1,14 @@
-require_relative 'bin/LotusRoot'
+﻿require_relative 'bin/LotusRoot'
 
 # duration 
-dur = [2,1,1]*35
+dur = [2,1,1]
 
 # tuplet
 tpl = [*2..8].map{|e| [e]*4}.flatten
 
 p dur, tpl
 
-elm = dur.map{"@"}
+elm = dur.map{"@"}*35
 pch = [0]
 
 sco = Score.new(dur, elm, tpl, pch)

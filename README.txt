@@ -1,15 +1,21 @@
-LotusRoot (beta)
+﻿LotusRoot (beta)
 
 ## Overview
 Generates LilyPond code from arrays.
 
 ## Requirement
 Ruby 2.2 ~
+http://rubyinstaller.org/downloads
+
 LilyPond 2.18.2 ~
+http://lilypond.org/download.html
+
 Frescobaldi 2.18 ~ (recommended)
+http://www.frescobaldi.org/download
 
 ## Usage
-ruby test.rb
+cd <path>\LotusRoot
+ruby mess.rb
 lilypond test.ly
 
 ## Reference
@@ -17,26 +23,26 @@ lilypond test.ly
 # Duration
 dur = [a0, a1, a2, ...]		(cyclic sequence)
 
-a	Fixnum
+a	duration (Fixnum)
 
 # Element
 elm = [a0, a1, a2, ...]		(linear sequence)
 
-a	String
+a	element (String)
 
-@				attack of note
-=				sustain of note (can not use for rest)
-r!				rest
-rrr				individual rest
-s!				invisible (spacer) rest
-sss				individual invisible rest
-(cmd)@(cmd)		attack with LilyPond command
-@:32			tremolo in Nth notes
-=:				sustain of tremolo
-%32[(pch)]		fingered tremolo in Nth notes
-@TMP4;60;		tempo mark (note value, BPM)
-@GRC32;4;		grace notes (note value, amount of notes)
-["@", 1]		staccato (shortened note)
+	@				attack of note
+	=				sustain of note (can not use for rest)
+	r!				rest
+	s!				invisible (spacer) rest
+	rrr				individual rest
+	sss				individual rest
+	(cmd)@(cmd)		attack with LilyPond command
+	@:32			tremolo in Nth notes
+	=:				sustain of tremolo
+	%32[(pch)]		fingered tremolo in Nth notes
+	@TMP4;60;		tempo mark (note value; BPM;)
+	@GRC32;4;		grace notes (note value; amount of notes;)
+	["@", 1]		staccato (shortened note)
 
 # Tuplet
 tpl = [a0, a1, a2, ...]		(cyclic sequence)
@@ -76,10 +82,10 @@ sco.export("sco.txt")
 
 # Options
 sco.pitchShift = a
-	a	Fixnum/Float/Rational
+	a	transposition (Fixnum/Float/Rational)
 
 sco.metre = [a0, a1, a2, ...]		(cyclic sequence)
-	a	numerator (Fixnum)
+	a	numerator of time signature (Fixnum)
 		(denominator = 4)
 
 		or
@@ -145,5 +151,5 @@ Takumi Ikeda
 
 ## Copyright
 
-(C) Copyright 2015-2016 by Takumi Ikeda, All Rights Reserved.
-No warranty.
+(c) 2016 Takumi Ikeda
+This software is released under the MIT License, see LICENSE.txt.

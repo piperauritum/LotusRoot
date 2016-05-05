@@ -380,9 +380,14 @@ LotusRoot >> #{note_value(tp_a)}
 							tp << [1, 1, 1]
 						}
 					else
-						mtr[0].each{|e|
-							ar << [Event.new("r!", Rational(e*mtr[1]))]
-							tp << [1, 1, Rational(e*mtr[1])]
+						mtr[0].map{|e| mtr[1]*e}.each{|e|
+							residue = e
+							while residue>0
+								du = note_value(2**16).select{|f| f<=residue}.max[0]
+								ar << [Event.new("r!", du)]
+								tp << [1, 1, Rational(1, du.denominator)]
+								residue -= du
+							end
 						}
 					end
 					bars << ar
@@ -440,7 +445,7 @@ LotusRoot >> #{bar.look}
 						fol, laf = fo_ev.last, la_ev.first
 						tm += fo_ev[0..-2].dtotal if fo_ev.size>1
 						nv = fol.du + laf.du
-						matchValue = note_value(16)[nv]!=nil
+						matchValue = note_value(fo_tp)[nv]!=nil
 
 						if Array===mtr
 							bt, ud = mtr

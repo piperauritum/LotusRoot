@@ -1,6 +1,6 @@
-require_relative 'bin/LotusRoot'
+﻿require_relative 'bin/LotusRoot'
 
-dur = [*1..50].map{rand(16)+1}
+dur = [*0..49].map{rand(16)+1}
 
 ## attack or rest
 elm = dur.map{rand(2)==0 ? "r!" : "@"}

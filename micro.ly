@@ -1,4 +1,4 @@
-%% \set Staff.extraNatural = ##f
+﻿%% \set Staff.extraNatural = ##f
 
 %%%% eighth tone accidentals
 #(define-public THREE-QUARTER-SHARP 3/4)

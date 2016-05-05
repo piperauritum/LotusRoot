@@ -1,6 +1,6 @@
-require_relative 'bin/LotusRoot'
+﻿require_relative 'bin/LotusRoot'
 
-## simple tuplet notation
+## simple notation: division of a quarter note
 tpl = [5]
 met = [*1..16].map{|e| [[e], 1/2r]}
 
@@ -13,13 +13,13 @@ met = [*1..16].map{|e|
 }
 =end
 
-## explicit tuplet notation
+## explicit notation: ratio and unit duration
 =begin
 tpl = [[5,3,1/2r], [5,4,1/4r], [5,4,1/8r]]
 met = [[[3], 1/2r]]
 =end
 
-p met
+p tpl, met
 
 dur = [1]*1000
 elm = dur.map{"@"}

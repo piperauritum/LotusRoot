@@ -1,4 +1,4 @@
-require_relative 'bin/LotusRoot'
+﻿require_relative 'bin/LotusRoot'
 
 ## chromatic scale
 pch = [*0..11]
@@ -16,7 +16,7 @@ p pch
 
 elm = pch.map{"@"}
 dur = [1]
-tpl = [1]
+tpl = [2]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.pitchShift = 12		# transposition
