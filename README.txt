@@ -1,17 +1,18 @@
 ﻿LotusRoot (beta)
 
 ## Overview
-Generates LilyPond code from arrays.
+A Ruby program which generates LilyPond script from some numeric/string arrays.
 
 ## Requirement
 Ruby 2.2 ~
-http://rubyinstaller.org/downloads
+https://www.ruby-lang.org
+http://rubyinstaller.org/downloads (win)
 
 LilyPond 2.18.2 ~
-http://lilypond.org/download.html
+http://lilypond.org
 
 Frescobaldi 2.18 ~ (recommended)
-http://www.frescobaldi.org/download
+http://www.frescobaldi.org
 
 ## Usage
 cd <path>\LotusRoot

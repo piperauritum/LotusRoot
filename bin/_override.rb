@@ -1,5 +1,4 @@
 ﻿require 'bigdecimal'
-require 'win32/clipboard'	# gem install win32-clipboard
 
 
 class Float
@@ -68,11 +67,3 @@ def export(str, filepath)
 	f.puts str
 	f.close
 end
-
-
-# copy to clipboard
-def clipbd(x)
-	x = x.inspect if Array === x
-	Win32::Clipboard.set_data("#{x}")
-end
-
