@@ -72,7 +72,7 @@ Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
 # Initialize
 sco = Score.new(dur, elm, tpl, pch)
 
-# Generates LilyPond code
+# Generates LilyPond script
 sco.gen
 
 # Outputs to console

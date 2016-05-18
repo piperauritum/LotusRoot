@@ -1,5 +1,6 @@
 ﻿require_relative 'bin/LotusRoot'
 
+## simple notation: beats will be divided automatically
 met = [*1..16]
 # met = [*1..16].map{|e| [[e], 1/2r]}
 # met = [*1..16].map{|e| [[e], 1/4r]}
@@ -38,5 +39,3 @@ sco.metre = met		# metre
 sco.gen
 sco.print
 sco.export("sco.txt")
-
-

@@ -33,5 +33,3 @@ sco.finalBar = 16		# the last bar number
 sco.gen
 sco.print
 sco.export("sco.txt")
-
-
