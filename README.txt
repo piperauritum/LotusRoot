@@ -16,7 +16,7 @@ http://www.frescobaldi.org
 
 ## Usage
 cd <path>\LotusRoot
-ruby mess.rb
+ruby test_mess.rb
 lilypond test.ly
 
 ## Reference

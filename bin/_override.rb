@@ -32,11 +32,27 @@ class Array
 
 	# calc multi-dimensional array
 	def add(x)
-		self.map{|e| Array === e ? e.add(x) : e+x }
+		self.map{|e|
+			if Array === e
+				e.add(x)
+			elsif e!=nil
+				e+x
+			else
+				e
+			end
+		}
 	end
-
+	
 	def mod(x)
-		self.map{|e| Array === e ? e.mod(x) : e%x }
+		self.map{|e|
+			if Array === e
+				e.mod(x)
+			elsif e!=nil
+				e%x
+			else
+				e
+			end
+		}
 	end
 
 	# conditional slice
