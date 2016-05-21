@@ -20,12 +20,12 @@ pch = [0, 2, 4, 5, 7, 9, 11]
 p pch
 
 elm = pch.map{"@"}		# linear sequence: all elements are needed
-dur = [1]				# cyclic sequence
-tpl = [2]				# cyclic sequence
+dur = [1]				# cyclic sequence: read repeatedly
+tpl = [2]				# cyclic sequence: read repeatedly
 
-sco = Score.new(dur, elm, tpl, pch)		# initialize
+sco = Score.new(dur, elm, tpl, pch)
 sco.pitchShift = 12						# transposition
 sco.accMode = 0							# select accidentals mode
-sco.gen									# generates LilyPond script
-sco.print								# outputs to console
-sco.export("sco.txt")					# exports to a textfile
+sco.gen
+sco.print
+sco.export("sco.txt")

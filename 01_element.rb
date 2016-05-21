@@ -1,20 +1,23 @@
 ﻿require_relative 'bin/LotusRoot'
 
+# Elements will be unfold with Durations.
+# Example:
+# elm = ["@"]; dur = [3]
+# => elm = ["@", "=", "="]
+
 dur = [*0..49].map{rand(16)+1}
 
-## attack or rest
+## note or rest
 elm = dur.map{rand(2)==0 ? "r!" : "@"}
 
-## add LilyPond command
+## insert LilyPond command
 # elm = elm.zip(dur).map{|e,d| e+"^\\markup{#{d}}"}
-
-## add tempo mark
-elm[0] += "TMP4;120;"
+elm[0] += "TMP4;120;"	# tempo mark
 
 p elm
 
 tpl = [4]
-pch = [0]	# cyclic sequence
+pch = [0]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.pitchShift = 12

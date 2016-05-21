@@ -21,12 +21,12 @@ lilypond test.ly
 
 ## Reference
 
-# Duration
+# Durations
 dur = [a0, a1, a2, ...]		(cyclic sequence)
 
 a	duration (Fixnum)
 
-# Element
+# Elements
 elm = [a0, a1, a2, ...]		(linear sequence)
 
 a	element (String)
@@ -45,7 +45,7 @@ a	element (String)
 	@GRC32;4;		grace notes (note value; amount of notes;)
 	["@", 1]		staccato (shortened note)
 
-# Tuplet
+# Tuplets
 tpl = [a0, a1, a2, ...]		(cyclic sequence)
 
 a	number of division (Fixnum)
@@ -57,7 +57,7 @@ a	[n, d, u]
 	d	denominator (Fixnum)
 	u	unit duration (Rational)
 
-# Pitch
+# Pitches
 pch = [a0, a1, a2, ...]		(cyclic sequence)
 
 a	Fixnum/Float/Rational (single note)
