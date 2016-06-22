@@ -1,15 +1,17 @@
-﻿require 'bigdecimal'
+require 'bigdecimal'
 
-
+# accurate operators
 class Float
-
-	# accurate modulo
-	def %(other)
-		x = BigDecimal(self.to_s)
-		y = BigDecimal(other.to_s)
-		z = x % y
-		z.to_f
-	end
+	%w(+ - * / %).each{|op|
+		class_eval <<-EOS
+			def #{op}(other)
+				x = BigDecimal(self.to_s)
+				y = BigDecimal(other.to_s)
+				z = x #{op} y
+				z.to_f
+			end
+		EOS
+	}
 end
 
 
