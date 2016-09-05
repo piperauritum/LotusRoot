@@ -2,7 +2,7 @@ require 'bigdecimal'
 
 # accurate operators
 class Float
-	%w(+ - * / %).each{|op|
+	%w(+ - * / % **).each{|op|
 		class_eval <<-EOS
 			def #{op}(other)
 				x = BigDecimal(self.to_s)
