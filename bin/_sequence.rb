@@ -18,6 +18,13 @@ class DataProcess
 				when /@:/	# tremolo
 					[el]+["=:"]*(du-1)
 
+				when /@=/	# repeat markup on tied notes
+					fo = el.sub("=", "")
+					fo = fo.gsub(/AT(.*?)TA/, "\\1")
+					la = el.sub("@", "=")
+					la = la.gsub(/AT.*?TA/, "")
+					[fo]+[la]*(du-1)
+
 				when /@/	# attack
 					[el]+["="]*(du-1)
 
@@ -140,10 +147,11 @@ LotusRoot >> #{note_value(tp_a)}
 				only_rest = ay-["r!"]==[]
 				only_tie = ay-%w(= =:)==[]
 				only_trem = ay.map{|e| !!(e=~/%\d+/)}.all?
-				atk_tie = !!(ay[0]=~/@/) && ay[1..-1]-%w(= =:)==[]				
+				atk_tie = !!(ay[0]=~/@/) && ay[1..-1]-%w(= =:)==[]
 				atk_trem = !!(ay[0]=~/%ATK/) && ay[1..-1].map{|e| !!(e=~/%\d+/)}.all?
+				atk_mktie = (!!(ay[0]=~/@/) || !!(ay[0]=~/==/)) && ay[1..-1].map{|e| !!(e=~/==/)}.all?
 
-				if [only_rest, only_tie, only_trem, atk_tie, atk_trem].any?
+				if [only_rest, only_tie, only_trem, atk_tie, atk_trem, atk_mktie].any?
 					du = tick*len
 					tick = Rational(1, du.denominator)
 					len = du.numerator
@@ -214,17 +222,18 @@ LotusRoot >> #{note_value(tp_a)}
 					evt = ev
 				else
 					n_rest = %w(r! s!).map{|e|
-						(!(past=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./						
+						(!(past=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
 					}.any?
 					c_tie = [ev.el]-%w(= =:)==[]
 					c_trem = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && ev.el=="#{e}"}.any?
 					c_xval = note_value(tp_a)[evt.du+tick]==nil
+					c_mktie = (past=~/@/ || past=~/==/) && ev.el=~/==/
 
 					if ev.el=~/(@|%ATK|rrr|sss)/ || n_rest || c_xval
 						qa << evt
 						evt = ev
-					elsif c_tie || c_trem || c_rest
+					elsif c_tie || c_trem || c_rest || c_mktie
 						evt.du += tick
 					end
 				end
@@ -303,6 +312,7 @@ LotusRoot >> #{note_value(tp_a)}
 						fol.el=="r!" && laf.el=="r!",
 						fol.el=="s!" && laf.el=="s!",
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%ATK/),
+						(fol.el=~/@/ || fol.el=~/==/) && laf.el=~/==/,
 					]
 
 					if cond.any? && nval!=nil
@@ -502,8 +512,10 @@ LotusRoot >> #{bar.look}
 								laf.el=~/%/,
 								!(laf.el=~/%ATK/)
 							].all?,
-							laf.el=="r!" && fol.el=~/r!/,
-							laf.el=="s!" && fol.el=~/s!/,
+							fol.el=~/r!/ && laf.el=="r!",
+							fol.el=~/s!/ && laf.el=="s!",
+							fol.el=~/@/ && laf.el=~/==/,
+							fol.el=~/==/ && laf.el=~/==/,
 						].any?
 
 						homoPlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]

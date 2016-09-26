@@ -44,6 +44,8 @@ a	element (String)
 	@TMP4;60;		tempo mark (note value; BPM;)
 	@GRC32;4;		grace notes (note value; amount of notes;)
 	["@", 1]		staccato (shortened note)
+	@=(mkp)			repeat markup on tied notes
+	@=AT(mkp)TA		markup on the head of tied notes
 
 # Tuplets
 tpl = [a0, a1, a2, ...]		(cyclic sequence)

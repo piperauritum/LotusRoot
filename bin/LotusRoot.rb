@@ -25,7 +25,7 @@ class Score < DataProcess
 		@pitch = pitch_shift(@pitch, @pitchShift)
 		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
 		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
-		
+
 		tuples = []
 		idx = 0
 		@tpl_data.inject("r!"){|past, tuple|
@@ -92,7 +92,7 @@ class Score < DataProcess
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
 
-					@voice += "~ " if [_el]-%w(= =:)==[]
+					@voice += "~ " if [_el]-%w(= =:)==[] || _el=~/==/
 					close_bracket(nte_id, beat_id)
 					_el = add_tempo_mark(_el)
 					add_time_signature(beat_id, mtr)
@@ -101,7 +101,7 @@ class Score < DataProcess
 						@mainnote = ""
 
 						# before main note
-						%w(@ r! s! rrr sss %+).each{|e|
+						%w(@ == r! s! rrr sss %+).each{|e|
 							@mainnote += _el.sub(/#{e}.*/m, "") if _el=~/#{e.sub("+", "")}/
 						}
 
@@ -111,7 +111,7 @@ class Score < DataProcess
 						@mainnote += ":" if _el=="=:"
 
 						# after main note
-						%w(@ r! s! rrr sss).each{|e|
+						%w(@ == r! s! rrr sss).each{|e|
 							@mainnote += _el.sub(/.*#{e}/m, "") if _el=~/#{e}/
 						}
 
