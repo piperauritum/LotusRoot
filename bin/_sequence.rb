@@ -20,9 +20,9 @@ class DataProcess
 
 				when /@=/	# repeat markup on tied notes
 					fo = el.sub("=", "")
-					fo = fo.gsub(/AT(.*?)TA/, "\\1")
+					fo = fo.gsub(/#A(.*?)A#/, "\\1")
 					la = el.sub("@", "=")
-					la = la.gsub(/AT.*?TA/, "")
+					la = la.gsub(/#A.*?A#/, "")
 					[fo]+[la]*(du-1)
 
 				when /@/	# attack
@@ -555,7 +555,7 @@ LotusRoot >> #{bar.look}
 						if [
 							elms==%w(%ATK %),
 							elms==%w(% %ATK),
-							elms==["%", nil],							
+							elms==["%", nil],
 						].any?
 							seq[u][v][w].el = ptr + "SOT" + past.el.sub(ptr, "")
 						end
