@@ -9,6 +9,9 @@ elm = ["@= \\flageolet", "@"]
 ## Markup on the tail of tied notes (#Z..Z#)
 # elm = ["@= \\flageolet #A\\pp\\<A# #Z~Z#", "@ \\flageolet \\f"]
 
+## with Tremolo
+# elm = ["@=:32 \\flageolet #A\\pp\\<A# #Z~Z#", "@:32 \\flageolet \\f"]
+
 dur = [23, 1]
 tpl = [2]
 pch = [0]
