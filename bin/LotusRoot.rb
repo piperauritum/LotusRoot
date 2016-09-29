@@ -55,6 +55,7 @@ class Score < DataProcess
 		}
 		ba = assemble_bars(tuples, @metre, @finalBar)
 		@seq, @tpl_param = connect_beat(ba, @metre, @tpl_param)
+		markup_tail(@seq)
 		slur_over_tremolo(@seq)
 	end
 

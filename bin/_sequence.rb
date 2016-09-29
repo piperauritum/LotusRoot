@@ -20,7 +20,7 @@ class DataProcess
 
 				when /@=/	# repeat markup on tied notes
 					fo = el.sub("=", "")
-					fo = fo.gsub(/#A(.*?)A#/, "\\1")
+					fo = fo.gsub(/#A(.*?)A#/, "\\1")	# markup head
 					la = el.sub("@", "=")
 					la = la.gsub(/#A.*?A#/, "")
 					[fo]+[la]*(du-1)
@@ -538,6 +538,27 @@ LotusRoot >> #{bar.look}
 		b = barr.map{|e| e.map{|f| f[0]}}
 		t = barr.inject([]){|s,e| s += e.map{|f| f[1]}}
 		[b, t]
+	end
+
+
+	def markup_tail(seq)
+		past = nil
+		u,v,w = nil, nil, nil 
+		seq.each.with_index{|bar,x|
+			bar.each.with_index{|tuple,y|
+				tuple.each.with_index{|note,z|
+					if past!=nil
+						if note.el=~/==/
+							seq[u][v][w].el.gsub!(/#Z.*?Z#/, "")
+						else
+							seq[u][v][w].el.gsub!(/#Z(.*?)Z#/, "\\1")
+						end
+					end
+					u,v,w = x,y,z
+					past = note
+				}
+			}
+		}
 	end
 
 

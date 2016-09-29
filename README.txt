@@ -38,14 +38,15 @@ a	element (String)
 	rrr				individual rest
 	sss				individual rest
 	(cmd)@(cmd)		attack with LilyPond command
+	@=(cmd)			repeats markup for each tied notes
+	@=#A(cmd)A#		markup on the head of tied notes
+	@=#Z(cmd)Z#		markup on the tail of tied notes
 	@:32			tremolo in Nth notes
 	=:				sustain of tremolo
 	%32[(pch)]		fingered tremolo in Nth notes
 	@TMP4;60;		tempo mark (note value; BPM;)
 	@GRC32;4;		grace notes (note value; amount of notes;)
 	["@", 1]		staccato (shortened note)
-	@=(mkp)			repeat markup on tied notes
-	@=AT(mkp)TA		markup on the head of tied notes
 
 # Tuplets
 tpl = [a0, a1, a2, ...]		(cyclic sequence)
