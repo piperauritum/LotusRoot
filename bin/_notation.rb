@@ -84,6 +84,32 @@ module Notation
 		[2,4,7,9,11].each{|e|
 			mo = 0 if am.include?(e) && am.include?(e-1)
 		}
+
+		# for dyad (or stopped harmonics) (experimental)
+		sel = ->(ary){
+			ary.each{|e|
+				[*0..2].each.with_index{|a,i|
+					if chord.min%12==a/2.0+e
+						mo = [1,2,0][i]
+					end
+				}
+			}
+		}
+		if chord.size==2
+			case chord.max-chord.min
+			when 2
+				sel.call([3,10])
+			when 3
+				sel.call([0,5,7])
+			when 4
+				sel.call([1,3,8,10])
+			when 5
+				sel.call([5])
+			when 7
+				sel.call([10])
+			end
+		end
+
 		mo
 	end
 
