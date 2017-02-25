@@ -18,7 +18,7 @@ end
 def put_note_name(pc)
 	if Array === pc && pc.size>1
 		acc = @accMode
-		acc = auto_accmode(pc, @accMode) if @autoChordAcc
+		acc = auto_accmode(pc, @accMode, @autoChordAcc) if @autoChordAcc
 		nn = pc.map{|e|
 			n = note_name(e, acc, @altNoteName)
 			n += "!" if @prev_pch.include?(e) && !natural?(e) && @reptChordAcc

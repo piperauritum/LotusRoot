@@ -75,8 +75,10 @@ module Notation
 	end
 
 
-	def auto_accmode(chord, mode)
+	def auto_accmode(chord, mode, func)
 		mo = mode
+		
+		## Avoids imperfect unison in chromatic chords
 		am = chord.map{|x| x%12}
 		[0,2,5,7,9].each{|e|
 			mo = 1 if am.include?(e) && am.include?(e+1)
@@ -85,29 +87,25 @@ module Notation
 			mo = 0 if am.include?(e) && am.include?(e-1)
 		}
 
-		# for dyad (or stopped harmonics) (experimental)
+		## Aligns the degrees of dyads
 		sel = ->(ary){
 			ary.each{|e|
 				[*0..2].each.with_index{|a,i|
-					if chord.min%12==a/2.0+e
+					if chord.min%12==a/2.0+e	# applies to quarter tone
 						mo = [1,2,0][i]
 					end
 				}
 			}
 		}
-		if chord.size==2
-			case chord.max-chord.min
-			when 2
-				sel.call([3,10])
-			when 3
-				sel.call([0,5,7])
-			when 4
-				sel.call([1,3,8,10])
-			when 5
-				sel.call([5])
-			when 7
-				sel.call([10])
-			end
+
+		if chord.size==2 && func>0
+			wht = [0,0,1,1,2,3,3,4,4,5,5,6]
+			itv = (chord.max-chord.min)%12		# applies on chromatic intervals
+			sft = [wht, wht.rotate(itv)].transpose.map{|x,y| (y-x)%7}
+			mnr = sft.uniq.sort{|x,y| sft.count(x) <=> sft.count(y)}[0]
+			ary = sft.map.with_index{|e,i| e==mnr ? i : nil}-[nil]
+			ary = [*0..11]-ary if itv==6
+			sel.call(ary)
 		end
 
 		mo

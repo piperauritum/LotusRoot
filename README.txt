@@ -115,8 +115,10 @@ sco.accMode = a
 		2: sharp, without 3/4-tones
 		3: flat, without 3/4-tones
 
-sco.autoChordAcc = 0
-	Selects sharp or flat for each chords automatically.
+sco.autoChordAcc = a
+	a	Fixnum
+		0: Selects sharp or flat for each chromatic chords automatically, avoids imperfect unison
+		1: Additionary, aligns the degrees of dyads
 
 sco.reptChordAcc = 0
 	Repeats accidentals to the next chord.
