@@ -99,7 +99,7 @@ module Notation
 		}
 
 		if chord.size==2 && func>0
-			wht = [0,0,1,1,2,3,3,4,4,5,5,6]
+			wht = [2,2,1,2,2,2,1].map.with_index{|e,i| [i]*e}.flatten
 			itv = (chord.max-chord.min)%12		# applies on chromatic intervals
 			sft = [wht, wht.rotate(itv)].transpose.map{|x,y| (y-x)%7}
 			mnr = sft.uniq.sort{|x,y| sft.count(x) <=> sft.count(y)}[0]
