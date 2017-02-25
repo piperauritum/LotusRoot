@@ -58,11 +58,18 @@ fractpl = {
     \override Accidental.glyph-name-alist = \arrowGlyphs
     \override AccidentalCautionary.glyph-name-alist = \arrowGlyphs
     \override TrillPitchAccidental.glyph-name-alist = \arrowGlyphs
-    \override AmbitusAccidental.glyph-name-alist = \arrowGlyphs    
+    \override AmbitusAccidental.glyph-name-alist = \arrowGlyphs
   }
 }
 
 config = {
+  % Activate below if Gonville is installed.
+  %{
+  \override NoteHead #'font-family = #'gonville
+  \override Accidental #'font-family = #'gonville
+  \override DynamicText #'font-family = #'gonville
+  \override TrillSpanner #'font-family = #'gonville
+  %}
   \accidentalStyle neo-modern
   \override Accidental.hide-tied-accidental-after-break = ##t
   \set Staff.extraNatural = ##f

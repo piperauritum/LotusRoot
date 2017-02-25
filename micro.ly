@@ -1,4 +1,4 @@
-﻿%% \set Staff.extraNatural = ##f
+%% \set Staff.extraNatural = ##f
 
 %%%% eighth tone accidentals
 #(define-public THREE-QUARTER-SHARP 3/4)
@@ -143,6 +143,6 @@ arrowGlyphs = #`(
                   (,SHARP-LOWER . "accidentals.sharp.arrowdown")
                   (,SHARP . "accidentals.sharp")
                   (,SHARP-RAISE . "accidentals.sharp.arrowup")
-                  (,THREE-QUARTER-SHARP . "accidentals.sharp.slashslashslash.stemstem")
+                  (,THREE-QUARTER-SHARP . "accidentals.sharp.slashslash.stemstemstem")
                   (,DOUBLE-SHARP . "accidentals.doublesharp")
                   )

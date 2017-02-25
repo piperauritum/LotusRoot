@@ -91,7 +91,7 @@ module Notation
 		sel = ->(ary){
 			ary.each{|e|
 				[*0..2].each.with_index{|a,i|
-					if chord.min%12==a/2.0+e	# applies to quarter tone
+					if chord.min%12==a/2.0+e	# applies on quarter tones
 						mo = [1,2,0][i]
 					end
 				}
