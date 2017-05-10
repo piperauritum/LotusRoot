@@ -309,8 +309,8 @@ LotusRoot >> #{note_value(tp_a)}
 
 					cond = [
 						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
-						fol.el=="r!" && laf.el=="r!",
-						fol.el=="s!" && laf.el=="s!",
+						fol.el=~/r!/ && laf.el=="r!",
+						fol.el=~/s!/ && laf.el=="s!",
 						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%ATK/),
 						(fol.el=~/@/ || fol.el=~/==/) && laf.el=~/==/,
 					]
