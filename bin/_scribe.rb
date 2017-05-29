@@ -15,13 +15,13 @@
 end
 
 
-def put_note_name(pc)
+def put_note_name(pc, _el=nil)
 	if Array === pc && pc.size>1
 		acc = @accMode
 		acc = auto_accmode(pc, @accMode, @autoChordAcc) if @autoChordAcc
 		nn = pc.map{|e|
 			n = note_name(e, acc, @altNoteName)
-			n += "!" if @prev_pch.include?(e) && !natural?(e) && @reptChordAcc
+			n += "!" if @prev_pch.include?(e) && !natural?(e) && @reptChordAcc && !(_el=~/=/)
 			n
 		}.join(' ')
 		@prev_pch = pc
@@ -117,7 +117,7 @@ def put_note(nte, tp)
 			@mainnote += "\\repeat tremolo #{tr_times} {"
 		#	@mainnote += "\\change Staff = lower " if @pnoTrem
 		else
-			@mainnote += put_note_name(@pitch.on(@pch_id))
+			@mainnote += put_note_name(@pitch.on(@pch_id), _el)
 		end
 	end
 	trem_nval
