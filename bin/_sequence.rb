@@ -20,9 +20,9 @@ class DataProcess
 
 				when /@=/	# repeat markup on tied notes
 					fo = el.sub("=", "")
-					fo = fo.gsub(/#A(.*?)A#/, "\\1")	# markup head
+					fo = fo.gsub(/#A(.*?)A#/m, "\\1")	# markup head
 					la = el.sub("@", "=")
-					la = la.gsub(/#A.*?A#/, "")
+					la = la.gsub(/#A.*?A#/m, "")
 					[fo]+[la]*(du-1)
 
 				when /@/	# attack
@@ -549,9 +549,9 @@ LotusRoot >> #{bar.look}
 				tuple.each.with_index{|note,z|
 					if past!=nil
 						if note.el=~/==/
-							seq[u][v][w].el.gsub!(/#Z.*?Z#/, "")
+							seq[u][v][w].el.gsub!(/#Z.*?Z#/m, "")
 						else
-							seq[u][v][w].el.gsub!(/#Z(.*?)Z#/, "\\1")
+							seq[u][v][w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
 						end
 					end
 					u,v,w = x,y,z
@@ -559,7 +559,7 @@ LotusRoot >> #{bar.look}
 				}
 			}
 		}
-		seq[u][v][w].el.gsub!(/#Z(.*?)Z#/, "\\1")
+		seq[u][v][w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
 	end
 
 
