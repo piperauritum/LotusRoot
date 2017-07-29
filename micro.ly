@@ -127,7 +127,8 @@ arrowedPitchNames = #`(
                         )
 
 pitchnames = \arrowedPitchNames
-#(ly:parser-set-note-names parser pitchnames)
+#(ly:parser-set-note-names parser pitchnames) % 2.18
+%#(ly:parser-set-note-names pitchnames) % 2.19
 
 arrowGlyphs = #`(
                   (,DOUBLE-FLAT . "accidentals.flatflat")

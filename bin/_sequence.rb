@@ -559,6 +559,7 @@ LotusRoot >> #{bar.look}
 				}
 			}
 		}
+		seq[u][v][w].el.gsub!(/#Z(.*?)Z#/, "\\1")
 	end
 
 
