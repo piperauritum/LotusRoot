@@ -21,7 +21,14 @@ def put_note_name(pc, _el=nil)
 		acc = auto_accmode(pc, @accMode, @autoChordAcc) if @autoChordAcc
 		nn = pc.map{|e|
 			n = note_name(e, acc, @altNoteName)
-			n += "!" if @prev_pch.include?(e) && !natural?(e) && @reptChordAcc && !(_el=~/=/)
+			if @prev_pch.include?(e) && !natural?(e) && !(_el=~/=/)
+				case @reptChordAcc
+				when 0
+					n += "!"
+				when 1
+					n += "!" if @prev_pch!=pc
+				end
+			end
 			n
 		}.join(' ')
 		@prev_pch = pc

@@ -120,8 +120,12 @@ sco.autoChordAcc = a
 		0: Selects sharp or flat for each chromatic chords automatically, avoids imperfect unison
 		1: Additionary, aligns the degrees of dyads
 
-sco.reptChordAcc = 0
+sco.reptChordAcc = a
 	Repeats accidentals to the next chord.
+	
+	a	Fixnum
+		0: 
+		1: Except if the chord is immediately repeated
 
 sco.altNoteName = [a0, a1, a2, ...]
 	Replaces note-names.
