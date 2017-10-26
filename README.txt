@@ -1,7 +1,8 @@
 ﻿LotusRoot (beta)
 
 ## Overview
-A Ruby program which generates LilyPond script from some numeric/string arrays.
+An assistance program for musical composition on Ruby.
+Generates LilyPond script from some numeric/string arrays.
 
 ## Requirement
 Ruby 2.2 ~
