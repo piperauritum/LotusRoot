@@ -24,54 +24,50 @@ lilypond test.ly
 
 # Durations
 dur = [a0, a1, a2, ...]		(cyclic sequence)
-
-a	duration (Fixnum)
+	a	duration (Fixnum)
 
 # Elements
 elm = [a0, a1, a2, ...]		(linear sequence)
+	a	element (String)
 
-a	element (String)
-
-	@				attack of note
-	=				sustain of note (can not use for rest)
-	r!				rest
-	s!				invisible (spacer) rest
-	rrr				individual rest
-	sss				individual rest
-	(cmd)@(cmd)		attack with LilyPond command
-	@=(cmd)			repeats markup for each tied notes
-	@=#A(cmd)A#		markup on the head of tied notes
-	@=#Z(cmd)Z#		markup on the tail of tied notes
-	@:32			tremolo in Nth notes
-	=:				sustain of tremolo
-	%32[(pch)]		fingered tremolo in Nth notes
-	@TMP4;60;		tempo mark (note value; BPM;)
-	@GRC32;4;		grace notes (note value; amount of notes;)
-	["@", 1]		staccato (shortened note)
+		@				attack of note
+		=				sustain of note (can not use for rest)
+		r!				rest
+		s!				invisible (spacer) rest
+		rrr				individual rest
+		sss				individual rest
+		(cmd)@(cmd)		attack with LilyPond command
+		@=(cmd)			repeats markup for each tied notes
+		@=#A(cmd)A#		markup on the head of tied notes
+		@=#Z(cmd)Z#		markup on the tail of tied notes
+		@:32			tremolo in Nth notes
+		=:				sustain of tremolo
+		%32[(pch)]		fingered tremolo in Nth notes
+		@TMP4;60;		tempo mark (note value; BPM;)
+		@GRC32;4;		grace notes (note value; amount of notes;)
+		["@", 1]		staccato (shortened note)
 
 # Tuplets
 tpl = [a0, a1, a2, ...]		(cyclic sequence)
+	a	number of division (Fixnum)
 
-a	number of division (Fixnum)
+		or
 
-	or
-
-a	[n, d, u]
-	n	numerator (Fixnum)
-	d	denominator (Fixnum)
-	u	unit duration (Rational)
+	a	[n, d, u]
+		n	numerator (Fixnum)
+		d	denominator (Fixnum)
+		u	unit duration (Rational)
 
 # Pitches
 pch = [a0, a1, a2, ...]		(cyclic sequence)
+	a	Fixnum/Float/Rational (single note)
 
-a	Fixnum/Float/Rational (single note)
+		or
 
-	or
+	a	[Fixnum/Float/Rational] (chord)
 
-a	[Fixnum/Float/Rational] (chord)
-
-Fixnum			chromatic scale
-Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
+		Fixnum			chromatic scale
+		Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
 
 # Initialize
 sco = Score.new(dur, elm, tpl, pch)
@@ -105,7 +101,7 @@ sco.finalBar = a
 
 sco.namedMusic = a
 	a	namedMusic (String)
-	
+
 sco.noMusBracket = 0
 	Removes namedMusic bracket.
 
@@ -123,14 +119,14 @@ sco.autoChordAcc = a
 
 sco.reptChordAcc = a
 	Repeats accidentals to the next chord.
-	
+
 	a	Fixnum
 		0: 
 		1: Except if the chord is immediately repeated
 
 sco.altNoteName = [a0, a1, a2, ...]
 	Replaces note-names.
-	
+
 	a	[p, n]
 		p	pitch (Fixnum/Float/Rational)
 		n	note-name (String)
@@ -140,19 +136,25 @@ sco.beamOverRest = 0
 
 sco.noTieAcrossBeat = 0
 	Deletes ties across beats.
-	
+
 sco.fracTuplet = 0
 	Writes tuplet numbers in fraction form.
-	
+
 sco.tidyTuplet = 0
 	Grouping tuplets clearly.
 
 sco.dotDuplet = 0
 	Rewrites 2:3 tuplets into dotted duplets.
 
+sco.omitRest = [a0, a1, a2, ...]
+	Excludes rests of given note values.
+	# Known issue: This option affects only when connecting beat.
+
+	a	note value (Fixnum/Float/Rational)
+
 sco.textReplace(p, r)
 	Replaces the text.
-	
+
 	p	pattern (String/Regexp)
 	r	replacement (String)
 

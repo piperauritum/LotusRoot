@@ -520,7 +520,15 @@ LotusRoot >> #{bar.look}
 
 						homoPlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
 
-						if matchValue && matchDup && homoElem && homoPlet
+						omittedRest = [
+							[
+								fol.el=~/r!/ && laf.el=="r!",
+								fol.el=~/s!/ && laf.el=="s!",
+							].any?,
+							@omitRest.include?(nv)
+						].all?
+
+						if matchValue && matchDup && homoElem && homoPlet && !omittedRest
 							fol.du += laf.du
 							la_ev.shift
 							fo_tp = 16

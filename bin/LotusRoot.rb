@@ -7,7 +7,7 @@ class Score < DataProcess
 	attr_reader :output
 	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
 	:accMode, :autoChordAcc, :reptChordAcc, :altNoteName, :beamOverRest, :noTieAcrossBeat, # :pnoTrem,
-	:fracTuplet, :tidyTuplet, :dotDuplet
+	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest
 
 
 	def initialize(_durations, _elements, _tuplets, _pitches)
@@ -18,6 +18,7 @@ class Score < DataProcess
 		@metre = [4]
 		@accMode, @pitchShift = 0, 0
 		@gspat, @gsrep = [], []
+		@omitRest = []
 	end
 
 
