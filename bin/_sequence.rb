@@ -206,7 +206,8 @@ LotusRoot >> #{note_value(tp_a)}
 		elsif t%3==0
 			beats = [3]*(t/3)
 		else
-			beats = [4]*(t/4)+[t%4]
+#			beats = [4]*(t/4)+[t%4]
+			beats = [2]*(t/2)+[t%2]
 		end
 		beats -= [0]
 
@@ -315,7 +316,15 @@ LotusRoot >> #{note_value(tp_a)}
 						(fol.el=~/@/ || fol.el=~/==/) && laf.el=~/==/,
 					]
 
-					if cond.any? && nval!=nil
+avoidrest = [
+	@omitRest.include?(fol.du + laf.du)==false,
+	[
+		fol.el=~/r!/ && laf.el=="r!",
+		fol.el=~/s!/ && laf.el=="s!",
+	].any?
+].all?
+
+					if cond.any? && nval!=nil && avoidrest
 						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}
