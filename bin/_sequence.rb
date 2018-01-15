@@ -256,8 +256,7 @@ LotusRoot >> #{note_value(tp_a)}
 				if e%3==0
 					[3]*(e/3)
 				else
-#					[4]*(e/4)+[e%4]-[0]
-					[2]*(e/2)+[e%2]-[0]
+					[4]*(e/4)+[e%4]-[0]
 				end
 			}.flatten
 		end
