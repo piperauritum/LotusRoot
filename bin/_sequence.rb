@@ -256,7 +256,8 @@ LotusRoot >> #{note_value(tp_a)}
 				if e%3==0
 					[3]*(e/3)
 				else
-					[4]*(e/4)+[e%4]-[0]
+#					[4]*(e/4)+[e%4]-[0]
+					[2]*(e/2)+[e%2]-[0]
 				end
 			}.flatten
 		end
@@ -301,7 +302,8 @@ LotusRoot >> #{note_value(tp_a)}
 						},
 					}
 
-					npos = positions(tp_a, pos_table, nv)
+					npos = allowed_positions(tp_a, pos_table, nv)
+
 					if tp[0]==tp[1] || tp[0]>=8		# (to be investigated)
 						if @tidyTuplet!=nil && npos.all?{|e| tm!=e}
 							nval = nil
@@ -316,15 +318,15 @@ LotusRoot >> #{note_value(tp_a)}
 						(fol.el=~/@/ || fol.el=~/==/) && laf.el=~/==/,
 					]
 
-avoidrest = [
-	@omitRest.include?(fol.du + laf.du)==false,
+omittedRest = [
 	[
 		fol.el=~/r!/ && laf.el=="r!",
 		fol.el=~/s!/ && laf.el=="s!",
-	].any?
+	].any?,
+	@omitRest.include?(nv)
 ].all?
 
-					if cond.any? && nval!=nil && avoidrest
+					if cond.any? && nval!=nil && !omittedRest
 						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}
@@ -500,7 +502,8 @@ LotusRoot >> #{bar.look}
 							},
 						}
 
-						npos = positions(tp_a, pos_table, nv)
+						npos = allowed_positions(tp_a, pos_table, nv)
+
 						if npos.all?{|e| tm!=e}
 							matchValue = false
 						end
@@ -529,13 +532,13 @@ LotusRoot >> #{bar.look}
 
 						homoPlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
 
-						omittedRest = [
-							[
-								fol.el=~/r!/ && laf.el=="r!",
-								fol.el=~/s!/ && laf.el=="s!",
-							].any?,
-							@omitRest.include?(nv)
-						].all?
+omittedRest = [
+	[
+		fol.el=~/r!/ && laf.el=="r!",
+		fol.el=~/s!/ && laf.el=="s!",
+	].any?,
+	@omitRest.include?(nv)
+].all?
 
 						if matchValue && matchDup && homoElem && homoPlet && !omittedRest
 							fol.du += laf.du

@@ -249,7 +249,7 @@ module Notation
 	end
 
 
-	def positions(tp_a, pos_table, notevalue)
+	def allowed_positions(tp_a, pos_table, notevalue)
 		bt_struct, unit_num, unit_dur = tp_a.deepcopy
 		tme = 0
 		ary = []
