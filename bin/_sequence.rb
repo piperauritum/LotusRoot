@@ -234,7 +234,7 @@ LotusRoot >> #{note_value(tp_a)}
 					if ev.el=~/(@|%ATK|rrr|sss)/ || n_rest || c_xval
 						qa << evt
 						evt = ev
-					elsif c_tie || c_trem || c_rest || c_mktie
+					elsif [c_tie, c_trem, c_rest, c_mktie].any?
 						evt.du += tick
 					end
 				end
@@ -286,20 +286,58 @@ LotusRoot >> #{note_value(tp_a)}
 						nval = note_value(tp)[nv]
 					end
 
-					pos_table = {
-						3 => {
-							2 => [0, 1],
-							3 => [0],
-							6 => [0],
-						},
-						4 => {
-							2 => [0, 1, 2],
-							3 => [0, 1],
-							4 => [0, 2],
-							6 => [0, 2],
-							8 => [0],
-						},
-					}
+					bothNotes = [
+						[laf.el]-%w(= =:)==[] &&
+						[
+							fol.el=~/@/,
+							fol.el=='+',
+							[fol.el]-%w(= =:)==[]
+						].any?, 
+						[
+							fol.el=~/%/,
+							laf.el=~/%/,
+							!(laf.el=~/%ATK/)
+						].all?,
+						fol.el=~/@/ && laf.el=~/==/,
+						fol.el=~/==/ && laf.el=~/==/,
+					].any?
+
+					bothRests = [
+						fol.el=~/r!/ && laf.el=="r!",
+						fol.el=~/s!/ && laf.el=="s!",
+					].any?
+
+					if bothRests
+						pos_table = {
+							3 => {
+								2 => [0, 1],
+								3 => [0],
+								6 => [0],
+							},
+							4 => {
+								2 => [0, 2],
+								3 => [0, 1],
+								4 => [0],
+								6 => [0, 2],
+								8 => [0],
+							},
+						}
+					else
+						pos_table = {
+							3 => {
+								2 => [0, 1],
+								3 => [0],
+								6 => [0],
+							},
+							4 => {
+								2 => [0, 1, 2],
+								3 => [0, 1],
+								4 => [0, 2],
+								6 => [0, 2],
+								8 => [0],
+							},
+						}
+					end
 
 					npos = allowed_positions(tp_a, pos_table, nv)
 
@@ -309,23 +347,11 @@ LotusRoot >> #{note_value(tp_a)}
 						end
 					end
 
-					cond = [
-						(fol.el=~/@/ || fol.el=='+' || [fol.el]-%w(= =:)==[]) && [laf.el]-%w(= =:)==[],
-						fol.el=~/r!/ && laf.el=="r!",
-						fol.el=~/s!/ && laf.el=="s!",
-						fol.el=~/%/ && laf.el=~/%/ && !(laf.el=~/%ATK/),
-						(fol.el=~/@/ || fol.el=~/==/) && laf.el=~/==/,
-					]
+					if bothRests && (npos.all?{|e| tm!=e} || @omitRest.include?(nv))
+						nval = nil
+					end
 
-omittedRest = [
-	[
-		fol.el=~/r!/ && laf.el=="r!",
-		fol.el=~/s!/ && laf.el=="s!",
-	].any?,
-	@omitRest.include?(nv)
-].all?
-
-					if cond.any? && nval!=nil && !omittedRest
+					if bothNotes || bothRests && nval!=nil
 						fol.du += laf.du
 						la.shift
 						quad.delete_if{|e| e==[]}
@@ -484,27 +510,63 @@ LotusRoot >> #{bar.look}
 
 						tp_a = [bt, bt.sigma, ud]
 
-						pos_table = {
-							2 => {
-								1 => [0, 1/2r, 1],
-								3/2r => [0, 1/2r],
-#								2 => [0, 1],
-								2 => [0],
-								3 => [0, 1],
-								4 => [0],
-							},
-							3 => {
-								1 => [0, 1/2r, 1, 3/2r, 2],
-								3/2r => [0, 1/2r, 1, 3/2r],
-								2 => [0, 1, 2],
-								3 => [0],
-								6 => [0],
-							},
-						}
+						bothNotes = [
+							[laf.el]-%w(= =:)==[],
+							[
+								fo_ev.size==1 || la_ev.size==1,
+								fol.el=~/%/,
+								laf.el=~/%/,
+								!(laf.el=~/%ATK/)
+							].all?,
+							fol.el=~/@/ && laf.el=~/==/,
+							fol.el=~/==/ && laf.el=~/==/,
+						].any?
 
+						bothRests = [
+							fol.el=~/r!/ && laf.el=="r!",
+							fol.el=~/s!/ && laf.el=="s!",
+						].any?
+
+						if bothRests
+							pos_table = {
+								2 => {
+									1 => [0, 1],
+									3/2r => [0, 1/2r],
+									2 => [0],
+									3 => [0, 1],
+									4 => [0],
+								},
+								3 => {
+									1 => [0, 1, 2],
+									3/2r => [0, 1/2r, 1, 3/2r],
+									2 => [0, 1],
+									3 => [0],
+									6 => [0],
+								},
+							}
+						else
+							pos_table = {
+								2 => {
+									1 => [0, 1/2r, 1],
+									3/2r => [0, 1/2r],
+									2 => [0, 1],
+									3 => [0, 1],
+									4 => [0],
+								},
+								3 => {
+									1 => [0, 1/2r, 1, 3/2r, 2],
+									3/2r => [0, 1/2r, 1, 3/2r],
+									2 => [0, 1, 2],
+									3 => [0],
+									6 => [0],
+								},
+							}
+						end
+
+						omittedRest = bothRests && @omitRest.include?(nv)
 						npos = allowed_positions(tp_a, pos_table, nv)
 
-						if npos.all?{|e| tm!=e}
+						if npos.all?{|e| tm!=e} || omittedRest
 							matchValue = false
 						end
 
@@ -516,31 +578,10 @@ LotusRoot >> #{bar.look}
 						end
 						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
 
-						homoElem = [
-							[laf.el]-%w(= =:)==[],
-							[
-								fo_ev.size==1 || la_ev.size==1,
-								fol.el=~/%/,
-								laf.el=~/%/,
-								!(laf.el=~/%ATK/)
-							].all?,
-							fol.el=~/r!/ && laf.el=="r!",
-							fol.el=~/s!/ && laf.el=="s!",
-							fol.el=~/@/ && laf.el=~/==/,
-							fol.el=~/==/ && laf.el=~/==/,
-						].any?
+						sameElem = bothNotes || bothRests
+						samePlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
 
-						homoPlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
-
-omittedRest = [
-	[
-		fol.el=~/r!/ && laf.el=="r!",
-		fol.el=~/s!/ && laf.el=="s!",
-	].any?,
-	@omitRest.include?(nv)
-].all?
-
-						if matchValue && matchDup && homoElem && homoPlet && !omittedRest
+						if [matchValue, matchDup, sameElem, samePlet].all?
 							fol.du += laf.du
 							la_ev.shift
 							fo_tp = 16

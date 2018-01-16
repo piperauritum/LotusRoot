@@ -34,7 +34,7 @@ class Score < DataProcess
 			tick = Rational(tp[1]*tp[2], tuple.size)
 
 			reduc = ->(qt){
-				rd = reduced_tuplets(tp)
+				rd = reduce_tpl_param(tp)
 				rd.select!{|e| e[0]==e[1]} if tp[0]==tp[1]
 				if rd!=[]
 					rd.each{|tq|
@@ -54,6 +54,7 @@ class Score < DataProcess
 			tuples << rc_tuplet
 			idx += 1
 		}
+
 		ba = assemble_bars(tuples, @metre, @finalBar)
 		@seq, @tpl_param = connect_beat(ba, @metre, @tpl_param)
 		markup_tail(@seq)

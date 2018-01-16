@@ -177,7 +177,7 @@ module Notation
 	end
 
 
-	def reduced_tuplets(tp)
+	def reduce_tpl_param(tp)
 		divisor = [*1..tp[0]-1].reverse.select{|e| (tp[0].to_f/e)%1==0}
 		rto = Rational(tp[1], 2**Math.log2(tp[0]).to_i)
 		divisor.map{|numer|
