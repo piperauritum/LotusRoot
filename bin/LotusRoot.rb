@@ -34,15 +34,17 @@ class Score < DataProcess
 			tp = @tpl_param[idx]
 			tick = Rational(tp[1]*tp[2], tuple.size)
 
-			reduc = ->(qt){
-				rd = reduce_tpl_param(tp)
-				rd.select!{|e| e[0]==e[1]} if tp[0]==tp[1]
-				if rd!=[]
-					rd.each{|tq|
-						if qt.dlook.flatten.map{|d|
-							note_value(tq)[d]!=nil
+			reduc = ->(tuplet){
+				abbr = tpl_abbreviations(tp)
+				abbr.select!{|e| e[0]==e[1]} if tp[0]==tp[1]
+				if abbr!=[]
+					abbr.each{|ab|
+						tk = Rational(ab[1]*ab[2], ab[0])
+						if tuplet.dlook.flatten.map{|d|
+							(d/tk)%1==0 && 
+							note_value(ab)[d]!=nil
 						}.all?
-							tp = @tpl_param[idx] = tq
+							tp = @tpl_param[idx] = ab
 						end
 					}
 				end
@@ -51,6 +53,7 @@ class Score < DataProcess
 			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
 			reduc.call(sd_tuplet)
 			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tp)
+p rc_tuplet.look
 			reduc.call(rc_tuplet)
 			tuples << rc_tuplet
 			idx += 1

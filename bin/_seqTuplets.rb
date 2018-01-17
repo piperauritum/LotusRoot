@@ -306,7 +306,7 @@ LotusRoot >> #{note_value(tp_a)}
 						fol.el=~/s!/ && laf.el=="s!",
 					].any?
 
-					if bothRests
+#					if bothRests
 						pos_table = {
 #							2 => {
 #								2 => [0],
@@ -326,7 +326,7 @@ LotusRoot >> #{note_value(tp_a)}
 								8 => [0],
 							},
 						}
-					else
+#					else
 						pos_table = {
 							3 => {
 								2 => [0, 1],
@@ -341,7 +341,7 @@ LotusRoot >> #{note_value(tp_a)}
 								8 => [0],
 							},
 						}
-					end
+#					end
 
 					npos = allowed_positions(tp_a, pos_table, nv)
 
