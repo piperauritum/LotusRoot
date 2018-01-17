@@ -20,7 +20,9 @@ class DataProcess
 				gap = mtr-len
 
 				while gap>0
-					tk = note_value(16).select{|e| e<=gap}.max[0]
+					tk = note_value(16)
+					tk = tk.select{|e| !(@omitRest.include?(e))}
+					tk = tk.select{|e| e<=gap}.max[0]
 					filler << [Event.new("r!", tk)]
 					tpl_add << [1, 1, tk]
 					gap -= tk

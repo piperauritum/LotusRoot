@@ -148,7 +148,7 @@ sco.dotDuplet = 0
 
 sco.omitRest = [a0, a1, a2, ...]
 	Excludes rests of given note values.
-	# Known issue: does not affect to filler of the end.
+	# It does not affect into tuplets.
 
 	a	note value (Fixnum/Float/Rational)
 

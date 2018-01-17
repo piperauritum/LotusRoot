@@ -53,7 +53,6 @@ class Score < DataProcess
 			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
 			reduc.call(sd_tuplet)
 			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tp)
-p rc_tuplet.look
 			reduc.call(rc_tuplet)
 			tuples << rc_tuplet
 			idx += 1

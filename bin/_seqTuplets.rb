@@ -206,7 +206,6 @@ LotusRoot >> #{note_value(tp_a)}
 			beats = [3]*(t/3)
 		else
 			beats = [4]*(t/4)+[t%4]
-#			beats = [2]*(t/2)+[t%2]
 		end
 		beats -= [0]
 
@@ -305,14 +304,9 @@ LotusRoot >> #{note_value(tp_a)}
 						fol.el=~/r!/ && laf.el=="r!",
 						fol.el=~/s!/ && laf.el=="s!",
 					].any?
-
-#					if bothRests
+=begin
+					if bothRests
 						pos_table = {
-#							2 => {
-#								2 => [0],
-#								4 => [0],
-#								6 => [0],
-#							},
 							3 => {
 								2 => [0, 1],
 								3 => [0],
@@ -326,7 +320,8 @@ LotusRoot >> #{note_value(tp_a)}
 								8 => [0],
 							},
 						}
-#					else
+					else
+=end
 						pos_table = {
 							3 => {
 								2 => [0, 1],
@@ -351,9 +346,11 @@ LotusRoot >> #{note_value(tp_a)}
 						end
 					end
 
+=begin
 					if bothRests && (npos.all?{|e| time!=e} || @omitRest.include?(nv))
 						nval = nil
 					end
+=end
 
 					if (bothNotes || bothRests) && nval!=nil
 						fol.du += laf.du
