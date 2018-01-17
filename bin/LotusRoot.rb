@@ -1,4 +1,5 @@
-﻿require_relative '_sequence'
+﻿require_relative '_seqTuplets'
+require_relative '_seqBars'
 require_relative '_scribe'
 include Notation
 
@@ -55,8 +56,8 @@ class Score < DataProcess
 			idx += 1
 		}
 
-		ba = assemble_bars(tuples, @metre, @finalBar)
-		@seq, @tpl_param = connect_beat(ba, @metre, @tpl_param)
+		beats = assemble_bars(tuples, @metre, @finalBar)
+		@seq, @tpl_param = connect_beat(beats, @metre, @tpl_param)
 		markup_tail(@seq)
 		slur_over_tremolo(@seq)
 	end

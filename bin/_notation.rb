@@ -11,6 +11,13 @@
 end
 
 
+class Array
+	def ar
+		self.map(&:ar)
+	end
+end
+
+
 module Notation
 
 ### Pitch ###
