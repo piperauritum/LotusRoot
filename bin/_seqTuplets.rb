@@ -304,39 +304,21 @@ LotusRoot >> #{note_value(tp_a)}
 						fol.el=~/r!/ && laf.el=="r!",
 						fol.el=~/s!/ && laf.el=="s!",
 					].any?
-=begin
-					if bothRests
-						pos_table = {
-							3 => {
-								2 => [0, 1],
-								3 => [0],
-								6 => [0],
-							},
-							4 => {
-								2 => [0, 1, 2],
-								3 => [0, 1],
-								4 => [0],
-								6 => [0, 2],
-								8 => [0],
-							},
-						}
-					else
-=end
-						pos_table = {
-							3 => {
-								2 => [0, 1],
-								3 => [0],
-								6 => [0],
-							},
-							4 => {
-								2 => [0, 1, 2],
-								3 => [0, 1],
-								4 => [0, 2],
-								6 => [0, 2],
-								8 => [0],
-							},
-						}
-#					end
+
+					pos_table = {
+						3 => {
+							2 => [0, 1],
+							3 => [0],
+							6 => [0],
+						},
+						4 => {
+							2 => [0, 1, 2],
+							3 => [0, 1],
+							4 => [0, 2],
+							6 => [0, 2],
+							8 => [0],
+						},
+					}
 
 					npos = allowed_positions(tp_a, pos_table, nv)
 
@@ -345,12 +327,6 @@ LotusRoot >> #{note_value(tp_a)}
 							nval = nil
 						end
 					end
-
-=begin
-					if bothRests && (npos.all?{|e| time!=e} || @omitRest.include?(nv))
-						nval = nil
-					end
-=end
 
 					if (bothNotes || bothRests) && nval!=nil
 						fol.du += laf.du
