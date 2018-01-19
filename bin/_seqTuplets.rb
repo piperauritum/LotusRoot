@@ -56,11 +56,11 @@ class DataProcess
 	end
 
 
-	def divide_metres_into_beats(metre)
+	def beat_structure(metre)
 		begin
 			metre.map{|e|
 				if Array===e
-					e[0].map{|f| Rational(f*e[1])}
+					e[0].map{|f| e[1]*f}
 				else
 					[1]*e
 				end
@@ -75,7 +75,7 @@ class DataProcess
 	def assemble_tuplets(ary, tpl, metre)
 		new_tpl = []
 		new_ary = []
-		beats = divide_metres_into_beats(metre)
+		beats = beat_structure(metre)
 		idx = 0
 
 		while ary.size>0
@@ -220,19 +220,23 @@ LotusRoot >> #{note_value(tp_a)}
 				if i==0
 					evt = ev
 				else
-					n_rest = %w(r! s!).map{|e|
+					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
+					isTie = [ev.el]-%w(= =:)==[]
+					markedTie = (past=~/@/ || past=~/==/) && ev.el=~/==/
+					newRest = %w(r! s!).map{|e|
 						(!(past=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
 					}.any?
-					c_tie = [ev.el]-%w(= =:)==[]
-					c_trem = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
-					c_rest = %w(r! s!).map{|e| past=~/#{e}/ && ev.el=="#{e}"}.any?
-					c_xval = note_value(tp_a)[evt.du+tick]==nil
-					c_mktie = (past=~/@/ || past=~/==/) && ev.el=~/==/
+					bothRests = %w(r! s!).map{|e|
+						past=~/#{e}/ && ev.el=="#{e}"
+					}.any?
+					omittedRest = bothRests && @omitRest.include?(evt.du+tick)
+					noNval = note_value(tp_a)[evt.du+tick]==nil
+					bothTrems = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
-					if ev.el=~/(@|%ATK|rrr|sss)/ || n_rest || c_xval
+					if [isAtk, newRest, noNval, omittedRest].any?
 						qa << evt
 						evt = ev
-					elsif [c_tie, c_trem, c_rest, c_mktie].any?
+					elsif [isTie, bothTrems, bothRests, markedTie].any?
 						evt.du += tick
 					end
 				end
@@ -319,6 +323,9 @@ LotusRoot >> #{note_value(tp_a)}
 							8 => [0],
 						},
 					}
+
+#					omittedRest = bothRests && @omitRest.include?(nv)
+# 					nval = nil if omittedRest
 
 					npos = allowed_positions(tp_a, pos_table, nv)
 
