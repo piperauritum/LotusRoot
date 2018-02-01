@@ -154,10 +154,10 @@ LotusRoot >> #{vv}
 		raise msg
 	end
 
-	if !(_el=~/%/) && (
-		(@prev_dur!=_du || @prev_tpl!=tp || @prev_elm=~/%/) || 
-		(_du==bar_dur && (_el=~/r!|s!/))
-		)
+	if !(_el=~/%/) # && (
+#		(@prev_dur!=_du || @prev_tpl!=tp || @prev_elm=~/%/) || 
+#		(_du==bar_dur && (_el=~/r!|s!/))
+#		)
 		@mainnote += nv
 	end
 end
