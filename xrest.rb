@@ -1,20 +1,17 @@
 ﻿require_relative 'bin/LotusRoot'
 require_relative 'bin/_win32'
 
-dur = [*0..499].map{(rand(16)+1)}
+pch = [12]
+dur = [1]
+elm = [1,0,0,0,0,1,0,0,0] + [0]*9
+elm = elm.map{|e| e==1 ? "@" : "r!"}
+tpl = [2]
 
-elm = dur.map{%w(@ r! r! r!)[rand(2)]}
-# elm = dur.map{[["@", 1], "r!"][rand(2)]}
-
-clipbd([dur, elm])
-
-tpl = [4]
-pch = [24]
 
 sco = Score.new(dur, elm, tpl, pch)
-sco.metre = [[[2,2,2,1],1/2r]]
-sco.omitRest = [3/2r]
-sco.tidyTuplet = 0
+sco.metre = [[[3,3,3],1/2r]]
+# sco.omitRest = [3/2r]
+# sco.tidyTuplet = 0
 sco.beamOverRest = 0
 sco.gen
 sco.print
