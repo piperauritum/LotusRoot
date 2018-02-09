@@ -2,7 +2,12 @@
 	attr_accessor :el, :du
 
 	def initialize(element, duration)
-		@el, @du = element, duration
+#		@el, @du = element, duration
+		if Array===duration
+			@el, @du = element, duration
+		else
+			@el, @du = element, [duration]
+		end
 	end
 
 	def ar
@@ -149,8 +154,12 @@ module Notation
 ### Duration ###
 
 	def tuplet_num_to_array(tpl, beat=1)
-		if Array === tpl
-			tpl
+		if Array===tpl
+			if Array===tpl[2]
+				[tpl[0], tpl[1], tpl[2].flatten.sigma]
+			else
+				tpl
+			end
 		else
 			if (tpl*beat)%1==0
 				numer = (tpl*beat).to_i

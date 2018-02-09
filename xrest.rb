@@ -1,6 +1,11 @@
 ﻿require_relative 'bin/LotusRoot'
 require_relative 'bin/_win32'
 
+# TODO:
+# rest tree
+# tpl_param class
+# div omitted rest = insert tpl
+
 pch = [12]
 # dur = [*0..9].map{|e| rand(20)+1}
 # elm = [*0..9].map{|e| rand(2)}

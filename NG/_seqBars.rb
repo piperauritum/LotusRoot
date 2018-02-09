@@ -91,7 +91,8 @@ class DataProcess
 		barr = bars.map{|e|
 			e.map{|f|
 				t = tpl[tx]
-				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
+#				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
+				t = [1, 1, f[0].du.flatten.sigma] if f.size==1 && Math.log(f[0].du.flatten.sigma).abs%1==0
 				z = [f, t]
 				tx += 1
 				z
@@ -125,7 +126,8 @@ LotusRoot >> #{bar.look}
 						la_ev, la_tp = la
 						fol, laf = fo_ev.last, la_ev.first
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
-						nv = fol.du + laf.du
+#						nv = fol.du + laf.du
+						nv = fol.du.flatten.sigma + laf.du.flatten.sigma
 						matchValue = note_value(fo_tp)[nv]!=nil
 
 						if Array===mtr
@@ -198,10 +200,10 @@ LotusRoot >> #{bar.look}
 							}
 						end
 
-						omittedRest = bothRests && @omitRest.include?(nv)
+#						omittedRest = bothRests && @omitRest.include?(nv)
 						npos = allowed_positions(tp_a, pos_table, nv)
 
-						if npos.all?{|e| time!=e} || omittedRest
+						if npos.all?{|e| time!=e} # || omittedRest
 							matchValue = false
 						end
 
@@ -211,11 +213,12 @@ LotusRoot >> #{bar.look}
 						else
 							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)*mt}
 						end
-						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
+						matchDup = [fol.du.flatten.sigma]-nval==[] && [laf.du.flatten.sigma]-nval==[]
 
 						sameElem = bothNotes || bothRests
 						samePlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
-
+p [fo_tp, la_tp, samePlet]
+# p 0, fol.look
 						if [matchValue, matchDup, sameElem, samePlet].all?
 							fol.du += laf.du
 							la_ev.shift
@@ -223,16 +226,21 @@ LotusRoot >> #{bar.look}
 							bar.delete_if{|e| e[0]==[]}
 							again = again || true
 						end
-
-						time += fo_ev[-1].du
+# p 1, fol.look
+#						time += fo_ev[-1].du
+						time += fo_ev[-1].du.flatten.sigma
 					end
 					id += 1
 				end
 				break if again == false
 			end
 		}
+
 		b = barr.map{|e| e.map{|f| f[0]}}
-		t = barr.inject([]){|s,e| s += e.map{|f| f[1]}}
+		t = barr.inject([]){|s,e|
+p 9, e.look
+			s += e.map{|f| f[1]}
+		}
 		[b, t]
 	end
 
@@ -256,6 +264,7 @@ LotusRoot >> #{bar.look}
 			}
 		}
 		seq[u][v][w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
+		seq
 	end
 
 
@@ -288,6 +297,48 @@ LotusRoot >> #{bar.look}
 				}
 			}
 		}
+		seq
 	end
 
+
+	def rest_dur(seq)
+		omittedRest = ->(nte){
+			[
+				nte.el=~/(r!|s!|rrr|sss)/,
+				Array===nte.du,
+				@omitRest.include?(nte.du.flatten.sigma)
+			].all?
+		}
+
+		yet = true
+		while yet
+			seq = seq.map{|bar|
+				bar.map{|tuple|
+					tuple.map{|note|
+						if omittedRest.call(note)
+							note.du.map{|h| Event.new(note.el, h)}
+						else
+							note
+						end
+					}.flatten
+				}
+			}
+
+			yet = false
+			seq.flatten.each{|note|
+				yet = true if omittedRest.call(note)
+			}
+		end
+
+		seq.each.with_index{|bar,x|
+			bar.each.with_index{|tuple,y|
+				tuple.each.with_index{|note,z|
+					if Array===note.du
+						seq[x][y][z].du = note.du.flatten.sigma
+					end
+				}
+			}
+		}
+		seq
+	end
 end
