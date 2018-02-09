@@ -91,7 +91,8 @@ class DataProcess
 		barr = bars.map{|e|
 			e.map{|f|
 				t = tpl[tx]
-				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
+#				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
+				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du.flatten.sigma).abs%1==0
 				z = [f, t]
 				tx += 1
 				z
@@ -125,7 +126,8 @@ LotusRoot >> #{bar.look}
 						la_ev, la_tp = la
 						fol, laf = fo_ev.last, la_ev.first
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
-						nv = fol.du + laf.du
+#						nv = fol.du + laf.du
+						nv = fol.du.flatten.sigma + laf.du.flatten.sigma
 						matchValue = note_value(fo_tp)[nv]!=nil
 
 						if Array===mtr
@@ -198,10 +200,10 @@ LotusRoot >> #{bar.look}
 							}
 						end
 
-						omittedRest = bothRests && @omitRest.include?(nv)
+#						omittedRest = bothRests && @omitRest.include?(nv)
 						npos = allowed_positions(tp_a, pos_table, nv)
 
-						if npos.all?{|e| time!=e} || omittedRest
+						if npos.all?{|e| time!=e} # || omittedRest
 							matchValue = false
 						end
 
@@ -224,7 +226,8 @@ LotusRoot >> #{bar.look}
 							again = again || true
 						end
 
-						time += fo_ev[-1].du
+#						time += fo_ev[-1].du
+						time += fo_ev[-1].du.flatten.sigma
 					end
 					id += 1
 				end
@@ -290,4 +293,16 @@ LotusRoot >> #{bar.look}
 		}
 	end
 
+
+	def sum_durations(seq)
+		seq.each.with_index{|bar,x|
+			bar.each.with_index{|tuple,y|
+				tuple.each.with_index{|note,z|
+					if Array===note.du
+						seq[x][y][z].du = note.du.flatten.sigma
+					end
+				}
+			}
+		}
+	end
 end
