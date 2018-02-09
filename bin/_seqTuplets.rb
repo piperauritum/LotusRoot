@@ -240,7 +240,7 @@ LotusRoot >> #{note_value(tp_a)}
 						evt = ev
 					elsif [isTie, bothTrems, bothRests, markedTie].any?
 #						evt.du += tick
-						evt.du << tick
+						evt.du = [evt.du, tick]
 					end
 				end
 				past = ev.el

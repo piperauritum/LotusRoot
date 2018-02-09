@@ -61,11 +61,17 @@ class Score < DataProcess
 
 		## _seqBars.rb ##
 		beats = assemble_bars(tuples, @metre, @finalBar)
+# p 0
+# beats.each{|e| p e.look}
 		@seq, @tpl_param = connect_beat(beats, @metre, @tpl_param)
-		markup_tail(@seq)
-		slur_over_tremolo(@seq)
-p @seq.look
-		sum_durations(@seq)
+# p 1
+# @seq.each{|e| p e.look}
+		@seq = markup_tail(@seq)
+
+		@seq = slur_over_tremolo(@seq)
+
+		@seq = rest_dur(@seq)
+
 	end
 
 
@@ -97,7 +103,7 @@ p @seq.look
 					tp[1]%3==0,
 					note_value_dot(tp)!=nil
 				].all?
-
+p tuple
 				##### NOTE #####
 				tuple.each.with_index{|nte, nte_id|
 					_el, _du = nte.ar
