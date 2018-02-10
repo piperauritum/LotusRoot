@@ -24,7 +24,7 @@ class DataProcess
 					tk = tk.select{|e| !(@omitRest.include?(e))}
 					tk = tk.select{|e| e<=gap}.max[0]
 					filler << [Event.new("r!", tk)]
-					tpl_add << [1, 1, tk]
+					tpl_add << [1, 1, tk].to_tpp
 					gap -= tk
 				end
 
@@ -59,7 +59,7 @@ class DataProcess
 					if Fixnum === mtr
 						mtr.times{
 							ar << [Event.new("r!", 1r)]
-							tp << [1, 1, 1]
+							tp << [1, 1, 1].to_tpp
 						}
 					else
 						mtr[0].map{|e| mtr[1]*e}.each{|e|
@@ -67,7 +67,7 @@ class DataProcess
 							while residue>0
 								du = note_value(2**16).select{|f| f<=residue}.max[0]
 								ar << [Event.new("r!", du)]
-								tp << [1, 1, Rational(1, du.denominator)]
+								tp << [1, 1, Rational(1, du.denominator)].to_tpp
 								residue -= du
 							end
 						}
@@ -91,7 +91,7 @@ class DataProcess
 		barr = bars.map{|e|
 			e.map{|f|
 				t = tpl[tx]
-				t = [1, 1, f[0].du] if f.size==1 && Math.log(f[0].du).abs%1==0
+				t = [1, 1, f[0].du].to_tpp if f.size==1 && Math.log(f[0].du).abs%1==0
 				z = [f, t]
 				tx += 1
 				z
@@ -143,7 +143,7 @@ LotusRoot >> #{bar.look}
 							end
 						}.flatten
 
-						tp_a = [bt, bt.sigma, ud]
+						tp_ary = [bt, bt.sigma, ud]
 
 						bothNotes = [
 							[laf.el]-%w(= =:)==[],
@@ -199,7 +199,7 @@ LotusRoot >> #{bar.look}
 						end
 
 						omittedRest = bothRests && @omitRest.include?(nv)
-						npos = allowed_positions(tp_a, pos_table, nv)
+						npos = allowed_positions(tp_ary, pos_table, nv)
 
 						if npos.all?{|e| time!=e} || omittedRest
 							matchValue = false
@@ -214,7 +214,7 @@ LotusRoot >> #{bar.look}
 						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
 
 						sameElem = bothNotes || bothRests
-						samePlet = fo_tp[0]==fo_tp[1] && la_tp[0]==la_tp[1]
+						samePlet = fo_tp.even? && la_tp.even?
 
 						if [matchValue, matchDup, sameElem, samePlet].all?
 							fol.du += laf.du

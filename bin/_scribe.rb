@@ -84,17 +84,17 @@ def add_grace_note(_el)
 end
 		
 			
-def add_tuplet_bracket(tp, nte_id)
+def add_tuplet_bracket(tpp, nte_id)
 	if nte_id==0 && !@bracketing
-		if !@dotted && ((Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1]))
+		if !@dotted && ((Fixnum===tpp && Math.log2(tpp)%1>0) || (TplParam===tpp && !tpp.even?))
 			@bracketing = true
-			tp_a = @tpl_param.on(@tpp_id)
-			if Array === tp_a
+			tpp = @tpl_param.on(@tpp_id)
+			if TplParam===tpp
 				@mainnote += "\\fractpl " if @fracTuplet!=nil 	# see config.ly
-				@mainnote += "\\tuplet #{tp_a[0]}/#{tp_a[1]} {"
+				@mainnote += "\\tuplet #{tpp.numer}/#{tpp.denom} {"
 			else
-				den = 2**Math.log2(tp_a).to_i
-				@mainnote += "\\tuplet #{tp_a}/#{den} {"
+				den = 2**Math.log2(tpp).to_i
+				@mainnote += "\\tuplet #{tpp}/#{den} {"
 			end
 		end
 	end

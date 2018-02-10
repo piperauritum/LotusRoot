@@ -89,31 +89,32 @@ class DataProcess
 			bt = beats.on(idx)
 			rept = 1
 
-			if Fixnum===tp
-				tp_a = tuplet_num_to_array(tp, bt)
-				rto = Rational(tp_a[0], tp_a[1])
+			case tp
+			when Array
+				tpp = tp.to_tpp
+			when Fixnum
+				tpp = tuplet_num_to_param(tp, bt)
+				rto = Rational(tpp.numer, tpp.denom)
 				if [
-					tp_a[0]!=tp_a[1],
-					tp_a[0]>tp,
-					tp_a[0]!=rto.numerator,
+					!tpp.even?,
+					tpp.numer>tp,
+					tpp.numer!=rto.numerator,
 					Rational(tp, rto.numerator)%1==0
 				].all?
 					if bt%1==0
-						rept = tp_a[0]/tp
-						tp_a = [tp, tp_a[1]/rept, tp_a[2]]
+						rept = tpp.numer/tp
+						tpp = [tp, tpp.denom/rept, tpp.unit].to_tpp
 					else
-						rept = tp_a[0]/rto.numerator
-						tp_a = [rto.numerator, rto.denominator, tp_a[2]]
+						rept = tpp.numer/rto.numerator
+						tpp = [rto.numerator, rto.denominator, tpp.unit].to_tpp
 					end
 				end
-			else
-				tp_a = tp
 			end
 
 			rept.times{
 				begin
-					len = tp_a[0]
-					tick = Rational(tp_a[1]*tp_a[2], tp_a[0])
+					len = tpp.numer
+					tick = tpp.tick
 				rescue
 					puts "LotusRoot >> Parameter of tuplet must be [Fixnum..] or [[Fixnum, Fixnum, Rational]..]"
 					raise
@@ -121,15 +122,15 @@ class DataProcess
 
 				if Fixnum===tp && tick.numerator>1
 					len = tp
-					tick *= Rational(tp_a[0], tp)
+					tick *= Rational(tpp.numer, tp)
 				end
 
-				if note_value(tp_a)[tick]==nil
+				if note_value(tpp)[tick]==nil
 					msg = <<-EOS
 
-LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tp_a})
+LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tpp.ar})
 LotusRoot >> Beat: (#{bt})
-LotusRoot >> #{note_value(tp_a)}
+LotusRoot >> #{note_value(tpp.ar)}
 					EOS
 					raise msg
 				end
@@ -155,12 +156,12 @@ LotusRoot >> #{note_value(tp_a)}
 					tick = Rational(1, du.denominator)
 					len = du.numerator
 					ay = [ay[0]] + [ay[1]]*(len-1)
-					new_tpl << [len, len, tick]
+					new_tpl << [len, len, tick].to_tpp
 				else
 					if Fixnum===tp
-						new_tpl << tp_a
+						new_tpl << tpp
 					else
-						new_tpl << tpl.on(idx)
+						new_tpl << tpl.on(idx).to_tpp
 					end
 				end
 
@@ -196,7 +197,7 @@ LotusRoot >> #{note_value(tp_a)}
 	end
 
 
-	def subdivide_tuplet(tuple, past, tick, tp_a)
+	def subdivide_tuplet(tuple, past, tick, tpp)
 		quad, evt = [], nil
 		t = tuple.size
 		beats = [t]
@@ -230,7 +231,7 @@ LotusRoot >> #{note_value(tp_a)}
 						past=~/#{e}/ && ev.el=="#{e}"
 					}.any?
 					omittedRest = bothRests && @omitRest.include?(evt.du+tick)
-					noNval = note_value(tp_a)[evt.du+tick]==nil
+					noNval = note_value(tpp)[evt.du+tick]==nil
 					bothTrems = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
 					if [isAtk, newRest, noNval, omittedRest].any?
@@ -249,12 +250,12 @@ LotusRoot >> #{note_value(tp_a)}
 	end
  
  
-	def recombine_tuplet(quad, tp)
-		tick = Rational(tp[1]*tp[2], tp[0])
+	def recombine_tuplet(quad, tpp)
+		tick = tpp.tick
 		bt = quad.map{|e| (e.dlook.sigma/tick).to_i}
 
-		if tp[0]==tp[1]
-			bt = [tp[0]].map{|e|
+		if tpp.even?
+			bt = [tpp.numer].map{|e|
 				if e%3==0
 					[3]*(e/3)
 				else
@@ -263,7 +264,7 @@ LotusRoot >> #{note_value(tp_a)}
 			}.flatten
 		end
 
-		tp_a = [bt, tp[1], tp[2]]
+		tp_ary = [bt, tpp.denom, tpp.unit]
 
 		while 0
 			id = 0
@@ -282,10 +283,10 @@ LotusRoot >> #{note_value(tp_a)}
 						boo = true
 					end
 
-					if @dotDuplet && tp.dot?
-						nval = note_value_dot(tp)[nv]
+					if @dotDuplet && tpp.dot?
+						nval = note_value_dot(tpp)[nv]
 					else
-						nval = note_value(tp)[nv]
+						nval = note_value(tpp)[nv]
 					end
 
 					bothNotes = [
@@ -327,9 +328,9 @@ LotusRoot >> #{note_value(tp_a)}
 #					omittedRest = bothRests && @omitRest.include?(nv)
 # 					nval = nil if omittedRest
 
-					npos = allowed_positions(tp_a, pos_table, nv)
+					npos = allowed_positions(tp_ary, pos_table, nv)
 
-					if tp[0]==tp[1] || tp[0]>=8		# (to be investigated)
+					if tpp.even? || tpp.numer>=8		# (to be investigated)
 						if @tidyTuplet!=nil && npos.all?{|e| time!=e}
 							nval = nil
 						end

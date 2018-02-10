@@ -31,28 +31,28 @@ class Score < DataProcess
 		tuples = []
 		idx = 0
 		@tpl_data.inject("r!"){|past, tuple|
-			tp = @tpl_param[idx]
-			tick = Rational(tp[1]*tp[2], tuple.size)
+			tpp = @tpl_param[idx]
+			tick = Rational(tpp.denom*tpp.unit, tuple.size)
 
 			reduc = ->(tuplet){
-				abbr = tpl_abbreviations(tp)
-				abbr.select!{|e| e[0]==e[1]} if tp[0]==tp[1]
+				abbr = tpl_abbreviations(tpp)
+				abbr.select!{|e| e.even?} if tpp.even?
 				if abbr!=[]
 					abbr.each{|ab|
-						tk = Rational(ab[1]*ab[2], ab[0])
+						tk = ab.tick
 						if tuplet.dlook.flatten.map{|d|
 							(d/tk)%1==0 && 
 							note_value(ab)[d]!=nil
 						}.all?
-							tp = @tpl_param[idx] = ab
+							tpp = @tpl_param[idx] = ab
 						end
 					}
 				end
 			}
 
-			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
+			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tpp)
 			reduc.call(sd_tuplet)
-			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tp)
+			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tpp)
 			reduc.call(rc_tuplet)
 			tuples << rc_tuplet
 			idx += 1
@@ -75,7 +75,7 @@ class Score < DataProcess
 		##### MEASURE #####
 		@seq.each.with_index{|bar, bar_id|
 			mtr = @metre[bar_id % @metre.size]
-			if Array === mtr
+			if Array===mtr
 				beat_dur = mtr[1]
 				bar_dur = mtr[0].sigma*beat_dur
 			else
@@ -85,13 +85,13 @@ class Score < DataProcess
 
 			##### TUPLET #####
 			bar.each.with_index{|tuple, beat_id|
-				tp = @tpl_param.on(@tpp_id)
+				tpp = @tpl_param.on(@tpp_id)
 				@dotted = [
 					@dotDuplet!=nil,
-					Array === tp,
-					Math.log2(tp[0])%1==0,
-					tp[1]%3==0,
-					note_value_dot(tp)!=nil
+					TplParam===tpp,
+					Math.log2(tpp.numer)%1==0,
+					tpp.denom%3==0,
+					note_value_dot(tpp)!=nil
 				].all?
 
 				##### NOTE #####
@@ -111,9 +111,9 @@ class Score < DataProcess
 							@mainnote += _el.sub(/#{e}.*/m, "") if _el=~/#{e.sub("+", "")}/
 						}
 
-						add_tuplet_bracket(tp, nte_id)
-						trem_nval = put_note(nte, tp)
-						add_note_value(nte, tp, bar_dur)
+						add_tuplet_bracket(tpp, nte_id)
+						trem_nval = put_note(nte, tpp)
+						add_note_value(nte, tpp, bar_dur)
 						@mainnote += ":" if _el=="=:"
 
 						# after main note
@@ -127,7 +127,7 @@ class Score < DataProcess
 					add_beam(tuple, nte_id)
 
 					@prev_dur = _du
-					@prev_tpl = tp
+					@prev_tpl = tpp
 					@prev_elm = _el
 					@voice += " "
 				}

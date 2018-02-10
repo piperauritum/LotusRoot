@@ -11,10 +11,44 @@
 end
 
 
+class TplParam
+	attr_accessor :numer, :denom, :unit
+
+	def initialize(array)
+		@numer, @denom, @unit = array
+	end
+
+	def ar
+		[@numer, @denom, @unit]
+	end
+
+	def tick
+		Rational(@denom*@unit, @numer)
+	end
+
+	def even?
+		@numer == @denom
+	end
+
+	def dot?
+		[
+			Math.log2(@numer)%1==0,
+			@denom%3==0,
+			note_value_dot(self)!=nil
+		].all?
+	end
+end
+
+
 class Array
 	def ar
 		self.map(&:ar)
 	end
+
+	def to_tpp
+		TplParam.new(self)
+	end
+
 end
 
 
@@ -148,10 +182,13 @@ module Notation
 
 ### Duration ###
 
-	def tuplet_num_to_array(tpl, beat=1)
-		if Array === tpl
+	def tuplet_num_to_param(tpl, beat=1)
+		case tpl
+		when TplParam
 			tpl
-		else
+		when Array
+			tpl.to_tpp
+		when Fixnum
 			if (tpl*beat)%1==0
 				numer = (tpl*beat).to_i
 				unit_dur = Rational(numer, beat)
@@ -179,19 +216,19 @@ module Notation
 
 			numer = numer.to_i
 			denom = denom.to_i
-			[numer, denom, unit_dur]
+			[numer, denom, unit_dur].to_tpp
 		end
 	end
 
 
-	def tpl_abbreviations(tp)
-		divisor = [*1..tp[0]-1].reverse.select{|e| (tp[0].to_f/e)%1==0}
-		rto = Rational(tp[1], 2**Math.log2(tp[0]).to_i)
-		divisor.map{|numer|
-			denom = 2**Math.log2(numer).to_i*rto
-			unit_dur = Rational(tp[1]*tp[2], denom)
-			if denom%1==0
-				[numer, denom.to_i, unit_dur]
+	def tpl_abbreviations(tpp)
+		divisor = [*1..tpp.numer-1].reverse.select{|e| (tpp.numer.to_f/e)%1==0}
+		rto = Rational(tpp.denom, 2**Math.log2(tpp.numer).to_i)
+		divisor.map{|num|
+			den = 2**Math.log2(num).to_i*rto
+			unit_dur = Rational(tpp.denom*tpp.unit, den)
+			if den%1==0
+				[num, den.to_i, unit_dur].to_tpp
 			else
 				nil
 			end
@@ -200,7 +237,8 @@ module Notation
 
 
 	def note_value(tpl)
-		rto_nu, rto_de, unit_nt = tuplet_num_to_array(tpl)
+		tpp = tuplet_num_to_param(tpl)
+
 		duple_note = [*-16..2].map{|e|
 			x = 2**e
 			[x, "#{(4/x).to_i}"]
@@ -213,20 +251,20 @@ module Notation
 
 		notation = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
 
-		if rto_nu==0
+		if tpp.numer==0
 			nil
 		else
-			unit_du = unit_nt
+			unit_du = tpp.unit
 			nt = notation.select{|dur, note|
-				dur>=unit_du && (dur<=unit_du*rto_nu || Math.log2(rto_nu)%1==0)
+				dur>=unit_du && (dur<=unit_du*tpp.numer || Math.log2(tpp.numer)%1==0)
 			}
 
 			nt = nt.map{|dur, note|
-				[Rational(rto_de, rto_nu)*dur, note]
+				[Rational(tpp.denom, tpp.numer)*dur, note]
 			}
 
 			nt += notation.select{|dur, note|
-				dur==rto_de*unit_nt
+				dur==tpp.denom*tpp.unit
 			}.map{|dur, note|
 				[Rational(dur), note]
 			}
@@ -245,19 +283,8 @@ module Notation
 	end
 
 
-	def dot?
-		cond = [
-			Array===self,
-			Math.log2(self[0])%1==0,
-			self[1]%3==0,
-			note_value_dot(self)!=nil
-		]
-		cond.inject(true){|s,e| s && e}
-	end
-
-
-	def allowed_positions(tp_a, pos_table, notevalue)
-		bt_struct, unit_num, unit_dur = tp_a.deepcopy
+	def allowed_positions(tp_ary, pos_table, notevalue)
+		bt_struct, unit_num, unit_dur = tp_ary.deepcopy
 		tme = 0
 		ary = []
 		rto = Rational(unit_num*unit_dur, bt_struct.sigma)
