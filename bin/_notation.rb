@@ -2,11 +2,16 @@
 	attr_accessor :el, :du
 
 	def initialize(element, duration)
-		@el, @du = element, duration
+#		@el, @du = element, duration
+		@el, @du = element, [duration]
 	end
 
 	def ar
 		[@el, @du]
+	end
+
+	def dsum
+		@du.flatten.sigma
 	end
 end
 

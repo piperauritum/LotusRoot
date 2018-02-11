@@ -2,7 +2,7 @@
 require_relative 'bin/_win32'
 
 pch = [12]
-tpl = [4,5,6,7]
+tpl = [*0..9].map{ rand(6)+3}
 elm = [*0..9].map{ %w(r! @)[rand(2)]}
 dur = elm.map{ rand(8)+1 }
 clipbd([dur, elm])

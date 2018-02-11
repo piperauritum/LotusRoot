@@ -21,7 +21,7 @@ class DataProcess
 
 				while gap>0
 					tick = note_value(16)
-					tick = tick.select{|e| !(@omitRest.include?(e))}
+#					tick = tick.select{|e| !(@omitRest.include?(e))}
 					tick = tick.select{|e| e<=gap}.max[0]
 					filler << [Event.new("r!", tick)]
 					tpl_add << [1, 1, tick].to_tpp
@@ -130,7 +130,8 @@ LotusRoot >> #{bar.look}
 						la_ev, la_tp = la
 						fol, laf = fo_ev.last, la_ev.first
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
-						nv = fol.du + laf.du
+#						nv = fol.du + laf.du
+						nv = fol.dsum + laf.dsum
 						matchValue = note_value(fo_tp)[nv]!=nil
 
 						if Array===mtr
@@ -203,10 +204,10 @@ LotusRoot >> #{bar.look}
 							}
 						end
 
-						omittedRest = bothRests && @omitRest.include?(nv)
+#						omittedRest = bothRests && @omitRest.include?(nv)
 						npos = allowed_positions(tp_ary, pos_table, nv)
 
-						if npos.all?{|e| time!=e} || omittedRest
+						if npos.all?{|e| time!=e} # || omittedRest
 							matchValue = false
 						end
 
@@ -216,20 +217,23 @@ LotusRoot >> #{bar.look}
 						else
 							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)*mt}
 						end
-						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
+#						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
+						matchDup = [fol.dsum]-nval==[] && [laf.dsum]-nval==[]
 
 						sameElem = bothNotes || bothRests
 						samePlet = fo_tp.even? && la_tp.even?
 
 						if [matchValue, matchDup, sameElem, samePlet].all?
-							fol.du += laf.du
+#							fol.du += laf.du
+							fol.du = [fol.du, laf.du]
 							la_ev.shift
 							fo_tp = 16
 							bar.delete_if{|e| e[0]==[]}
 							again = again || true
 						end
 
-						time += fo_ev[-1].du
+#						time += fo_ev[-1].du
+						time += fo_ev[-1].dsum
 					end
 					id += 1
 				end
@@ -262,6 +266,7 @@ LotusRoot >> #{bar.look}
 			}
 		}
 		seq[u][v][w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
+		seq
 	end
 
 
@@ -282,8 +287,9 @@ LotusRoot >> #{bar.look}
 							elms==["%", nil],
 						].any?
 							seq[u][v][w].el = ptr + "SOT" + past.el.sub(ptr, "")
+p past.el.sub(ptr, "")
 						end
-						
+
 						if ntr=="%" && id==seq.flatten.size-1
 							seq[x][y][z].el = ntr + "SOT" + note.el.sub(ntr, "")
 						end
@@ -294,6 +300,48 @@ LotusRoot >> #{bar.look}
 				}
 			}
 		}
+		seq
 	end
 
+
+	def rest_dur(seq)
+		omittedRest = ->(nte){
+			[
+				nte.el=~/(r!|s!|rrr|sss)/,
+				Array===nte.du,
+				@omitRest.include?(nte.du.flatten.sigma)
+			].all?
+		}
+
+		yet = true
+		while yet
+			seq = seq.map{|bar|
+				bar.map{|tuple|
+					tuple.map{|note|
+						if omittedRest.call(note)
+							note.du.map{|h| Event.new(note.el, h)}
+						else
+							note
+						end
+					}.flatten
+				}
+			}
+
+			yet = false
+			seq.flatten.each{|note|
+				yet = true if omittedRest.call(note)
+			}
+		end
+
+		seq.each.with_index{|bar,x|
+			bar.each.with_index{|tuple,y|
+				tuple.each.with_index{|note,z|
+					if Array===note.du
+						seq[x][y][z].du = note.du.flatten.sigma
+					end
+				}
+			}
+		}
+		seq
+	end
 end

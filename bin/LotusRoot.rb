@@ -50,6 +50,7 @@ class Score < DataProcess
 				end
 			}
 
+			## _seqTuplets.rb ##
 			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tpp)
 			reduc.call(sd_tuplet)
 			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tpp)
@@ -58,10 +59,12 @@ class Score < DataProcess
 			idx += 1
 		}
 
+		## _seqBars.rb ##
 		bars = assemble_bars(tuples, @metre, @finalBar)
 		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
-		markup_tail(@seq)
-		slur_over_tremolo(@seq)
+# p @tpl_param.look
+		@seq = markup_tail(@seq)
+		@seq = slur_over_tremolo(@seq)
 	end
 
 

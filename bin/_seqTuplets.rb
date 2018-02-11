@@ -230,15 +230,17 @@ LotusRoot >> #{note_value(tpp.ar)}
 					bothRests = %w(r! s!).map{|e|
 						past=~/#{e}/ && ev.el=="#{e}"
 					}.any?
-					omittedRest = bothRests && @omitRest.include?(evt.du+tick)
-					noNval = note_value(tpp)[evt.du+tick]==nil
+#					omittedRest = bothRests && @omitRest.include?(evt.du+tick)
+					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
-					if [isAtk, newRest, noNval, omittedRest].any?
+#					if [isAtk, newRest, noNval, omittedRest].any?
+					if [isAtk, newRest, noNval].any?
 						qa << evt
 						evt = ev
 					elsif [isTie, bothTrems, bothRests, markedTie].any?
-						evt.du += tick
+#						evt.du += tick
+						evt.du = [evt.du, tick]
 					end
 				end
 				past = ev.el
@@ -252,7 +254,10 @@ LotusRoot >> #{note_value(tpp.ar)}
  
 	def recombine_tuplet(quad, tpp)
 		tick = tpp.tick
-		beat_struc = quad.map{|e| (e.dlook.sigma/tick).to_i}
+		beat_struc = quad.map{|e|
+#			(e.dlook.sigma/tick).to_i
+			(e.dlook.flatten.sigma/tick).to_i
+		}
 
 		if tpp.even?
 			beat_struc = [tpp.numer].map{|e|
@@ -277,7 +282,8 @@ LotusRoot >> #{note_value(tpp.ar)}
 
 				if la!=nil
 					fol, laf = fo.last, la.first
-					nv = fol.du + laf.du
+#					nv = fol.du + laf.du
+					nv = fol.dsum + laf.dsum
 					if fo.size>1
 						time += fo[0..-2].dtotal
 						boo = true
@@ -337,7 +343,8 @@ LotusRoot >> #{note_value(tpp.ar)}
 					end
 
 					if (bothNotes || bothRests) && nval!=nil
-						fol.du += laf.du
+#						fol.du += laf.du
+						fol.du = [fol.du, laf.du]
 						la.shift
 						quad.delete_if{|e| e==[]}
 						again = again || true

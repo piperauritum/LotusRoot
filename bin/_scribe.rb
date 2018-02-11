@@ -115,6 +115,7 @@ def put_note(nte, tp)
 			trem_nval = $4.to_i
 			trem_dur = Rational(8, trem_nval)			
 			nval_dur = note_value(2**16).key(note_value(tp)[_du])
+p nte, tp
 			tr_times = (nval_dur/trem_dur).to_i
 			
 			if tr_times==0
@@ -132,7 +133,10 @@ end
 
 
 def add_note_value(nte, tp, bar_dur)
-	_el, _du = nte.ar
+#	_el, _du = nte.ar
+	_el = nte.el
+	_du = nte.dsum
+
 	if @dotted
 		nv = note_value_dot(tp)[_du]
 	else
