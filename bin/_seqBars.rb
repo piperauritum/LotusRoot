@@ -20,12 +20,12 @@ class DataProcess
 				gap = mtr-len
 
 				while gap>0
-					tk = note_value(16)
-					tk = tk.select{|e| !(@omitRest.include?(e))}
-					tk = tk.select{|e| e<=gap}.max[0]
-					filler << [Event.new("r!", tk)]
-					tpl_add << [1, 1, tk].to_tpp
-					gap -= tk
+					tick = note_value(16)
+					tick = tick.select{|e| !(@omitRest.include?(e))}
+					tick = tick.select{|e| e<=gap}.max[0]
+					filler << [Event.new("r!", tick)]
+					tpl_add << [1, 1, tick].to_tpp
+					gap -= tick
 				end
 
 				filler.reverse!
@@ -54,26 +54,28 @@ class DataProcess
 			if final_bar>bars.size
 				(final_bar-bars.size).times{
 					mtr = metre.on(mtr_id)
-					ar = []
-					tp = []
+					evts = []
+					tpps = []
+
 					if Fixnum === mtr
 						mtr.times{
-							ar << [Event.new("r!", 1r)]
-							tp << [1, 1, 1].to_tpp
+							evts << [Event.new("r!", 1r)]
+							tpps << [1, 1, 1].to_tpp
 						}
 					else
 						mtr[0].map{|e| mtr[1]*e}.each{|e|
 							residue = e
 							while residue>0
-								du = note_value(2**16).select{|f| f<=residue}.max[0]
-								ar << [Event.new("r!", du)]
-								tp << [1, 1, Rational(1, du.denominator)].to_tpp
-								residue -= du
+								dur = note_value(2**16).select{|f| f<=residue}.max[0]
+								evts << [Event.new("r!", dur)]
+								tpps << [1, 1, Rational(1, dur.denominator)].to_tpp
+								residue -= dur
 							end
 						}
 					end
-					bars << ar
-					@tpl_param += tp
+
+					bars << evts
+					@tpl_param += tpps
 					mtr_id += 1
 				}
 			else
@@ -87,25 +89,28 @@ class DataProcess
 	def connect_beat(bars, metre, tpl)
 
 		# Associate tuplet and tuplet-number
-		tx = 0
-		barr = bars.map{|e|
-			e.map{|f|
-				t = tpl[tx]
-				t = [1, 1, f[0].du].to_tpp if f.size==1 && Math.log(f[0].du).abs%1==0
-				z = [f, t]
-				tx += 1
-				z
+		tid = 0
+		beat_n_tpp = bars.map{|bar|
+			bar.map{|beat|
+				tpp = tpl[tid]
+
+## the following is needed ?? (2018.2.11)
+# tpp = [1, 1, beat[0].du].to_tpp if beat.size==1 && Math.log2(beat[0].du).abs%1==0
+raise "\n### the previous line is needed ###\n" if tpl[tid].ar!=tpp.ar
+
+				tid += 1
+				[beat, tpp]
 			}
 		}
 
-		barr.each.with_index{|bar, idx|
-			bv = bar.map{|e| e[0]}.dtotal
+		beat_n_tpp.each.with_index{|bar, idx|
+			bar_dur = bar.map{|e| e[0]}.dtotal
 			mtr = metre.on(idx)
 
-			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bv) || (Fixnum===mtr && mtr!=bv)
+			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bar_dur) || (Fixnum===mtr && mtr!=bar_dur)
 				msg = <<-EOS
 
-LotusRoot >> Total duration of bar (#{bv}) is different from the time signature (#{mtr})
+LotusRoot >> Total duration of bar (#{bar_dur}) is different from the time signature (#{mtr})
 LotusRoot >> #{mtr}
 LotusRoot >> #{bar.look}
 				EOS
@@ -129,13 +134,13 @@ LotusRoot >> #{bar.look}
 						matchValue = note_value(fo_tp)[nv]!=nil
 
 						if Array===mtr
-							bt, ud = mtr
+							beat_struc, unit_dur = mtr
 						else
-							bt = [mtr]
-							ud = 1
+							beat_struc = [mtr]
+							unit_dur = 1
 						end
 
-						bt = bt.map{|e|
+						beat_struc = beat_struc.map{|e|
 							if e%3==0
 								[3]*(e/3)
 							else
@@ -143,7 +148,7 @@ LotusRoot >> #{bar.look}
 							end
 						}.flatten
 
-						tp_ary = [bt, bt.sigma, ud]
+						tp_ary = [beat_struc, beat_struc.sigma, unit_dur]
 
 						bothNotes = [
 							[laf.el]-%w(= =:)==[],
@@ -231,9 +236,10 @@ LotusRoot >> #{bar.look}
 				break if again == false
 			end
 		}
-		b = barr.map{|e| e.map{|f| f[0]}}
-		t = barr.inject([]){|s,e| s += e.map{|f| f[1]}}
-		[b, t]
+
+		seq = beat_n_tpp.map{|e| e.map{|f| f[0]}}
+		tpp = beat_n_tpp.inject([]){|s,e| s += e.map{|f| f[1]}}
+		[seq, tpp]
 	end
 
 

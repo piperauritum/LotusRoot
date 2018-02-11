@@ -86,14 +86,14 @@ class DataProcess
 				raise
 			end
 
-			bt = beats.on(idx)
+			beat = beats.on(idx)
 			rept = 1
 
 			case tp
 			when Array
 				tpp = tp.to_tpp
 			when Fixnum
-				tpp = tuplet_num_to_param(tp, bt)
+				tpp = tuplet_num_to_param(tp, beat)
 				rto = Rational(tpp.numer, tpp.denom)
 				if [
 					!tpp.even?,
@@ -101,7 +101,7 @@ class DataProcess
 					tpp.numer!=rto.numerator,
 					Rational(tp, rto.numerator)%1==0
 				].all?
-					if bt%1==0
+					if beat%1==0
 						rept = tpp.numer/tp
 						tpp = [tp, tpp.denom/rept, tpp.unit].to_tpp
 					else
@@ -129,7 +129,7 @@ class DataProcess
 					msg = <<-EOS
 
 LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tpp.ar})
-LotusRoot >> Beat: (#{bt})
+LotusRoot >> Beat: (#{beat})
 LotusRoot >> #{note_value(tpp.ar)}
 					EOS
 					raise msg
@@ -200,18 +200,18 @@ LotusRoot >> #{note_value(tpp.ar)}
 	def subdivide_tuplet(tuple, past, tick, tpp)
 		quad, evt = [], nil
 		t = tuple.size
-		beats = [t]
+		beat_struc = [t]
 		if @dotDuplet
-			beats = [2]*(t/2)+[t%2]
+			beat_struc = [2]*(t/2)+[t%2]
 		elsif t%3==0
-			beats = [3]*(t/3)
+			beat_struc = [3]*(t/3)
 		else
-			beats = [4]*(t/4)+[t%4]
+			beat_struc = [4]*(t/4)+[t%4]
 		end
-		beats -= [0]
+		beat_struc -= [0]
 
 		sliced = []
-		beats.each{|e|
+		beat_struc.each{|e|
 			sliced << tuple.shift(e)
 		}
 
@@ -252,10 +252,10 @@ LotusRoot >> #{note_value(tpp.ar)}
  
 	def recombine_tuplet(quad, tpp)
 		tick = tpp.tick
-		bt = quad.map{|e| (e.dlook.sigma/tick).to_i}
+		beat_struc = quad.map{|e| (e.dlook.sigma/tick).to_i}
 
 		if tpp.even?
-			bt = [tpp.numer].map{|e|
+			beat_struc = [tpp.numer].map{|e|
 				if e%3==0
 					[3]*(e/3)
 				else
@@ -264,7 +264,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 			}.flatten
 		end
 
-		tp_ary = [bt, tpp.denom, tpp.unit]
+		tp_ary = [beat_struc, tpp.denom, tpp.unit]
 
 		while 0
 			id = 0

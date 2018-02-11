@@ -321,7 +321,7 @@ module Notation
 				case e
 				when Array
 					e.lookInside(type)
-				when Event
+				when Event, TplParam
 					sel.call(e)
 				else
 					e
