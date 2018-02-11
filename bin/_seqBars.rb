@@ -287,7 +287,6 @@ LotusRoot >> #{bar.look}
 							elms==["%", nil],
 						].any?
 							seq[u][v][w].el = ptr + "SOT" + past.el.sub(ptr, "")
-p past.el.sub(ptr, "")
 						end
 
 						if ntr=="%" && id==seq.flatten.size-1

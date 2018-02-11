@@ -102,7 +102,10 @@ end
 
 
 def put_note(nte, tp)
-	_el, _du = nte.ar
+#	_el, _du = nte.ar
+	_el = nte.el
+	_du = nte.dsum
+
 	case _el
 	when /r!|rrr/
 		@mainnote += "r"		# (whole bar rest should not be used)
@@ -115,7 +118,6 @@ def put_note(nte, tp)
 			trem_nval = $4.to_i
 			trem_dur = Rational(8, trem_nval)			
 			nval_dur = note_value(2**16).key(note_value(tp)[_du])
-p nte, tp
 			tr_times = (nval_dur/trem_dur).to_i
 			
 			if tr_times==0
