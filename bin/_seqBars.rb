@@ -21,8 +21,9 @@ class DataProcess
 
 				while gap>0
 					tick = note_value(16)
-#					tick = tick.select{|e| !(@omitRest.include?(e))}
-					tick = tick.select{|e| e<=gap}.max[0]
+					tick = tick.select{|key, val| !(@omitRest.include?(key))}
+					tick = tick.select{|key, val| Math.log2(key.numerator)%1==0}
+					tick = tick.select{|key, val| key<=gap}.max[0]
 					filler << [Event.new("r!", tick)]
 					tpl_add << [1, 1, tick].to_tpp
 					gap -= tick
@@ -103,9 +104,9 @@ raise "\n### the previous line is needed ###\n" if tpl[tid].ar!=tpp.ar
 			}
 		}
 
-		beat_n_tpp.each.with_index{|bar, idx|
+		beat_n_tpp.each.with_index{|bar, bar_id|
 			bar_dur = bar.map{|e| e[0]}.dtotal
-			mtr = metre.on(idx)
+			mtr = metre.on(bar_id)
 
 			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bar_dur) || (Fixnum===mtr && mtr!=bar_dur)
 				msg = <<-EOS
@@ -118,12 +119,12 @@ LotusRoot >> #{bar.look}
 			end
 
 			while 0
-				id = 0
+				bid = 0
 				time = 0
 				again = false
 
-				while id<bar.size
-					fo, la = bar[id], bar[id+1]
+				while bid<bar.size
+					fo, la = bar[bid], bar[bid+1]
 
 					if la!=nil
 						fo_ev, fo_tp = fo
@@ -227,7 +228,8 @@ LotusRoot >> #{bar.look}
 #							fol.du += laf.du
 							fol.du = [fol.du, laf.du]
 							la_ev.shift
-							fo_tp = 16
+#							fo_tp = 16
+							beat_n_tpp[bar_id][bid][1] = tuplet_num_to_param(16)
 							bar.delete_if{|e| e[0]==[]}
 							again = again || true
 						end
@@ -235,7 +237,7 @@ LotusRoot >> #{bar.look}
 #						time += fo_ev[-1].du
 						time += fo_ev[-1].dsum
 					end
-					id += 1
+					bid += 1
 				end
 				break if again == false
 			end
@@ -303,7 +305,7 @@ LotusRoot >> #{bar.look}
 	end
 
 
-	def rest_dur(seq)
+	def rest_dur(seq, tpp)
 		omittedRest = ->(nte){
 			[
 				nte.el=~/(r!|s!|rrr|sss)/,
@@ -317,6 +319,7 @@ LotusRoot >> #{bar.look}
 			seq = seq.map{|bar|
 				bar.map{|tuple|
 					tuple.map{|note|
+p note
 						if omittedRest.call(note)
 							note.du.map{|h| Event.new(note.el, h)}
 						else
@@ -331,16 +334,7 @@ LotusRoot >> #{bar.look}
 				yet = true if omittedRest.call(note)
 			}
 		end
-
-		seq.each.with_index{|bar,x|
-			bar.each.with_index{|tuple,y|
-				tuple.each.with_index{|note,z|
-					if Array===note.du
-						seq[x][y][z].du = note.du.flatten.sigma
-					end
-				}
-			}
-		}
 		seq
 	end
+
 end

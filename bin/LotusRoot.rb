@@ -60,10 +60,12 @@ class Score < DataProcess
 		}
 
 		## _seqBars.rb ##
-		bars = assemble_bars(tuples, @metre, @finalBar)
-		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
+		@seq = assemble_bars(tuples, @metre, @finalBar)
+		@seq, @tpl_param = connect_beat(@seq, @metre, @tpl_param)
+p @seq
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
+		@seq = rest_dur(@seq, @tpl_param)
 	end
 
 

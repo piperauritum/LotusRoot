@@ -306,6 +306,7 @@ module Notation
 				tme += bt
 			end
 		}
+
 		ary
 	end
 

@@ -7,16 +7,17 @@ require_relative 'bin/_win32'
 # div omitted rest = insert tpl
 
 pch = [12]
-# dur = [*0..9].map{|e| rand(20)+1}
-# elm = [*0..9].map{|e| rand(2)}
-# elm = elm.map{|e| e==1 ? "@" : "r!"}
+dur = [*0..4].map{|e| rand(6)+1}
+elm = dur.map{|e| ["r!", "@"][rand(2)]}
 tpl = [4]
-dur, elm = [[4, 2, 2], ["r!", "r!", "@"]]
 clipbd([dur, elm])
 
+dur, elm = [[6], ["@"]]
+
 sco = Score.new(dur, elm, tpl, pch)
-# sco.metre = [[[3,3,3],1/2r]]
-sco.omitRest = [1.5]
+# sco.metre = [[[3,3], 1/2r]]
+sco.omitRest = [2,1]	# why??
+# sco.omitRest = [2]
 # sco.tidyTuplet = 0
 # sco.beamOverRest = 0
 sco.gen

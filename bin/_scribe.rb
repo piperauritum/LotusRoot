@@ -134,26 +134,26 @@ def put_note(nte, tp)
 end
 
 
-def add_note_value(nte, tp, bar_dur)
+def add_note_value(nte, tpp, bar_dur)
 #	_el, _du = nte.ar
 	_el = nte.el
 	_du = nte.dsum
 
 	if @dotted
-		nv = note_value_dot(tp)[_du]
+		nv = note_value_dot(tpp)[_du]
 	else
-		nv = note_value(tp)[_du]
+		nv = note_value(tpp)[_du]
 	end
 
 	if nv==nil
 		if @dotted
-			vv = note_value_dot(tp)
+			vv = note_value_dot(tpp)
 		else
-			vv = note_value(tp)
+			vv = note_value(tpp)
 		end
 		msg = <<-EOS
 
-LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tp}).
+LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tpp.ar}).
 LotusRoot >> #{nte.look}
 LotusRoot >> #{vv}
 		EOS
@@ -161,7 +161,7 @@ LotusRoot >> #{vv}
 	end
 
 	if !(_el=~/%/) # && (
-#		(@prev_dur!=_du || @prev_tpl!=tp || @prev_elm=~/%/) || 
+#		(@prev_dur!=_du || @prev_tpl!=tpp || @prev_elm=~/%/) || 
 #		(_du==bar_dur && (_el=~/r!|s!/))
 #		)
 		@mainnote += nv
@@ -212,7 +212,8 @@ def add_beam(tuple, nte_id)
 			elz = []
 
 			while 0
-				n_el, n_va = tuple[n].ar
+				n_el = tuple[n].el
+				n_va = tuple[n].dsum
 				elz << n_el
 
 				nv = note_value(@tpl_param.on(@tpp_id))[n_va]
