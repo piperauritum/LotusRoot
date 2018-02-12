@@ -11,11 +11,10 @@ class DataProcess
 
 		while tuples.size>0 || bar_residue>0
 			mtr = metre.on(mtr_id)
-			mtr = Rational(mtr[0].sigma*mtr[1]) if Array===mtr
+			mtr = Rational(mtr[0].sigma*mtr[1]) if Array === mtr
 
 			if tuples.dtotal<mtr
 				filler = []
-				tpl_add = []
 				len = tuples.dtotal+filler.dtotal+bar_residue
 				gap = mtr-len
 
@@ -24,15 +23,19 @@ class DataProcess
 					tick = tick.select{|key, val| !(@omitRest.include?(key))}
 					tick = tick.select{|key, val| Math.log2(key.numerator)%1==0}
 					tick = tick.select{|key, val| key<=gap}.max[0]
-					filler << [Event.new("r!", tick)]
-					tpl_add << [1, 1, tick].to_tpp
+					filler << tick
 					gap -= tick
 				end
 
-				filler.reverse!
-				tpl_add.reverse!
-				tuples += filler
-				@tpl_param += tpl_add
+				filler = filler.reverse.inject([]){|s,e|
+					s.size==0 ? s=[e] : s=[s,e]
+				}
+				tpl = filler.flatten
+				len = (tpl.sigma/tpl.min).to_i
+				tpl_add = [len, len, tpl.min].to_tpp
+				filler = [Event.new("r!", filler)]
+				tuples << filler
+				@tpl_param << tpl_add
 			end
 
 			bar = []
@@ -131,11 +134,10 @@ LotusRoot >> #{bar.look}
 						la_ev, la_tp = la
 						fol, laf = fo_ev.last, la_ev.first
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
-#						nv = fol.du + laf.du
 						nv = fol.dsum + laf.dsum
 						matchValue = note_value(fo_tp)[nv]!=nil
 
-						if Array===mtr
+						if Array === mtr
 							beat_struc, unit_dur = mtr
 						else
 							beat_struc = [mtr]
@@ -205,36 +207,28 @@ LotusRoot >> #{bar.look}
 							}
 						end
 
-#						omittedRest = bothRests && @omitRest.include?(nv)
 						npos = allowed_positions(tp_ary, pos_table, nv)
+						matchValue = false if npos.all?{|e| time!=e}
 
-						if npos.all?{|e| time!=e} # || omittedRest
-							matchValue = false
-						end
-
-						Array===mtr ? mt=mtr[1] : mt=1
+						Array === mtr ? mt=mtr[1] : mt=1
 						if @dotDuplet && fo_tp.dot? && la_tp.dot?
 							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)*mt}
 						else
 							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)*mt}
 						end
-#						matchDup = [fol.du]-nval==[] && [laf.du]-nval==[]
 						matchDup = [fol.dsum]-nval==[] && [laf.dsum]-nval==[]
 
 						sameElem = bothNotes || bothRests
 						samePlet = fo_tp.even? && la_tp.even?
 
 						if [matchValue, matchDup, sameElem, samePlet].all?
-#							fol.du += laf.du
 							fol.du = [fol.du, laf.du]
 							la_ev.shift
-#							fo_tp = 16
 							beat_n_tpp[bar_id][bid][1] = tuplet_num_to_param(16)
 							bar.delete_if{|e| e[0]==[]}
 							again = again || true
 						end
 
-#						time += fo_ev[-1].du
 						time += fo_ev[-1].dsum
 					end
 					bid += 1
@@ -309,7 +303,7 @@ LotusRoot >> #{bar.look}
 		omittedRest = ->(nte){
 			[
 				nte.el=~/(r!|s!|rrr|sss)/,
-				Array===nte.du,
+				Array === nte.du,
 				@omitRest.include?(nte.du.flatten.sigma)
 			].all?
 		}
@@ -319,7 +313,6 @@ LotusRoot >> #{bar.look}
 			seq = seq.map{|bar|
 				bar.map{|tuple|
 					tuple.map{|note|
-p note
 						if omittedRest.call(note)
 							note.du.map{|h| Event.new(note.el, h)}
 						else

@@ -59,7 +59,7 @@ class DataProcess
 	def beat_structure(metre)
 		begin
 			metre.map{|e|
-				if Array===e
+				if Array === e
 					e[0].map{|f| e[1]*f}
 				else
 					[1]*e
@@ -158,7 +158,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 					ay = [ay[0]] + [ay[1]]*(len-1)
 					new_tpl << [len, len, tick].to_tpp
 				else
-					if Fixnum===tp
+					if Fixnum === tp
 						new_tpl << tpp
 					else
 						new_tpl << tpl.on(idx).to_tpp
@@ -230,16 +230,13 @@ LotusRoot >> #{note_value(tpp.ar)}
 					bothRests = %w(r! s!).map{|e|
 						past=~/#{e}/ && ev.el=="#{e}"
 					}.any?
-#					omittedRest = bothRests && @omitRest.include?(evt.du+tick)
 					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
-#					if [isAtk, newRest, noNval, omittedRest].any?
 					if [isAtk, newRest, noNval].any?
 						qa << evt
 						evt = ev
 					elsif [isTie, bothTrems, bothRests, markedTie].any?
-#						evt.du += tick
 						evt.du = [evt.du, tick]
 					end
 				end
@@ -255,7 +252,6 @@ LotusRoot >> #{note_value(tpp.ar)}
 	def recombine_tuplet(quad, tpp)
 		tick = tpp.tick
 		beat_struc = quad.map{|e|
-#			(e.dlook.sigma/tick).to_i
 			(e.dlook.flatten.sigma/tick).to_i
 		}
 
@@ -282,7 +278,6 @@ LotusRoot >> #{note_value(tpp.ar)}
 
 				if la!=nil
 					fol, laf = fo.last, la.first
-#					nv = fol.du + laf.du
 					nv = fol.dsum + laf.dsum
 					if fo.size>1
 						time += fo[0..-2].dtotal
@@ -331,9 +326,6 @@ LotusRoot >> #{note_value(tpp.ar)}
 						},
 					}
 
-#					omittedRest = bothRests && @omitRest.include?(nv)
-# 					nval = nil if omittedRest
-
 					npos = allowed_positions(tp_ary, pos_table, nv)
 
 					if tpp.even? || tpp.numer>=8		# (to be investigated)
@@ -343,7 +335,6 @@ LotusRoot >> #{note_value(tpp.ar)}
 					end
 
 					if (bothNotes || bothRests) && nval!=nil
-#						fol.du += laf.du
 						fol.du = [fol.du, laf.du]
 						la.shift
 						quad.delete_if{|e| e==[]}

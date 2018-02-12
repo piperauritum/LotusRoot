@@ -60,9 +60,8 @@ class Score < DataProcess
 		}
 
 		## _seqBars.rb ##
-		@seq = assemble_bars(tuples, @metre, @finalBar)
-		@seq, @tpl_param = connect_beat(@seq, @metre, @tpl_param)
-p @seq
+		bars = assemble_bars(tuples, @metre, @finalBar)
+		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
 		@seq = rest_dur(@seq, @tpl_param)
@@ -79,7 +78,7 @@ p @seq
 		##### MEASURE #####
 		@seq.each.with_index{|bar, bar_id|
 			mtr = @metre[bar_id % @metre.size]
-			if Array===mtr
+			if Array === mtr
 				beat_dur = mtr[1]
 				bar_dur = mtr[0].sigma*beat_dur
 			else
@@ -92,7 +91,7 @@ p @seq
 				tpp = @tpl_param.on(@tpp_id)
 				@dotted = [
 					@dotDuplet!=nil,
-					TplParam===tpp,
+					TplParam === tpp,
 					Math.log2(tpp.numer)%1==0,
 					tpp.denom%3==0,
 					note_value_dot(tpp)!=nil

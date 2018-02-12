@@ -2,8 +2,11 @@
 	attr_accessor :el, :du
 
 	def initialize(element, duration)
-#		@el, @du = element, duration
-		@el, @du = element, [duration]
+		if Array === duration
+			@el, @du = element, duration
+		else
+			@el, @du = element, [duration]
+		end
 	end
 
 	def ar
