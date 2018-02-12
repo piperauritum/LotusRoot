@@ -197,16 +197,20 @@ LotusRoot >> #{note_value(tpp.ar)}
 	end
 
 
-	def subdivide_tuplet(tuple, past, tick, tpp)
+	def subdivide_tuplet(evts, past, tick, tpp, subdiv=true)
+		tuple = evts.deepcopy
 		quad, evt = [], nil
 		t = tuple.size
 		beat_struc = [t]
-		if @dotDuplet
-			beat_struc = [2]*(t/2)+[t%2]
-		elsif t%3==0
-			beat_struc = [3]*(t/3)
-		else
-			beat_struc = [4]*(t/4)+[t%4]
+
+		if subdiv
+				if @dotDuplet
+					beat_struc = [2]*(t/2)+[t%2]
+				elsif t%3==0
+					beat_struc = [3]*(t/3) if tpp.numer!=3
+				else
+					beat_struc = [4]*(t/4)+[t%4]
+				end
 		end
 		beat_struc -= [0]
 

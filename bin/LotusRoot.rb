@@ -40,10 +40,14 @@ class Score < DataProcess
 				if abbr!=[]
 					abbr.each{|ab|
 						tk = ab.tick
-						if tuplet.dlook.flatten.map{|d|
-							(d/tk)%1==0 && 
-							note_value(ab)[d]!=nil
+						dur_map = tuplet.flatten.map{|e| e.dsum}
+						if dur_map.map{|du|
+							(du/tk)%1==0 && note_value(ab)[du]!=nil
 						}.all?
+							len = dur_map.map{|e| (e/tk).to_i}
+							len = len.map{|e| [*1..e].inject([]){|s,f| s.size==0 ? s=[tk] : s=[s,tk] }}
+							len.each_with_index{|e,i| tuplet[i].du = len[i]}
+#						p tuplet.map{|e| e.map{|f| f.class}}
 							tpp = @tpl_param[idx] = ab
 						end
 					}
@@ -51,7 +55,11 @@ class Score < DataProcess
 			}
 
 			## _seqTuplets.rb ##
-			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tpp)
+p tuple, tpp
+x, y = subdivide_tuplet(tuple, past, tick, tpp, false)[0]
+reduc.call(x)
+p x, tpp
+			sd_tuplet, past = subdivide_tuplet(x, past, tick, tpp)
 			reduc.call(sd_tuplet)
 			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tpp)
 			reduc.call(rc_tuplet)
@@ -64,7 +72,9 @@ class Score < DataProcess
 		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
+
 		@seq = rest_dur(@seq, @tpl_param)
+
 	end
 
 
