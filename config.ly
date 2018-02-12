@@ -35,7 +35,7 @@ fractpl = {
     \Staff
     \override Stem.details.beamed-lengths = #'(5 5 4)
     \override Stem.stemlet-length = #1.5	%% spacing bug
-    \override Stem.length = #longer-for-tremolo	%% Assertion failed (?)
+%    \override Stem.length = #longer-for-tremolo	%% Assertion failed (?)
     \override Beam.auto-knee-gap = ##f
     \override Beam.damping = #5
     \override Beam.beam-thickness = #0.7
