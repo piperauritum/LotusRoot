@@ -73,10 +73,31 @@ class Score < DataProcess
 
 		## _seqBars.rb ##
 		bars = assemble_bars(tuples, @metre, @finalBar)
+
+bars.each{|e| p e.look}
+p @tpl_param.look
+
 		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
+
+@seq.each{|e| p e.look}
+p @tpl_param.look
+
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
 		@seq = rest_dur(@seq, @tpl_param)
+
+# =begin
+@seq.each.with_index{|bar,x|
+	wholebar = bar.flatten
+	wbel = wholebar.elook
+	wbdu = wholebar.dlook
+	if wbel[0]=~/r!/ && wbel[1..-1].map{|e| e=="r!"}.all?
+		wb = wbel[0].sub("r!", "R!")
+		@seq[x] = [[Event.new(wb, wbdu)]]
+	end
+}
+# =end
+
 	end
 
 
@@ -122,7 +143,7 @@ class Score < DataProcess
 						@mainnote = ""
 
 						# before main note
-						%w(@ == r! s! rrr sss %+).each{|e|
+						%w(@ == r! s! R! rrr sss %+).each{|e|
 							@mainnote += _el.sub(/#{e}.*/m, "") if _el=~/#{e.sub("+", "")}/
 						}
 
@@ -132,7 +153,7 @@ class Score < DataProcess
 						@mainnote += ":" if _el=="=:"
 
 						# after main note
-						%w(@ == r! s! rrr sss).each{|e|
+						%w(@ == r! s! R! rrr sss).each{|e|
 							@mainnote += _el.sub(/.*#{e}/m, "") if _el=~/#{e}/
 						}
 

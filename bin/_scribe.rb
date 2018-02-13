@@ -106,6 +106,8 @@ def put_note(nte, tp)
 	_du = nte.dsum
 
 	case _el
+	when /R!/
+		@mainnote += "R"
 	when /r!|rrr/
 		@mainnote += "r"		# (whole bar rest should not be used)
 	when /s!|sss/
@@ -144,18 +146,31 @@ def add_note_value(nte, tpp, bar_dur)
 	end
 
 	if nv==nil
-		if @dotted
-			vv = note_value_dot(tpp)
+		if nte.el=~/R!/
+			unit = nte.dlook.flatten.min
+			mul = (_du/unit).to_i
+			if @dotted
+				nv = note_value_dot(64)[unit]
+			else
+				nv = note_value(64)[unit]
+			end
+			raise if nv == nil
+			nv = "#{nv}*#{mul}"
 		else
-			vv = note_value(tpp)
-		end
-		msg = <<-EOS
+
+			if @dotted
+				vv = note_value_dot(tpp)
+			else
+				vv = note_value(tpp)
+			end
+			msg = <<-EOS
 
 LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tpp.ar}).
 LotusRoot >> #{nte.look}
 LotusRoot >> #{vv}
-		EOS
-		raise msg
+			EOS
+			raise msg
+		end
 	end
 
 	if !(_el=~/%/) # && (

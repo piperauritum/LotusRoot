@@ -2,17 +2,16 @@
 require_relative 'bin/_win32'
 
 pch = [12]
-tpl = [4]
-dur = [25, 1]
-elm = ["r!", "@"]
-# met = [*0..99].map{[[rand(8)+1, rand(8)+1, rand(8)+1], 1/4r]}
-# clipbd(met)
+tpl = [[3,3,1/2r]]
+dur = [*0..49].map{ rand(8)+1 }
+elm = dur.map{["@", 1]}
+clipbd([tpl, elm, dur])
 
 sco = Score.new(dur, elm, tpl, pch)
-sco.metre = [5]
-# sco.omitRest = [1]
+sco.metre = [[[9], 1/2r]]
+sco.omitRest = [1]
 # sco.tidyTuplet = 0
-# sco.beamOverRest = 0
+sco.beamOverRest = 0
 # sco.dotDuplet = 0
 sco.gen
 sco.print
