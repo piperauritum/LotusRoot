@@ -41,6 +41,10 @@ class DataProcess
 
 				when Array	# staccato
 					stacc_el, stacc_du = el
+					if stacc_du > du
+						puts "LotusRoot >> Staccato duration is longer than event duration."
+						raise
+					end
 					sdu = [stacc_du, du].min-1
 					rest = ["r!"]*(du-stacc_du)
 
@@ -126,13 +130,13 @@ class DataProcess
 				end
 
 				if note_value(tpp)[tick]==nil
-					msg = <<-EOS
+					puts <<-EOS
 
 LotusRoot >> There is not notation of the duration (#{tick}) for tuplet (#{tpp.ar})
 LotusRoot >> Beat: (#{beat})
 LotusRoot >> #{note_value(tpp.ar)}
 					EOS
-					raise msg
+					raise
 				end
 
 				# Cut tuplet out from array
@@ -197,7 +201,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 	end
 
 
-	def subdivide_tuplet(evts, past, tick, tpp, subdiv=true)
+	def subdivide_tuplet(evts, prev, tick, tpp, subdiv=true)
 		tuple = evts.deepcopy
 		quad, evt = [], nil
 		t = tuple.size
@@ -227,15 +231,15 @@ LotusRoot >> #{note_value(tpp.ar)}
 				else
 					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
 					isTie = [ev.el]-%w(= =:)==[]
-					markedTie = (past=~/@/ || past=~/==/) && ev.el=~/==/
+					markedTie = (prev=~/@/ || prev=~/==/) && ev.el=~/==/
 					newRest = %w(r! s!).map{|e|
-						(!(past=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
+						(!(prev=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
 					}.any?
 					bothRests = %w(r! s!).map{|e|
-						past=~/#{e}/ && ev.el=="#{e}"
+						prev=~/#{e}/ && ev.el=="#{e}"
 					}.any?
 					noNval = note_value(tpp)[evt.dsum+tick]==nil
-					bothTrems = past=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
+					bothTrems = prev=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
 					if [isAtk, newRest, noNval].any?
 						qa << evt
@@ -244,16 +248,17 @@ LotusRoot >> #{note_value(tpp.ar)}
 						evt.du = [evt.du, tick]
 					end
 				end
-				past = ev.el
+				prev = ev.el
 			}
 			qa << evt
 			quad << qa
 		}
-		[quad, past]
+		[quad, prev]
 	end
  
  
-	def recombine_tuplet(quad, tpp)
+	def recombine_tuplet(evts, tpp)
+		quad = evts.deepcopy 
 		tick = tpp.tick
 		beat_struc = quad.map{|e|
 			(e.dlook.flatten.sigma/tick).to_i
@@ -332,7 +337,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 
 					npos = allowed_positions(tp_ary, pos_table, nv)
 
-					if tpp.even? || tpp.numer>=8		# (to be investigated)
+					if tpp.even? || [6,8].map{|e| tpp.numer==e }.any?		# (to be investigated)
 						if @tidyTuplet!=nil && npos.all?{|e| time!=e}
 							nval = nil
 						end

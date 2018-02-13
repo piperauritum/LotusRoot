@@ -30,7 +30,7 @@ class Score < DataProcess
 
 		tuples = []
 		idx = 0
-		@tpl_data.inject("r!"){|past, tuple|
+		@tpl_data.inject("r!"){|prev_el, tuple|
 			tpp = @tpl_param[idx]
 			tick = Rational(tpp.denom*tpp.unit, tuple.size)
 
@@ -47,7 +47,6 @@ class Score < DataProcess
 							len = dur_map.map{|e| (e/tk).to_i}
 							len = len.map{|e| [*1..e].inject([]){|s,f| s.size==0 ? s=[tk] : s=[s,tk] }}
 							len.each_with_index{|e,i| tuplet[i].du = len[i]}
-#						p tuplet.map{|e| e.map{|f| f.class}}
 							tpp = @tpl_param[idx] = ab
 						end
 					}
@@ -55,15 +54,20 @@ class Score < DataProcess
 			}
 
 			## _seqTuplets.rb ##
-p tuple, tpp
-x, y = subdivide_tuplet(tuple, past, tick, tpp, false)[0]
-reduc.call(x)
-p x, tpp
-			sd_tuplet, past = subdivide_tuplet(x, past, tick, tpp)
-			reduc.call(sd_tuplet)
-			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tpp)
-			reduc.call(rc_tuplet)
-			tuples << rc_tuplet
+			prev_tpp = tpp
+			tpp_check = subdivide_tuplet(tuple, prev_el, tick, tpp, false)[0]
+			reduc.call(tpp_check.flatten)
+
+			if prev_tpp.ar == tpp.ar
+				subdivided, prev_el = subdivide_tuplet(tuple, prev_el, tick, tpp)
+			else
+				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
+			end
+			reduc.call(subdivided)
+
+			recombined = recombine_tuplet(subdivided, tpp)
+			reduc.call(recombined)
+			tuples << recombined
 			idx += 1
 		}
 
@@ -72,9 +76,7 @@ p x, tpp
 		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
-
 		@seq = rest_dur(@seq, @tpl_param)
-
 	end
 
 

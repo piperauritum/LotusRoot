@@ -112,13 +112,13 @@ raise "\n### the previous line is needed ###\n" if tpl[tid].ar!=tpp.ar
 			mtr = metre.on(bar_id)
 
 			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bar_dur) || (Fixnum===mtr && mtr!=bar_dur)
-				msg = <<-EOS
+				puts <<-EOS
 
 LotusRoot >> Total duration of bar (#{bar_dur}) is different from the time signature (#{mtr})
 LotusRoot >> #{mtr}
 LotusRoot >> #{bar.look}
 				EOS
-				raise msg
+				raise
 			end
 
 			while 0
@@ -304,11 +304,12 @@ LotusRoot >> #{bar.look}
 			[
 				nte.el=~/(r!|s!|rrr|sss)/,
 				Array === nte.du,
-				@omitRest.include?(nte.du.flatten.sigma)
+				@omitRest.include?(nte.dsum)
 			].all?
 		}
 
 		yet = true
+		cnt = 0
 		while yet
 			seq = seq.map{|bar|
 				bar.map{|tuple|
@@ -323,9 +324,18 @@ LotusRoot >> #{bar.look}
 			}
 
 			yet = false
+			omt = []
 			seq.flatten.each{|note|
-				yet = true if omittedRest.call(note)
+				if omittedRest.call(note)
+					yet = true
+					omt << note.dsum
+				end
 			}
+			cnt += 1
+			if cnt > 99
+				puts "LotusRoot >> Could not omit some rests. #{omt.uniq}"
+				raise
+			end
 		end
 		seq
 	end
