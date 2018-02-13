@@ -8,7 +8,7 @@ class Score < DataProcess
 	attr_reader :output
 	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
 	:accMode, :autoChordAcc, :reptChordAcc, :altNoteName, :beamOverRest, :noTieAcrossBeat, # :pnoTrem,
-	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest
+	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest, :wholeBarRest
 
 
 	def initialize(_durations, _elements, _tuplets, _pitches)
@@ -73,31 +73,11 @@ class Score < DataProcess
 
 		## _seqBars.rb ##
 		bars = assemble_bars(tuples, @metre, @finalBar)
-
-bars.each{|e| p e.look}
-p @tpl_param.look
-
 		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
-
-@seq.each{|e| p e.look}
-p @tpl_param.look
-
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
-		@seq = rest_dur(@seq, @tpl_param)
-
-# =begin
-@seq.each.with_index{|bar,x|
-	wholebar = bar.flatten
-	wbel = wholebar.elook
-	wbdu = wholebar.dlook
-	if wbel[0]=~/r!/ && wbel[1..-1].map{|e| e=="r!"}.all?
-		wb = wbel[0].sub("r!", "R!")
-		@seq[x] = [[Event.new(wb, wbdu)]]
-	end
-}
-# =end
-
+		@seq = rest_dur(@seq)
+		@seq, @tpl_param = whole_bar_rest(@seq, @tpl_param) if @wholeBarRest!=nil
 	end
 
 

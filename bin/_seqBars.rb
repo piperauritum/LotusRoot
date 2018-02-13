@@ -22,18 +22,22 @@ class DataProcess
 					tick = note_value(16)
 					tick = tick.select{|key, val| !(@omitRest.include?(key))}
 					tick = tick.select{|key, val| Math.log2(key.numerator)%1==0}
-					tick = tick.select{|key, val| key<=gap}.max[0]
+					tick = tick.select{|key, val| key<=gap && key<=1}.max[0]
 					filler << tick
 					gap -= tick
 				end
+=begin
+	filler = filler.reverse.inject([]){|s,e|
+		s.size==0 ? s=[e] : s=[s,e]
+	}
+	filler = [Event.new("r!", filler)]
+=end
+	filler = filler.map{|du| Event.new("r!", du)}
 
-				filler = filler.reverse.inject([]){|s,e|
-					s.size==0 ? s=[e] : s=[s,e]
-				}
-				tpl = filler.flatten
-				len = (tpl.sigma/tpl.min).to_i
-				tpl_add = [len, len, tpl.min].to_tpp
-				filler = [Event.new("r!", filler)]
+	tpl = filler.dlook.flatten
+	len = (tpl.sigma/tpl.min).to_i
+	tpl_add = [len, len, tpl.min].to_tpp
+
 				tuples << filler
 				@tpl_param << tpl_add
 			end
@@ -96,6 +100,7 @@ class DataProcess
 		tid = 0
 		beat_n_tpp = bars.map{|bar|
 			bar.map{|beat|
+	
 				tpp = tpl[tid]
 
 ## the following is needed ?? (2018.2.11)
@@ -224,7 +229,15 @@ LotusRoot >> #{bar.look}
 						if [matchValue, matchDup, sameElem, samePlet].all?
 							fol.du = [fol.du, laf.du]
 							la_ev.shift
-							beat_n_tpp[bar_id][bid][1] = tuplet_num_to_param(16)
+
+							unit = fol.du.flatten.min
+							mul = (fol.dsum/unit).to_i
+							beat_n_tpp[bar_id][bid][1] = [mul, mul, unit].to_tpp
+
+							unit = laf.du.flatten.min
+							mul = (laf.dsum/unit).to_i
+							beat_n_tpp[bar_id][bid+1][1] = [mul, mul, unit].to_tpp
+
 							bar.delete_if{|e| e[0]==[]}
 							again = again || true
 						end
@@ -299,7 +312,7 @@ LotusRoot >> #{bar.look}
 	end
 
 
-	def rest_dur(seq, tpp)
+	def rest_dur(seq)
 		omittedRest = ->(nte){
 			[
 				nte.el=~/(r!|s!|rrr|sss)/,
@@ -332,12 +345,42 @@ LotusRoot >> #{bar.look}
 				end
 			}
 			cnt += 1
+
 			if cnt > 99
 				puts "LotusRoot >> Could not omit some rests. #{omt.uniq}"
 				raise
 			end
 		end
 		seq
+	end
+
+
+	def whole_bar_rest(seq, tpp)
+		tid = 0
+		new_tpp = []
+		seq = seq.map.with_index{|bar,x|
+			wholebar = bar.flatten
+			wbel = wholebar.elook
+			wbdu = wholebar.dlook
+
+			bar_tpp = []
+			bar.each.with_index{|tuple,y|
+				bar_tpp << @tpl_param[tid]
+				tid += 1
+			}
+
+			if wbel[0]=~/r!/ && wbel[1..-1].map{|e| e=="r!"}.all?
+				unit = wbdu.flatten.min
+				mul = (wbdu.flatten.sigma/unit).to_i
+				new_tpp << [mul, mul, unit].to_tpp
+				new_el = wbel[0].sub("r!", "R!")
+				[[Event.new(new_el, wbdu)]]
+			else
+				new_tpp += bar_tpp
+				bar
+			end
+		}
+		[seq, new_tpp]
 	end
 
 end
