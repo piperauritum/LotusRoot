@@ -55,6 +55,7 @@ class Score < DataProcess
 								end
 							}
 							tpp = @tpl_param[idx] = ab
+							tick = tpp.tick
 						end
 					}
 				end

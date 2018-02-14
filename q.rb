@@ -7,7 +7,7 @@ dur = [3, 3]
 tpl = [2]
 
 mtr = [[[6], 1/2r]]
-# mtr = [3]
+mtr = [3]
 
 sco = Score.new(dur, elm, tpl, pch)
 sco.metre = mtr

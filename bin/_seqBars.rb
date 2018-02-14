@@ -327,7 +327,11 @@ LotusRoot >> #{bar.look}
 				bar.map{|tuple|
 					tuple.map{|note|
 						if omittedRest.call(note)
-							note.du.map{|h| Event.new(note.el, h)}
+							note.du.map.with_index{|x,i|
+								rest = note.el.match(/(r!|s!|rrr|sss)/)[1]
+								i==0 ? y=note.el : y=rest
+								Event.new(y, x)
+							}
 						else
 							note
 						end
