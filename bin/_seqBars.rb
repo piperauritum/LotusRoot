@@ -4,7 +4,7 @@ require_relative '_notation'
 class DataProcess
 	include Notation
 
-	def assemble_bars(tuples, metre, final_bar)
+	def fill_with_rests(tuples, metre, final_bar)
 		mtr_id = 0
 		bars = []
 		bar_residue = 0
@@ -15,31 +15,23 @@ class DataProcess
 
 			if tuples.dtotal<mtr
 				filler = []
+				tpl_add = []
 				len = tuples.dtotal+filler.dtotal+bar_residue
 				gap = mtr-len
 
 				while gap>0
 					tick = note_value(16)
 					tick = tick.select{|key, val| !(@omitRest.include?(key))}
-					tick = tick.select{|key, val| Math.log2(key.numerator)%1==0}
-					tick = tick.select{|key, val| key<=gap && key<=1}.max[0]
-					filler << tick
+					tick = tick.select{|key, val| key<=gap}.max[0]
+					filler << [Event.new("r!", tick)]
+					tpl_add << [1, 1, tick].to_tpp
 					gap -= tick
 				end
-=begin
-	filler = filler.reverse.inject([]){|s,e|
-		s.size==0 ? s=[e] : s=[s,e]
-	}
-	filler = [Event.new("r!", filler)]
-=end
-	filler = filler.map{|du| Event.new("r!", du)}
 
-	tpl = filler.dlook.flatten
-	len = (tpl.sigma/tpl.min).to_i
-	tpl_add = [len, len, tpl.min].to_tpp
-
-				tuples << filler
-				@tpl_param << tpl_add
+				filler.reverse!
+				tpl_add.reverse!
+				tuples += filler
+				@tpl_param += tpl_add
 			end
 
 			bar = []
@@ -348,7 +340,7 @@ LotusRoot >> #{bar.look}
 
 			if cnt > 99
 				puts "LotusRoot >> Could not omit some rests. #{omt.uniq}"
-				raise
+				yet = false
 			end
 		end
 		seq

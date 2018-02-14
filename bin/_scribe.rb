@@ -82,8 +82,8 @@ def add_grace_note(_el)
 	end
 	_el
 end
-		
-			
+
+
 def add_tuplet_bracket(tpp, nte_id)
 	if nte_id==0 && !@bracketing
 		if !@dotted && ((Fixnum===tpp && Math.log2(tpp)%1>0) || (TplParam===tpp && !tpp.even?))

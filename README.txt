@@ -148,9 +148,11 @@ sco.dotDuplet = 0
 
 sco.omitRest = [a0, a1, a2, ...]
 	Excludes rests of given note values.
-	# It does not affect on the substructures of tuplets.
 
 	a	note value (Fixnum/Float/Rational)
+
+sco.wholeBarRest = 0
+	Writes whole bar rests.
 
 sco.textReplace(p, r)
 	Replaces the text.

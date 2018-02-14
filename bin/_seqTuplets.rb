@@ -337,7 +337,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 
 					npos = allowed_positions(tp_ary, pos_table, nv)
 
-					if tpp.even? || [6,8].map{|e| tpp.numer==e }.any?		# (to be investigated)
+					if tpp.even? || [6,8].map{|e| tpp.numer==e }.any?
 						if @tidyTuplet!=nil && npos.all?{|e| time!=e}
 							nval = nil
 						end
