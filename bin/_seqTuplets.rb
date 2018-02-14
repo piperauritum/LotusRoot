@@ -240,7 +240,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 					}.any?
 					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = prev=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
-
+p note_value(tpp), evt, tick
 					if [isAtk, newRest, noNval].any?
 						qa << evt
 						evt = ev

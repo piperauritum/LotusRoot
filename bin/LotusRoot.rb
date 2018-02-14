@@ -86,6 +86,7 @@ class Score < DataProcess
 		@seq = slur_over_tremolo(@seq)
 		@seq = rest_dur(@seq)
 		@seq, @tpl_param = whole_bar_rest(@seq, @tpl_param) if @wholeBarRest!=nil
+
 	end
 
 
