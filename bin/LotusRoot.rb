@@ -41,12 +41,19 @@ class Score < DataProcess
 					abbr.each{|ab|
 						tk = ab.tick
 						dur_map = tuplet.flatten.map{|e| e.dsum}
+
 						if dur_map.map{|du|
 							(du/tk)%1==0 && note_value(ab)[du]!=nil
 						}.all?
 							len = dur_map.map{|e| (e/tk).to_i}
 							len = len.map{|e| [*1..e].inject([]){|s,f| s.size==0 ? s=[tk] : s=[s,tk] }}
-							len.each_with_index{|e,i| tuplet[i].du = len[i]}
+							len.each_with_index{|e,i|
+								if Array === tuplet[i]
+									tuplet[i][0].du = len[i]
+								else
+									tuplet[i].du = len[i]
+								end
+							}
 							tpp = @tpl_param[idx] = ab
 						end
 					}
@@ -63,6 +70,7 @@ class Score < DataProcess
 			else
 				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
 			end
+
 			reduc.call(subdivided)
 
 			recombined = recombine_tuplet(subdivided, tpp)
@@ -78,8 +86,6 @@ class Score < DataProcess
 		@seq = slur_over_tremolo(@seq)
 		@seq = rest_dur(@seq)
 		@seq, @tpl_param = whole_bar_rest(@seq, @tpl_param) if @wholeBarRest!=nil
-@seq.each{|e| p e.look}
-p @tpl_param.look
 	end
 
 

@@ -219,16 +219,23 @@ LotusRoot >> #{bar.look}
 						samePlet = fo_tp.even? && la_tp.even?
 
 						if [matchValue, matchDup, sameElem, samePlet].all?
+
 							fol.du = [fol.du, laf.du]
 							la_ev.shift
 
-							unit = fol.du.flatten.min
-							mul = (fol.dsum/unit).to_i
+#							unit = fol.du.flatten.min
+#							mul = (fol.dsum/unit).to_i
+							unit = fo[0].dlook.flatten.min
+							mul = (fo[0].dtotal/unit).to_i
 							beat_n_tpp[bar_id][bid][1] = [mul, mul, unit].to_tpp
 
-							unit = laf.du.flatten.min
-							mul = (laf.dsum/unit).to_i
-							beat_n_tpp[bar_id][bid+1][1] = [mul, mul, unit].to_tpp
+#							unit = laf.du.flatten.min
+#							mul = (laf.dsum/unit).to_i
+							if la[0].size > 0
+								unit = la[0].dlook.flatten.min
+								mul = (la[0].dtotal/unit).to_i
+								beat_n_tpp[bar_id][bid+1][1] = [mul, mul, unit].to_tpp
+							end
 
 							bar.delete_if{|e| e[0]==[]}
 							again = again || true
