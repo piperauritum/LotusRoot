@@ -230,8 +230,10 @@ def add_beam(tuple, nte_id)
 				elz << n_el
 
 				nv = note_value(@tpl_param.on(@tpp_id))[n_va]
-				%w(4 2 1).each{|e|
-					bm = false if nv!=nil && nv.gsub(".","")==e
+				qry = %w(4 2 1)
+				qry = %w(2 1) if @dotDuplet!=nil
+				qry.each{|e|
+					bm = false if nv!=nil && nv.gsub(".", "")==e
 				}
 				n += 1
 
