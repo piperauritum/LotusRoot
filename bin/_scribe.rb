@@ -82,19 +82,20 @@ def add_grace_note(_el)
 	end
 	_el
 end
-		
-			
-def add_tuplet_bracket(tp, nte_id)
+
+
+def add_tuplet_bracket(tpp, nte_id)
 	if nte_id==0 && !@bracketing
-		if !@dotted && ((Fixnum===tp && Math.log2(tp)%1>0) || (Array===tp && tp[0]!=tp[1]))
+		if !@dotted && ((Fixnum===tpp && Math.log2(tpp)%1>0) || (TplParam===tpp && !tpp.even?))
 			@bracketing = true
-			tp_a = @tpl_param.on(@tpp_id)
-			if Array === tp_a
-				@mainnote += "\\fractpl " if @fracTuplet!=nil 	# see config.ly
-				@mainnote += "\\tuplet #{tp_a[0]}/#{tp_a[1]} {"
+			tpp = @tpl_param.on(@tpp_id)
+
+			if TplParam === tpp
+				@mainnote += "\\fractpl " if @fracTuplet!=nil 		# see config.ly
+				@mainnote += "\\tuplet #{tpp.numer}/#{tpp.denom} {"
 			else
-				den = 2**Math.log2(tp_a).to_i
-				@mainnote += "\\tuplet #{tp_a}/#{den} {"
+				den = 2**Math.log2(tpp).to_i
+				@mainnote += "\\tuplet #{tpp}/#{den} {"
 			end
 		end
 	end
@@ -102,10 +103,14 @@ end
 
 
 def put_note(nte, tp)
-	_el, _du = nte.ar
+	_el = nte.el
+	_du = nte.dsum
+
 	case _el
+	when /R!/
+		@mainnote += "R"
 	when /r!|rrr/
-		@mainnote += "r"		# (whole bar rest should not be used)
+		@mainnote += "r"
 	when /s!|sss/
 		@mainnote += "s"
 	else
@@ -131,31 +136,46 @@ def put_note(nte, tp)
 end
 
 
-def add_note_value(nte, tp, bar_dur)
-	_el, _du = nte.ar
+def add_note_value(nte, tpp, bar_dur)
+	_el = nte.el
+	_du = nte.dsum
+
 	if @dotted
-		nv = note_value_dot(tp)[_du]
+		nv = note_value_dot(tpp)[_du]
 	else
-		nv = note_value(tp)[_du]
+		nv = note_value(tpp)[_du]
 	end
 
 	if nv==nil
-		if @dotted
-			vv = note_value_dot(tp)
+		if nte.el=~/R!/
+			unit = nte.dlook.flatten.min
+			mul = (_du/unit).to_i
+			if @dotted
+				nv = note_value_dot(64)[unit]
+			else
+				nv = note_value(64)[unit]
+			end
+			raise if nv == nil
+			nv = "#{nv}*#{mul}"
 		else
-			vv = note_value(tp)
-		end
-		msg = <<-EOS
 
-LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tp}).
+			if @dotted
+				vv = note_value_dot(tpp)
+			else
+				vv = note_value(tpp)
+			end
+			msg = <<-EOS
+
+LotusRoot >> There is not notation of the duration (#{_du}) for tuplet (#{tpp.ar}).
 LotusRoot >> #{nte.look}
 LotusRoot >> #{vv}
-		EOS
-		raise msg
+			EOS
+			raise msg
+		end
 	end
 
 	if !(_el=~/%/) # && (
-#		(@prev_dur!=_du || @prev_tpl!=tp || @prev_elm=~/%/) || 
+#		(@prev_dur!=_du || @prev_tpl!=tpp || @prev_elm=~/%/) || 
 #		(_du==bar_dur && (_el=~/r!|s!/))
 #		)
 		@mainnote += nv
@@ -206,12 +226,15 @@ def add_beam(tuple, nte_id)
 			elz = []
 
 			while 0
-				n_el, n_va = tuple[n].ar
+				n_el = tuple[n].el
+				n_va = tuple[n].dsum
 				elz << n_el
 
 				nv = note_value(@tpl_param.on(@tpp_id))[n_va]
-				%w(4 2 1).each{|e|
-					bm = false if nv!=nil && nv.gsub(".","")==e
+				qry = %w(4 2 1)
+				qry = %w(2 1) if @dotDuplet!=nil
+				qry.each{|e|
+					bm = false if nv!=nil && nv.gsub(".", "")==e
 				}
 				n += 1
 

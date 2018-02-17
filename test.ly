@@ -3,6 +3,10 @@
 \include "micro.ly"
 \include "sco.txt"
 
+\header {
+  tagline = ""
+}
+
 #(set-global-staff-size 16)
 %#(set-default-paper-size "a4" 'landscape)
 

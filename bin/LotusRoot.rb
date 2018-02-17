@@ -8,7 +8,7 @@ class Score < DataProcess
 	attr_reader :output
 	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
 	:accMode, :autoChordAcc, :reptChordAcc, :altNoteName, :beamOverRest, :noTieAcrossBeat, # :pnoTrem,
-	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest
+	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest, :wholeBarRest
 
 
 	def initialize(_durations, _elements, _tuplets, _pitches)
@@ -30,38 +30,63 @@ class Score < DataProcess
 
 		tuples = []
 		idx = 0
-		@tpl_data.inject("r!"){|past, tuple|
-			tp = @tpl_param[idx]
-			tick = Rational(tp[1]*tp[2], tuple.size)
+		@tpl_data.inject("r!"){|prev_el, tuple|
+			tpp = @tpl_param[idx]
+			tick = Rational(tpp.denom*tpp.unit, tuple.size)
 
 			reduc = ->(tuplet){
-				abbr = tpl_abbreviations(tp)
-				abbr.select!{|e| e[0]==e[1]} if tp[0]==tp[1]
+				abbr = tpl_abbreviations(tpp)
+				abbr.select!{|e| e.even?} if tpp.even?
 				if abbr!=[]
 					abbr.each{|ab|
-						tk = Rational(ab[1]*ab[2], ab[0])
-						if tuplet.dlook.flatten.map{|d|
-							(d/tk)%1==0 && 
-							note_value(ab)[d]!=nil
+						tk = ab.tick
+						dur_map = tuplet.flatten.map{|e| e.dsum}
+
+						if dur_map.map{|du|
+							(du/tk)%1==0 && note_value(ab)[du]!=nil
 						}.all?
-							tp = @tpl_param[idx] = ab
+							len = dur_map.map{|e| (e/tk).to_i}
+							len = len.map{|e| [*1..e].inject([]){|s,f| s.size==0 ? s=[tk] : s=[s,tk] }}
+							len.each_with_index{|e,i|
+								if Array === tuplet[i]
+									tuplet[i][0].du = len[i]
+								else
+									tuplet[i].du = len[i]
+								end
+							}
+							tpp = @tpl_param[idx] = ab
+							tick = tpp.tick
 						end
 					}
 				end
 			}
 
-			sd_tuplet, past = subdivide_tuplet(tuple.deepcopy, past, tick, tp)
-			reduc.call(sd_tuplet)
-			rc_tuplet = recombine_tuplet(sd_tuplet.deepcopy, tp)
-			reduc.call(rc_tuplet)
-			tuples << rc_tuplet
+			## _seqTuplets.rb ##
+			prev_tpp = tpp
+			tpp_check = subdivide_tuplet(tuple, prev_el, tick, tpp, false)[0]
+			reduc.call(tpp_check.flatten)
+
+			if prev_tpp.ar == tpp.ar
+				subdivided, prev_el = subdivide_tuplet(tuple, prev_el, tick, tpp)
+			else
+				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
+			end
+			reduc.call(subdivided)
+
+			recombined = recombine_tuplet(subdivided, tpp)
+			reduc.call(recombined)
+			tuples << recombined
 			idx += 1
 		}
 
-		beats = assemble_bars(tuples, @metre, @finalBar)
-		@seq, @tpl_param = connect_beat(beats, @metre, @tpl_param)
-		markup_tail(@seq)
-		slur_over_tremolo(@seq)
+		## _seqBars.rb ##
+		bars = fill_with_rests(tuples, @metre, @finalBar)
+		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
+		@seq = markup_tail(@seq)
+		@seq = slur_over_tremolo(@seq)
+		@seq = rest_dur(@seq)
+		@seq, @tpl_param = whole_bar_rest(@seq, @tpl_param) if @wholeBarRest!=nil
+
 	end
 
 
@@ -85,13 +110,13 @@ class Score < DataProcess
 
 			##### TUPLET #####
 			bar.each.with_index{|tuple, beat_id|
-				tp = @tpl_param.on(@tpp_id)
+				tpp = @tpl_param.on(@tpp_id)
 				@dotted = [
 					@dotDuplet!=nil,
-					Array === tp,
-					Math.log2(tp[0])%1==0,
-					tp[1]%3==0,
-					note_value_dot(tp)!=nil
+					TplParam === tpp,
+					Math.log2(tpp.numer)%1==0,
+					tpp.denom%3==0,
+					note_value_dot(tpp)!=nil
 				].all?
 
 				##### NOTE #####
@@ -107,17 +132,17 @@ class Score < DataProcess
 						@mainnote = ""
 
 						# before main note
-						%w(@ == r! s! rrr sss %+).each{|e|
+						%w(@ == r! s! R! rrr sss %+).each{|e|
 							@mainnote += _el.sub(/#{e}.*/m, "") if _el=~/#{e.sub("+", "")}/
 						}
 
-						add_tuplet_bracket(tp, nte_id)
-						trem_nval = put_note(nte, tp)
-						add_note_value(nte, tp, bar_dur)
+						add_tuplet_bracket(tpp, nte_id)
+						trem_nval = put_note(nte, tpp)
+						add_note_value(nte, tpp, bar_dur)
 						@mainnote += ":" if _el=="=:"
 
 						# after main note
-						%w(@ == r! s! rrr sss).each{|e|
+						%w(@ == r! s! R! rrr sss).each{|e|
 							@mainnote += _el.sub(/.*#{e}/m, "") if _el=~/#{e}/
 						}
 
@@ -127,7 +152,7 @@ class Score < DataProcess
 					add_beam(tuple, nte_id)
 
 					@prev_dur = _du
-					@prev_tpl = tp
+					@prev_tpl = tpp
 					@prev_elm = _el
 					@voice += " "
 				}
