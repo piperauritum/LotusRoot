@@ -89,8 +89,9 @@ def add_tuplet_bracket(tpp, nte_id)
 		if !@dotted && ((Fixnum===tpp && Math.log2(tpp)%1>0) || (TplParam===tpp && !tpp.even?))
 			@bracketing = true
 			tpp = @tpl_param.on(@tpp_id)
+
 			if TplParam === tpp
-				@mainnote += "\\fractpl " if @fracTuplet!=nil 	# see config.ly
+				@mainnote += "\\fractpl " if @fracTuplet!=nil 		# see config.ly
 				@mainnote += "\\tuplet #{tpp.numer}/#{tpp.denom} {"
 			else
 				den = 2**Math.log2(tpp).to_i
@@ -109,7 +110,7 @@ def put_note(nte, tp)
 	when /R!/
 		@mainnote += "R"
 	when /r!|rrr/
-		@mainnote += "r"		# (whole bar rest should not be used)
+		@mainnote += "r"
 	when /s!|sss/
 		@mainnote += "s"
 	else

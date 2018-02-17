@@ -71,7 +71,6 @@ class Score < DataProcess
 			else
 				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
 			end
-
 			reduc.call(subdivided)
 
 			recombined = recombine_tuplet(subdivided, tpp)
