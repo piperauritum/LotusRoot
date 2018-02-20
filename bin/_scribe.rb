@@ -16,7 +16,7 @@ end
 
 
 def put_note_name(pc, _el=nil)
-	if Array === pc && pc.size>1
+	if Array === pc # && pc.size>1
 		acc = @accMode
 		acc = auto_accmode(pc, @accMode, @autoChordAcc) if @autoChordAcc
 		nn = pc.map{|e|
