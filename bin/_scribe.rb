@@ -248,7 +248,7 @@ def add_beam(tuple, nte_id)
 
 			# no rest
 			eq = elz.map{|e| e=~/r!|s!|rrr|sss/ ? 1 : 0 }.sigma
-			bm = false if eq==0
+			bm = false if eq==0 && @beamOverRest==0
 
 			# include two-notes tremolo or grace notes
 			eq = elz.map{|e| e=~/%|GRC/ ? 1 : 0 }.sigma

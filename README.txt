@@ -131,8 +131,10 @@ sco.altNoteName = [a0, a1, a2, ...]
 		p	pitch (Fixnum/Float/Rational)
 		n	note-name (String)
 
-sco.beamOverRest = 0
-	Beams over rests.
+sco.beamOverRest = a
+	a	Fixnum
+		0: Writes beams over rests
+		1: Writes beams forcibly
 
 sco.noTieAcrossBeat = 0
 	Deletes ties across beats.
