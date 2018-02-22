@@ -148,6 +148,9 @@ sco.tidyTuplet = 0
 sco.dotDuplet = 0
 	Rewrites 2:3 tuplets into dotted duplets.
 
+sco.splitBeat = 0
+	Disable connecting of beats.
+
 sco.omitRest = [a0, a1, a2, ...]
 	Excludes rests of given note values.
 

@@ -8,7 +8,7 @@ class Score < DataProcess
 	attr_reader :output
 	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
 	:accMode, :autoChordAcc, :reptChordAcc, :altNoteName, :beamOverRest, :noTieAcrossBeat, # :pnoTrem,
-	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest, :wholeBarRest
+	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest, :wholeBarRest, :splitBeat
 
 
 	def initialize(_durations, _elements, _tuplets, _pitches)
@@ -80,8 +80,8 @@ class Score < DataProcess
 		}
 
 		## _seqBars.rb ##
-		bars = fill_with_rests(tuples, @metre, @finalBar)
-		@seq, @tpl_param = connect_beat(bars, @metre, @tpl_param)
+		@seq = fill_with_rests(tuples, @metre, @finalBar)
+		@seq, @tpl_param = connect_beat(@seq, @metre, @tpl_param) if @splitBeat==nil
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
 		@seq = rest_dur(@seq)
