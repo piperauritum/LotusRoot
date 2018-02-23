@@ -193,7 +193,7 @@ module Notation
 	def tuplet_num_to_param(tpl, beat=1)
 		case tpl
 		when TplParam
-			tpl
+			tpl.ar.to_tpp
 		when Array
 			tpl.to_tpp
 		when Fixnum
@@ -246,6 +246,7 @@ module Notation
 
 	def note_value(tpl)
 		tpp = tuplet_num_to_param(tpl)
+		tpp.numer = tpp.numer.sigma if Array === tpp.numer
 
 		duple_note = [*-16..2].map{|e|
 			x = 2**e
@@ -292,7 +293,7 @@ module Notation
 
 
 	def allowed_positions(tp_ary, pos_table, notevalue)
-		bt_struct, unit_num, unit_dur = tp_ary.deepcopy
+		bt_struct, unit_num, unit_dur = tp_ary.ar
 		tme = 0
 		ary = []
 		rto = Rational(unit_num*unit_dur, bt_struct.sigma)

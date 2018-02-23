@@ -131,8 +131,6 @@ LotusRoot >> #{bar.look}
 						la_ev, la_tp = la
 						fol, laf = fo_ev.last, la_ev.first
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
-						nv = fol.dsum + laf.dsum
-						matchValue = note_value(fo_tp)[nv]!=nil
 
 						if Array === mtr
 							beat_struc, unit_dur = mtr
@@ -148,8 +146,6 @@ LotusRoot >> #{bar.look}
 								[2]*(e/2)+[e%2]-[0]
 							end
 						}.flatten
-
-						tp_ary = [beat_struc, beat_struc.sigma, unit_dur]
 
 						bothNotes = [
 							[laf.el]-%w(= =:)==[],
@@ -197,12 +193,18 @@ LotusRoot >> #{bar.look}
 								3 => {
 									1 => [0, 1/2r, 1, 3/2r, 2],
 									3/2r => [0, 1/2r, 1, 3/2r],
-									2 => [0, 1, 2],
+#									2 => [0, 1, 2],
+									2 => [0, 1],
 									3 => [0],
 									6 => [0],
 								},
 							}
 						end
+
+						nv = fol.dsum + laf.dsum
+						tp_ary = [beat_struc, beat_struc.sigma, unit_dur].to_tpp
+#						matchValue = note_value(fo_tp)[nv]!=nil
+						matchValue = note_value(tp_ary)[nv]!=nil
 
 						npos = allowed_positions(tp_ary, pos_table, nv)
 						matchValue = false if npos.all?{|e| time!=e}

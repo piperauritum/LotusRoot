@@ -274,7 +274,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 			}.flatten
 		end
 
-		tp_ary = [beat_struc, tpp.denom, tpp.unit]
+		tp_ary = [beat_struc, tpp.denom, tpp.unit].to_tpp
 
 		while 0
 			id = 0
