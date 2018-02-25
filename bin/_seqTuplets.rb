@@ -11,6 +11,11 @@ class DataProcess
 
 
 	def unfold_elements(dur, elm)
+		if dur.select{|e| e<1}!=[]
+			puts "LotusRoot >> Durations has wrong values #{dur.select{|e| e<1}}"
+			raise
+		end
+
 		elm.map.with_index{|el, i|
 			du = dur.on(i)
 			if du>0
@@ -240,13 +245,22 @@ LotusRoot >> #{note_value(tpp.ar)}
 					}.any?
 					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = prev=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
-
+# =begin
+					if [isTie, bothTrems, bothRests, markedTie].any?
+						evt.du = [evt.du, tick]
+					else
+						qa << evt
+						evt = ev
+					end
+# =end
+=begin
 					if [isAtk, newRest, noNval].any?
 						qa << evt
 						evt = ev
 					elsif [isTie, bothTrems, bothRests, markedTie].any?
 						evt.du = [evt.du, tick]
 					end
+=end
 				end
 				prev = ev.el
 			}

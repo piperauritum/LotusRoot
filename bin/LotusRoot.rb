@@ -47,6 +47,21 @@ class Score < DataProcess
 						}.all?
 							len = dur_map.map{|e| (e/tk).to_i}
 							len = len.map{|e| [*1..e].inject([]){|s,f| s.size==0 ? s=[tk] : s=[s,tk] }}
+# =begin
+							lid = 0
+							def redu(ary, len, lid)
+								if Array===ary
+									ary.each.with_index{|a,i|
+										redu(a, len, lid)
+										lid += 1
+									}
+								else
+									ary.du = len[lid]
+								end
+							end
+							redu(tuplet, len, lid)
+# =end
+=begin
 							len.each_with_index{|e,i|
 								if Array === tuplet[i]
 									tuplet[i][0].du = len[i]
@@ -54,6 +69,7 @@ class Score < DataProcess
 									tuplet[i].du = len[i]
 								end
 							}
+=end
 							tpp = @tpl_param[idx] = ab
 							tick = tpp.tick
 						end
