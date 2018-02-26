@@ -234,16 +234,16 @@ LotusRoot >> #{note_value(tpp.ar)}
 				if i==0
 					evt = ev
 				else
-					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
+#					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
 					isTie = [ev.el]-%w(= =:)==[]
 					markedTie = (prev=~/@/ || prev=~/==/) && ev.el=~/==/
-					newRest = %w(r! s!).map{|e|
-						(!(prev=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
-					}.any?
+#					newRest = %w(r! s!).map{|e|
+#						(!(prev=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
+#					}.any?
 					bothRests = %w(r! s!).map{|e|
 						prev=~/#{e}/ && ev.el=="#{e}"
 					}.any?
-					noNval = note_value(tpp)[evt.dsum+tick]==nil
+#					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = prev=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 # =begin
 					if [isTie, bothTrems, bothRests, markedTie].any?
