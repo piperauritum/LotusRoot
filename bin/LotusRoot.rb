@@ -25,6 +25,7 @@ class Score < DataProcess
 
 	def sequence
 		@pitch = pitch_shift(@pitch, @pitchShift)
+		@metre = process_metre(@metre)
 		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
 		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
 

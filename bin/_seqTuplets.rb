@@ -65,8 +65,42 @@ class DataProcess
 	end
 
 
+	def process_metre(metre)
+		begin
+			metre = metre.map{|e|
+				Fixnum===e ? [[e], 1] : e
+			}
+
+			metre.map{|e|
+				if Array===e && e[0].size==1
+					m = e[0][0]
+					n = if m%3==0
+						[3]*(m/3)
+					else
+						[2]*(m/2)+[m%2]-[0]
+					end
+					[n, e[1]]
+				else
+					e
+				end
+			}
+		rescue
+			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
+			raise
+		end	
+	end
+
+
 	def beat_structure(metre)
 		begin
+			metre.map{|e|
+				if e[1]==1
+					[1]*e[0].sigma
+				else
+					e[0].map{|f| e[1]*f}
+				end
+			}.flatten
+=begin
 			metre.map{|e|
 				if Array === e
 					e[0].map{|f| e[1]*f}
@@ -74,6 +108,7 @@ class DataProcess
 					[1]*e
 				end
 			}.flatten
+=end
 		rescue
 			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
 			raise
@@ -213,13 +248,13 @@ LotusRoot >> #{note_value(tpp.ar)}
 		beat_struc = [t]
 
 		if subdiv
-				if @dotDuplet
-					beat_struc = [2]*(t/2)+[t%2]
-				elsif t%3==0
-					beat_struc = [3]*(t/3) if tpp.numer!=3
-				else
-					beat_struc = [4]*(t/4)+[t%4]
-				end
+			if @dotDuplet
+				beat_struc = [2]*(t/2)+[t%2]
+			elsif t%3==0
+				beat_struc = [3]*(t/3) if tpp.numer!=3
+			else
+				beat_struc = [4]*(t/4)+[t%4]
+			end
 		end
 		beat_struc -= [0]
 
@@ -228,7 +263,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 			sliced << tuple.shift(e)
 		}
 
-		sliced.each{|sl|
+		sliced.each.with_index{|sl, j|
 			qa = []
 			sl.each_with_index{|ev, i|
 				if i==0
@@ -245,8 +280,12 @@ LotusRoot >> #{note_value(tpp.ar)}
 					}.any?
 #					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = prev=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
+
+					isTriplet = beat_struc.on(j)==3 
+					headIsAtk = sl[0].el=~/(@|%ATK|rrr|sss)/
+					restInComp = isTriplet && headIsAtk && bothRests
 # =begin
-					if [isTie, bothTrems, bothRests, markedTie].any?
+					if [isTie, bothTrems, bothRests, markedTie].any? && !restInComp
 						evt.du = [evt.du, tick]
 					else
 						qa << evt

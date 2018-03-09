@@ -132,13 +132,13 @@ LotusRoot >> #{bar.look}
 						fol, laf = fo_ev.last, la_ev.first
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
 
-						if Array === mtr
+#						if Array === mtr
 							beat_struc, unit_dur = mtr
-						else
-							beat_struc = [mtr]
-							unit_dur = 1
-						end
-
+#						else
+#							beat_struc = [mtr]
+#							unit_dur = 1
+#						end
+=begin
 						beat_struc = beat_struc.map{|e|
 							if e%3==0
 								[3]*(e/3)
@@ -146,7 +146,7 @@ LotusRoot >> #{bar.look}
 								[2]*(e/2)+[e%2]-[0]
 							end
 						}.flatten
-
+=end
 						bothNotes = [
 							[laf.el]-%w(= =:)==[],
 							[
@@ -168,17 +168,11 @@ LotusRoot >> #{bar.look}
 							pos_table = {
 								2 => {
 									1 => [0, 1],
-#									3/2r => [0, 1/2r],
 									2 => [0],
-#									3 => [0, 1],
 									4 => [0],
 								},
 								3 => {
 									1 => [0, 1, 2],
-#									3/2r => [0, 1/2r, 1, 3/2r],
-#									2 => [0, 1],
-									3 => [0],
-									6 => [0],
 								},
 							}
 						else
