@@ -19,6 +19,19 @@
 end
 
 
+class MtrParam
+	attr_accessor :beat, :unit
+
+	def initialize(array)
+		@beat, @unit = array
+	end
+
+	def ar
+		[@beat, @unit]
+	end
+end
+
+
 class TplParam
 	attr_accessor :numer, :denom, :unit
 
@@ -48,6 +61,19 @@ class TplParam
 end
 
 
+class Tuplet
+	attr_accessor :ev, :tp
+
+	def ev_is(evt)
+		@ev = evt
+	end
+
+	def tp_is(tpp)
+		@tpl = tpp
+	end
+end
+
+
 class Array
 	def ar
 		self.map(&:ar)
@@ -56,7 +82,6 @@ class Array
 	def to_tpp
 		TplParam.new(self)
 	end
-
 end
 
 

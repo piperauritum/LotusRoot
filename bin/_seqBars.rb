@@ -11,7 +11,7 @@ class DataProcess
 
 		while tuples.size>0 || bar_residue>0
 			mtr = metre.on(mtr_id)
-			btotal = Rational(mtr[0].sigma*mtr[1])
+			btotal = Rational(mtr.beat.sigma*mtr.unit)
 
 			if tuples.dtotal<btotal
 				filler = []
@@ -22,7 +22,7 @@ class DataProcess
 				while gap>0
 					tick = note_value(16)
 					tick = tick.select{|key, val| !(@avoidRest.include?(key))}
-#					tick = tick.select{|key, val| key!=2} if mtr[0].uniq==[3]
+#					tick = tick.select{|key, val| key!=2} if mtr.beat.uniq==[3]
 					tick = tick.select{|key, val| key<=gap}.max[0]
 					filler << [Event.new("r!", tick)]
 					tpl_add << [1, 1, tick].to_tpp
@@ -134,7 +134,7 @@ LotusRoot >> #{bar.look}
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
 
 #						if Array === mtr
-							beat_struc, unit_dur = mtr
+							beat_struc, unit_dur = mtr.ar
 #						else
 #							beat_struc = [mtr]
 #							unit_dur = 1
@@ -316,7 +316,7 @@ LotusRoot >> #{bar.look}
 				nte.el=~/(r!|s!|rrr|sss)/,
 				Array === nte.du,
 				[
-					mtr!=nil && mtr[0].uniq==[3] && nte.dsum==2,
+					mtr!=nil && mtr.beat.uniq==[3] && nte.dsum==2,
 					@avoidRest.include?(nte.dsum),
 				].any?
 			].all?
@@ -330,7 +330,7 @@ LotusRoot >> #{bar.look}
 				bar.map{|tuple|
 					tuple.map{|note|
 						if avoidedRest.call(note, mtr)
-							note.du.map.with_index{|x,i|
+							note.du.map.with_index{|x, i|
 								rest = note.el.match(/(r!|s!|rrr|sss)/)[1]
 								i==0 ? y=note.el : y=rest
 								Event.new(y, x)

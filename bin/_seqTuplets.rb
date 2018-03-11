@@ -71,8 +71,8 @@ class DataProcess
 				Fixnum===e ? [[e], 1] : e
 			}
 
-			metre.map{|e|
-				if Array===e && e[0].size==1
+			metre = metre.map{|e|
+				if e[0].size==1
 					m = e[0][0]
 					n = if m%3==0
 						[3]*(m/3)
@@ -84,6 +84,8 @@ class DataProcess
 					e
 				end
 			}
+
+			metre.map{|e| MtrParam.new(e)}
 		rescue
 			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
 			raise
@@ -94,21 +96,12 @@ class DataProcess
 	def beat_structure(metre)
 		begin
 			metre.map{|e|
-				if e[1]==1
-					[1]*e[0].sigma
+				if e.unit==1
+					[1]*e.beat.sigma
 				else
-					e[0].map{|f| e[1]*f}
+					e.beat.map{|f| e.unit*f}
 				end
 			}.flatten
-=begin
-			metre.map{|e|
-				if Array === e
-					e[0].map{|f| e[1]*f}
-				else
-					[1]*e
-				end
-			}.flatten
-=end
 		rescue
 			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
 			raise
@@ -164,6 +157,8 @@ class DataProcess
 					raise
 				end
 
+tu = Tuplet.new
+
 				if Fixnum===tp && tick.numerator>1
 					len = tp
 					tick *= Rational(tpp.numer, tp)
@@ -200,22 +195,28 @@ LotusRoot >> #{note_value(tpp.ar)}
 					tick = Rational(1, du.denominator)
 					len = du.numerator
 					ay = [ay[0]] + [ay[1]]*(len-1)
-					new_tpl << [len, len, tick].to_tpp
+tu.tp_is([len, len, tick].to_tpp)
+#					new_tpl << [len, len, tick].to_tpp
 				else
 					if Fixnum === tp
-						new_tpl << tpp
+tu.tp_is(tpp)
+#						new_tpl << tpp
 					else
-						new_tpl << tpl.on(idx).to_tpp
+tu.tp_is(tpl.on(idx).to_tpp)
+#						new_tpl << tpl.on(idx).to_tpp
 					end
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
-				new_ary << ay
+tu.ev_is(ay)
+#				new_ary << ay
+new_ary << tu
 			}
 			idx += 1
 		end
 
-		[new_ary.dup, new_tpl.dup]
+		new_ary
+#		[new_ary.dup, new_tpl.dup]
 	end
 
 

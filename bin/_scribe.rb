@@ -53,16 +53,16 @@ end
 
 
 def add_time_signature(beat_id, mtr)
-	if beat_id==0 && mtr!=@prev_mtr
-		if Array === mtr
-			nu = mtr[0].sigma
-			de = (Rational(1, mtr[1])*4).to_i
+	if beat_id==0 && mtr.ar!=@prev_mtr
+#		if Array === mtr
+			nu = mtr.beat.sigma
+			de = (Rational(1, mtr.unit)*4).to_i
 			@voice += "\\time #{nu}/#{de} "
-		else
-			@voice += "\\time #{mtr}/4 "
-		end
+#		else
+#			@voice += "\\time #{mtr}/4 "
+#		end
 	end
-	@prev_mtr = mtr
+	@prev_mtr = mtr.ar
 end
 
 

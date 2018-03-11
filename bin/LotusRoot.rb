@@ -26,7 +26,10 @@ class Score < DataProcess
 	def sequence
 		@pitch = pitch_shift(@pitch, @pitchShift)
 		@metre = process_metre(@metre)
-		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
+#		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
+		@tpl_data = assemble_tuplets(@tpl_data, @tpl_param, @metre)
+@tpl_data.each{|e| p e}
+exit
 		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
 
 		tuples = []
@@ -115,13 +118,13 @@ class Score < DataProcess
 		##### MEASURE #####
 		@seq.each.with_index{|bar, bar_id|
 			mtr = @metre[bar_id % @metre.size]
-			if Array === mtr
-				beat_dur = mtr[1]
-				bar_dur = mtr[0].sigma*beat_dur
-			else
-				beat_dur = 1
-				bar_dur = mtr*beat_dur
-			end
+#			if Array === mtr
+				beat_dur = mtr.unit
+				bar_dur = mtr.beat.sigma*beat_dur
+#			else
+#				beat_dur = 1
+#				bar_dur = mtr*beat_dur
+#			end
 
 			##### TUPLET #####
 			bar.each.with_index{|tuple, beat_id|
