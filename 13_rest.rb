@@ -1,26 +1,24 @@
 ﻿require_relative 'bin/LotusRoot'
 
-pch = [nil]
-elm = ["r!\\fermata", "r!"]
-
-## Rests will be connected
-dur = [3, 3]
+dur = [10, 1]
+elm = %w(r! @)
 tpl = [2]
-mtr = [[[6], 1/2r]]
-
-## Explicit tuplet will divide the rests
-# tpl = [[3, 3, 1/2r]]
-
-## Also beat structure will divide it
-# tpl = [2]
-# mtr = [[[3, 3], 1/2r]]
+pch = [12]
 
 sco = Score.new(dur, elm, tpl, pch)
-sco.metre = mtr
-# sco.omitRest = [3/2r]		# Rests of given note values will be exclude
+sco.metre = [6]
+# sco.avoidRest = [2/3r]		# Rests of given note values will be excluded
+
+=begin
+dur = [*1..32]
+elm = dur.map{"r!"}
+tpl = [1]
+
+sco = Score.new(dur, elm, tpl, pch)
+sco.metre = dur # .map{|e| [[e], Rational(1, tpl[0])]}
 # sco.wholeBarRest = 0		# Replaces to whole bar rests
-# sco.textReplace("fermata", "fermataMarkup")
-							# \fermata does not work on whole bar rests
+=end
+
 sco.gen
 sco.print
 sco.export("sco.txt")

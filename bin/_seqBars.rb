@@ -11,17 +11,18 @@ class DataProcess
 
 		while tuples.size>0 || bar_residue>0
 			mtr = metre.on(mtr_id)
-			mtr = Rational(mtr[0].sigma*mtr[1]) if Array === mtr
+			btotal = Rational(mtr[0].sigma*mtr[1])
 
-			if tuples.dtotal<mtr
+			if tuples.dtotal<btotal
 				filler = []
 				tpl_add = []
 				len = tuples.dtotal+filler.dtotal+bar_residue
-				gap = mtr-len
+				gap = btotal-len
 
 				while gap>0
 					tick = note_value(16)
-					tick = tick.select{|key, val| !(@omitRest.include?(key))}
+					tick = tick.select{|key, val| !(@avoidRest.include?(key))}
+#					tick = tick.select{|key, val| key!=2} if mtr[0].uniq==[3]
 					tick = tick.select{|key, val| key<=gap}.max[0]
 					filler << [Event.new("r!", tick)]
 					tpl_add << [1, 1, tick].to_tpp
@@ -35,11 +36,11 @@ class DataProcess
 			end
 
 			bar = []
-			while bar.dtotal+bar_residue<mtr
+			while bar.dtotal+bar_residue<btotal
 				bar << tuples.shift
 			end
 
-			bar_residue = bar.dtotal+bar_residue-mtr
+			bar_residue = bar.dtotal+bar_residue-btotal
 			bars << bar
 			mtr_id += 1
 		end
@@ -173,6 +174,8 @@ LotusRoot >> #{bar.look}
 								},
 								3 => {
 									1 => [0, 1, 2],
+									2 => [0],
+									3 => [0],
 								},
 							}
 						else
@@ -307,22 +310,26 @@ LotusRoot >> #{bar.look}
 	end
 
 
-	def rest_dur(seq)
-		omittedRest = ->(nte){
+	def rest_dur(seq, metre)
+		avoidedRest = ->(nte, mtr){
 			[
 				nte.el=~/(r!|s!|rrr|sss)/,
 				Array === nte.du,
-				@omitRest.include?(nte.dsum)
+				[
+					mtr!=nil && mtr[0].uniq==[3] && nte.dsum==2,
+					@avoidRest.include?(nte.dsum),
+				].any?
 			].all?
 		}
 
 		yet = true
 		cnt = 0
 		while yet
-			seq = seq.map{|bar|
+			seq = seq.map.with_index{|bar, b|
+				mtr = metre.on(b)
 				bar.map{|tuple|
 					tuple.map{|note|
-						if omittedRest.call(note)
+						if avoidedRest.call(note, mtr)
 							note.du.map.with_index{|x,i|
 								rest = note.el.match(/(r!|s!|rrr|sss)/)[1]
 								i==0 ? y=note.el : y=rest
@@ -336,17 +343,17 @@ LotusRoot >> #{bar.look}
 			}
 
 			yet = false
-			omt = []
+			avd = []
 			seq.flatten.each{|note|
-				if omittedRest.call(note)
+				if avoidedRest.call(note, nil)
 					yet = true
-					omt << note.dsum
+					avd << note.dsum
 				end
 			}
 			cnt += 1
 
 			if cnt > 99
-				puts "LotusRoot >> Could not omit some rests. #{omt.uniq}"
+				puts "LotusRoot >> Could not avoid some rests. #{avd.uniq}"
 				yet = false
 			end
 		end

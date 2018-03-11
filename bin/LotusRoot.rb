@@ -8,7 +8,7 @@ class Score < DataProcess
 	attr_reader :output
 	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
 	:accMode, :autoChordAcc, :reptChordAcc, :altNoteName, :beamOverRest, :noTieAcrossBeat, # :pnoTrem,
-	:fracTuplet, :tidyTuplet, :dotDuplet, :omitRest, :wholeBarRest, :splitBeat
+	:fracTuplet, :tidyTuplet, :dotDuplet, :avoidRest, :wholeBarRest, :splitBeat
 
 
 	def initialize(_durations, _elements, _tuplets, _pitches)
@@ -19,7 +19,7 @@ class Score < DataProcess
 		@metre = [4]
 		@accMode, @pitchShift = 0, 0
 		@gspat, @gsrep = [], []
-		@omitRest = []
+		@avoidRest = []
 	end
 
 
@@ -48,7 +48,7 @@ class Score < DataProcess
 						}.all?
 							len = dur_map.map{|e| (e/tk).to_i}
 							len = len.map{|e| [*1..e].inject([]){|s,f| s.size==0 ? s=[tk] : s=[s,tk] }}
-# =begin
+
 							lid = 0
 							def redu(ary, len, lid)
 								if Array===ary
@@ -61,7 +61,6 @@ class Score < DataProcess
 								end
 							end
 							redu(tuplet, len, lid)
-# =end
 =begin
 							len.each_with_index{|e,i|
 								if Array === tuplet[i]
@@ -101,9 +100,8 @@ class Score < DataProcess
 		@seq, @tpl_param = connect_beat(@seq, @metre, @tpl_param) if @splitBeat==nil
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
-		@seq = rest_dur(@seq)
+		@seq = rest_dur(@seq, @metre)
 		@seq, @tpl_param = whole_bar_rest(@seq, @tpl_param) if @wholeBarRest!=nil
-
 	end
 
 

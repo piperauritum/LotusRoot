@@ -281,17 +281,17 @@ LotusRoot >> #{note_value(tpp.ar)}
 #					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = prev=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
-					isTriplet = beat_struc.on(j)==3 
-					headIsAtk = sl[0].el=~/(@|%ATK|rrr|sss)/
-					restInComp = isTriplet && headIsAtk && bothRests
-# =begin
-					if [isTie, bothTrems, bothRests, markedTie].any? && !restInComp
+#					isTriplet = beat_struc.on(j)==3 
+#					headIsAtk = sl[0].el=~/(@|%ATK|rrr|sss)/
+#					restInComp = isTriplet && headIsAtk && bothRests
+
+					if [isTie, bothTrems, bothRests, markedTie].any? # && !restInComp
 						evt.du = [evt.du, tick]
 					else
 						qa << evt
 						evt = ev
 					end
-# =end
+
 =begin
 					if [isAtk, newRest, noNval].any?
 						qa << evt
