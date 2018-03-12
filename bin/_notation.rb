@@ -64,6 +64,12 @@ end
 class Tuplet
 	attr_accessor :ev, :par
 
+	def initialize(event=nil, param=nil)
+		@ev, @par = event, param
+		@ev = Event.new("r!", nil) if event==nil
+	end
+
+=begin
 	def ev_is(evt)
 		@ev = evt
 	end
@@ -71,7 +77,7 @@ class Tuplet
 	def tp_is(tpp)
 		@par = tpp
 	end
-
+=end
 	def ar
 		[@ev.ar, @par.ar]
 	end
@@ -352,6 +358,7 @@ module Notation
 			when :ar; x.ar
 			when :el; x.el
 			when :du; x.du
+			when :cl; x.class
 			end
 		}
 		case self
@@ -383,6 +390,10 @@ module Notation
 
 	def dlook
 		self.lookInside(:du)
+	end
+
+	def clook
+		self.lookInside(:cl)
 	end
 
 	def dtotal

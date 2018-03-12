@@ -195,20 +195,20 @@ LotusRoot >> #{note_value(tpp.ar)}
 					tick = Rational(1, du.denominator)
 					len = du.numerator
 					ay = [ay[0]] + [ay[1]]*(len-1)
-tu.tp_is([len, len, tick].to_tpp)
+tu.par = [len, len, tick].to_tpp
 #					new_tpl << [len, len, tick].to_tpp
 				else
 					if Fixnum === tp
-tu.tp_is(tpp)
+tu.par = tpp
 #						new_tpl << tpp
 					else
-tu.tp_is(tpl.on(idx).to_tpp)
+tu.par = tpl.on(idx).to_tpp
 #						new_tpl << tpl.on(idx).to_tpp
 					end
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
-tu.ev_is(ay)
+tu.ev = ay
 #				new_ary << ay
 new_ary << tu
 			}
@@ -222,11 +222,11 @@ new_ary << tu
 
 	def delete_ties_across_beats(ary)
 		ary.map{|e|
-#			if e.ev[0].el=="=" && e.ev.map(&:el).uniq!=["="]
-			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
+			if e.ev[0].el=="=" && e.ev.map(&:el).uniq!=["="]
+#			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
 				re = true
-				e.map{|f|
-#				e.ev.map!{|f|
+#				e.map{|f|
+				e.ev.map!{|f|
 					case f.el
 					when /@/
 						re = false
@@ -237,15 +237,19 @@ new_ary << tu
 						f
 					end
 				}
-			else
-				e
+#			else
+#				e
 			end
+			e
 		}
 	end
 
 
 	def subdivide_tuplet(evts, prev, tick, tpp, subdiv=true)
-		tuple = evts.deepcopy
+
+		tuple = evts.ev
+	tpp = evts.par
+#		tuple = evts.deepcopy
 		quad, evt = [], nil
 		t = tuple.size
 		beat_struc = [t]
@@ -304,17 +308,26 @@ new_ary << tu
 					end
 =end
 				end
-				prev = ev.el
+				prev = Tuplet.new(ev.el, tpp)
+#				prev = ev.el
 			}
+
 			qa << evt
+
 			quad << qa
+
 		}
+
+		quad = Tuplet.new(quad, tpp)
+
 		[quad, prev]
 	end
  
  
 	def recombine_tuplet(evts, tpp)
-		quad = evts.deepcopy 
+		quad = evts.ev
+	tpp = evts.par
+#		quad = evts.deepcopy 
 		tick = tpp.tick
 		beat_struc = quad.map{|e|
 			(e.dlook.flatten.sigma/tick).to_i
@@ -414,7 +427,8 @@ new_ary << tu
 			break if again == false
 		end
 
-		quad.flatten!
+		Tuplet.new(quad.flatten!, tpp)
+#		quad.flatten!
 	end
 
 end

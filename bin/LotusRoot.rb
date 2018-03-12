@@ -28,15 +28,22 @@ class Score < DataProcess
 		@metre = process_metre(@metre)
 #		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
 		@tpl_data = assemble_tuplets(@tpl_data, @tpl_param, @metre)
-@tpl_data.map!(&:ev)
-		@tpl_data = delete_ties_across_beats(@tpl_data) # if @noTieAcrossBeat
-@tpl_data.each{|e| p e.look}
-exit
+
+#	@tpl_param = @tpl_data.map(&:par)
+#	@tpl_data.map!(&:ev)
+
+		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
+# @tpl_data.each{|e| p e.look}
+# exit
 		tuples = []
 		idx = 0
-		@tpl_data.inject("r!"){|prev_el, tuple|
-			tpp = @tpl_param[idx]
-			tick = Rational(tpp.denom*tpp.unit, tuple.size)
+		@tpl_data.inject(Tuplet.new){|prev_el, tuple|
+#		@tpl_data.inject("r!"){|prev_el, tuple|
+
+			tpp = tuple.par
+#			tpp = @tpl_param[idx]
+			tick = Rational(tpp.denom*tpp.unit, tuple.ev.size)
+#			tick = Rational(tpp.denom*tpp.unit, tuple.size)
 
 			reduc = ->(tuplet){
 				abbr = tpl_abbreviations(tpp)
@@ -44,7 +51,8 @@ exit
 				if abbr!=[]
 					abbr.each{|ab|
 						tk = ab.tick
-						dur_map = tuplet.flatten.map{|e| e.dsum}
+						dur_map = tuplet.ev.flatten.map{|e| e.dsum}
+#						dur_map = tuplet.flatten.map{|e| e.dsum}
 
 						if dur_map.map{|du|
 							(du/tk)%1==0 && note_value(ab)[du]!=nil
@@ -63,7 +71,7 @@ exit
 									ary.du = len[lid]
 								end
 							end
-							redu(tuplet, len, lid)
+							redu(tuplet.ev, len, lid)
 =begin
 							len.each_with_index{|e,i|
 								if Array === tuplet[i]
@@ -73,7 +81,9 @@ exit
 								end
 							}
 =end
-							tpp = @tpl_param[idx] = ab
+
+							tpp = tuple.par = ab
+#							tpp = @tpl_param[idx] = ab
 							tick = tpp.tick
 						end
 					}
@@ -82,14 +92,24 @@ exit
 
 			## _seqTuplets.rb ##
 			prev_tpp = tpp
+p 8, tuple.look
 			tpp_check = subdivide_tuplet(tuple, prev_el, tick, tpp, false)[0]
-			reduc.call(tpp_check.flatten)
+p 9, tuple.look
+exit
+			reduc.call(tpp_check)
+#			reduc.call(tpp_check.flatten)
+
 
 			if prev_tpp.ar == tpp.ar
+
 				subdivided, prev_el = subdivide_tuplet(tuple, prev_el, tick, tpp)
+
 			else
-				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
+				subdivided, prev_el = subdivide_tuplet(tpp_check, prev_el, tick, tpp)
+#				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
 			end
+
+
 			reduc.call(subdivided)
 
 			recombined = recombine_tuplet(subdivided, tpp)
@@ -98,6 +118,12 @@ exit
 			idx += 1
 		}
 
+@tpl_param = tuples.map(&:par)
+tuples.map!(&:ev)
+
+p @tpl_param, tuples
+
+exit
 		## _seqBars.rb ##
 		@seq = fill_with_rests(tuples, @metre, @finalBar)
 		@seq, @tpl_param = connect_beat(@seq, @metre, @tpl_param) if @splitBeat==nil
