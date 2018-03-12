@@ -28,10 +28,10 @@ class Score < DataProcess
 		@metre = process_metre(@metre)
 #		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
 		@tpl_data = assemble_tuplets(@tpl_data, @tpl_param, @metre)
-@tpl_data.each{|e| p e}
+@tpl_data.map!(&:ev)
+		@tpl_data = delete_ties_across_beats(@tpl_data) # if @noTieAcrossBeat
+@tpl_data.each{|e| p e.look}
 exit
-		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
-
 		tuples = []
 		idx = 0
 		@tpl_data.inject("r!"){|prev_el, tuple|

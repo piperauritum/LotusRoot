@@ -62,14 +62,18 @@ end
 
 
 class Tuplet
-	attr_accessor :ev, :tp
+	attr_accessor :ev, :par
 
 	def ev_is(evt)
 		@ev = evt
 	end
 
 	def tp_is(tpp)
-		@tpl = tpp
+		@par = tpp
+	end
+
+	def ar
+		[@ev.ar, @par.ar]
 	end
 end
 

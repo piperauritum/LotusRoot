@@ -222,9 +222,11 @@ new_ary << tu
 
 	def delete_ties_across_beats(ary)
 		ary.map{|e|
+#			if e.ev[0].el=="=" && e.ev.map(&:el).uniq!=["="]
 			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
 				re = true
 				e.map{|f|
+#				e.ev.map!{|f|
 					case f.el
 					when /@/
 						re = false
