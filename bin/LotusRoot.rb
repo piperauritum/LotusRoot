@@ -97,7 +97,6 @@ class Score < DataProcess
 				subdivided, prev_el = subdivide_tuplet(tpp_check, prev_el, tick, tpp)
 #				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
 			end
-
 			reduc.call(subdivided)
 
 			recombined = recombine_tuplet(subdivided, tpp)
@@ -108,7 +107,6 @@ class Score < DataProcess
 
 @tpl_param = tuples.map(&:par)
 tuples.map!(&:evt)
-
 
 		## _seqBars.rb ##
 		@seq = fill_with_rests(tuples, @metre, @finalBar)

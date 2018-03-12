@@ -157,7 +157,6 @@ class DataProcess
 					raise
 				end
 
-tu = Tuplet.new
 
 				if Fixnum===tp && tick.numerator>1
 					len = tp
@@ -190,27 +189,28 @@ LotusRoot >> #{note_value(tpp.ar)}
 				atk_trem = !!(ay[0]=~/%ATK/) && ay[1..-1].map{|e| !!(e=~/%\d+/)}.all?
 				atk_mktie = (!!(ay[0]=~/@/) || !!(ay[0]=~/==/)) && ay[1..-1].map{|e| !!(e=~/==/)}.all?
 
+				tu = Tuplet.new
 				if [only_rest, only_tie, only_trem, atk_tie, atk_trem, atk_mktie].any?
 					du = tick*len
 					tick = Rational(1, du.denominator)
 					len = du.numerator
 					ay = [ay[0]] + [ay[1]]*(len-1)
-tu.par = [len, len, tick].to_tpp
+					tu.par = [len, len, tick].to_tpp
 #					new_tpl << [len, len, tick].to_tpp
 				else
 					if Fixnum === tp
-tu.par = tpp
+						tu.par = tpp
 #						new_tpl << tpp
 					else
-tu.par = tpl.on(idx).to_tpp
+						tu.par = tpl.on(idx).to_tpp
 #						new_tpl << tpl.on(idx).to_tpp
 					end
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
-tu.evt = ay
+				tu.evt = ay
 #				new_ary << ay
-new_ary << tu
+				new_ary << tu
 			}
 			idx += 1
 		end
@@ -246,10 +246,8 @@ new_ary << tu
 
 
 	def subdivide_tuplet(evts, prev, tick, tpp, subdiv=true)
-
 		tuple = evts.evt.deepcopy
-	tpp = evts.par
-
+		tpp = evts.par
 #		tuple = evts.deepcopy
 		quad, evt = [], nil
 		t = tuple.size
@@ -274,7 +272,6 @@ new_ary << tu
 		sliced.each.with_index{|sl, j|
 			qa = []
 			sl.each_with_index{|ev, i|
-
 				if i==0
 					evt = ev
 				else
@@ -314,22 +311,17 @@ new_ary << tu
 				prev = Tuplet.new(ev, tpp)
 #				prev = ev.el
 			}
-
 			qa << evt
-
 			quad << qa
-
 		}
-
 		quad = Tuplet.new(quad, tpp)
-
 		[quad, prev]
 	end
  
  
 	def recombine_tuplet(evts, tpp)
 		quad = evts.evt
-	tpp = evts.par
+		tpp = evts.par
 #		quad = evts.deepcopy 
 		tick = tpp.tick
 		beat_struc = quad.map{|e|
