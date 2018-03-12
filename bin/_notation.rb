@@ -62,24 +62,15 @@ end
 
 
 class Tuplet
-	attr_accessor :ev, :par
+	attr_accessor :evt, :par
 
 	def initialize(event=nil, param=nil)
-		@ev, @par = event, param
-		@ev = Event.new("r!", nil) if event==nil
+		@evt, @par = event, param
+		@evt = Event.new("r!", nil) if event==nil
 	end
 
-=begin
-	def ev_is(evt)
-		@ev = evt
-	end
-
-	def tp_is(tpp)
-		@par = tpp
-	end
-=end
 	def ar
-		[@ev.ar, @par.ar]
+		[@evt.ar, @par.ar]
 	end
 end
 
@@ -367,7 +358,7 @@ module Notation
 				case e
 				when Array
 					e.lookInside(type)
-				when Event, TplParam
+				when Event, Tuplet, TplParam
 					sel.call(e)
 				else
 					e

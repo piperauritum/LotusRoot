@@ -208,7 +208,7 @@ tu.par = tpl.on(idx).to_tpp
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
-tu.ev = ay
+tu.evt = ay
 #				new_ary << ay
 new_ary << tu
 			}
@@ -222,11 +222,11 @@ new_ary << tu
 
 	def delete_ties_across_beats(ary)
 		ary.map{|e|
-			if e.ev[0].el=="=" && e.ev.map(&:el).uniq!=["="]
+			if e.evt[0].el=="=" && e.evt.map(&:el).uniq!=["="]
 #			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
 				re = true
 #				e.map{|f|
-				e.ev.map!{|f|
+				e.evt.map!{|f|
 					case f.el
 					when /@/
 						re = false
@@ -247,8 +247,9 @@ new_ary << tu
 
 	def subdivide_tuplet(evts, prev, tick, tpp, subdiv=true)
 
-		tuple = evts.ev
+		tuple = evts.evt.deepcopy
 	tpp = evts.par
+
 #		tuple = evts.deepcopy
 		quad, evt = [], nil
 		t = tuple.size
@@ -273,20 +274,21 @@ new_ary << tu
 		sliced.each.with_index{|sl, j|
 			qa = []
 			sl.each_with_index{|ev, i|
+
 				if i==0
 					evt = ev
 				else
 #					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
 					isTie = [ev.el]-%w(= =:)==[]
-					markedTie = (prev=~/@/ || prev=~/==/) && ev.el=~/==/
+					markedTie = (prev.evt.el=~/@/ || prev.evt.el=~/==/) && ev.el=~/==/
 #					newRest = %w(r! s!).map{|e|
 #						(!(prev=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
 #					}.any?
 					bothRests = %w(r! s!).map{|e|
-						prev=~/#{e}/ && ev.el=="#{e}"
+						prev.evt.el=~/#{e}/ && ev.el=="#{e}"
 					}.any?
 #					noNval = note_value(tpp)[evt.dsum+tick]==nil
-					bothTrems = prev=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
+					bothTrems = prev.evt.el=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
 #					isTriplet = beat_struc.on(j)==3 
 #					headIsAtk = sl[0].el=~/(@|%ATK|rrr|sss)/
@@ -308,7 +310,8 @@ new_ary << tu
 					end
 =end
 				end
-				prev = Tuplet.new(ev.el, tpp)
+
+				prev = Tuplet.new(ev, tpp)
 #				prev = ev.el
 			}
 
@@ -325,7 +328,7 @@ new_ary << tu
  
  
 	def recombine_tuplet(evts, tpp)
-		quad = evts.ev
+		quad = evts.evt
 	tpp = evts.par
 #		quad = evts.deepcopy 
 		tick = tpp.tick
