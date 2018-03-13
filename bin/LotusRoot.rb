@@ -26,28 +26,29 @@ class Score < DataProcess
 	def sequence
 		@pitch = pitch_shift(@pitch, @pitchShift)
 		@metre = process_metre(@metre)
-#		@tpl_data, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
-		@tpl_data = assemble_tuplets(@tpl_data, @tpl_param, @metre)
-		@tpl_data = delete_ties_across_beats(@tpl_data) if @noTieAcrossBeat
+#		tplts, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
+		tplts = assemble_tuplets(@tpl_data, @tpl_param, @metre)
+tplts.each{|e| p e.look}
+		tplts = delete_ties_across_beats(tplts) if @noTieAcrossBeat # ??
 
-		tuples = []
+		tpl_ary = []
 		idx = 0
-		@tpl_data.inject(Tuplet.new){|prev_el, tuple|
-#		@tpl_data.inject("r!"){|prev_el, tuple|
+		tplts.inject(Tuplet.new){|prev_tplt, tplt|
+#		tplts.inject("r!"){|prev_tplt, tplt|
 
-			tpp = tuple.par
-#			tpp = @tpl_param[idx]
-			tick = Rational(tpp.denom*tpp.unit, tuple.evt.size)
-#			tick = Rational(tpp.denom*tpp.unit, tuple.size)
+			tpar = tplt.par
+#			tpar = @tpl_param[idx]
+			tick = Rational(tpar.denom*tpar.unit, tplt.evt.size)
+#			tick = Rational(tpar.denom*tpar.unit, tplt.size)
 
-			reduc = ->(tuplet){
-				abbr = tpl_abbreviations(tpp)
-				abbr.select!{|e| e.even?} if tpp.even?
+			reduc = ->(tup){
+				abbr = tpl_abbreviations(tpar)
+				abbr.select!{|e| e.even?} if tpar.even?
 				if abbr!=[]
 					abbr.each{|ab|
 						tk = ab.tick
-						dur_map = tuplet.evt.flatten.map{|e| e.dsum}
-#						dur_map = tuplet.flatten.map{|e| e.dsum}
+						dur_map = tup.evt.flatten.map{|e| e.dsum}
+#						dur_map = tup.flatten.map{|e| e.dsum}
 
 						if dur_map.map{|du|
 							(du/tk)%1==0 && note_value(ab)[du]!=nil
@@ -66,50 +67,51 @@ class Score < DataProcess
 									ary.du = len[lid]
 								end
 							end
-							redu(tuplet.evt, len, lid)
+							redu(tup.evt, len, lid)
 =begin
 							len.each_with_index{|e,i|
-								if Array === tuplet[i]
-									tuplet[i][0].du = len[i]
+								if Array === tup[i]
+									tup[i][0].du = len[i]
 								else
-									tuplet[i].du = len[i]
+									tup[i].du = len[i]
 								end
 							}
 =end
 
-							tpp = tuplet.par = ab
-#							tpp = @tpl_param[idx] = ab
-							tick = tpp.tick
+							tpar = tup.par = ab
+#							tpar = @tpl_param[idx] = ab
+							tick = tpar.tick
 						end
 					}
 				end
 			}
 
 			## _seqTuplets.rb ##
-			prev_tpp = tpp
-			tpp_check = subdivide_tuplet(tuple, prev_el, tick, tpp, false)[0]
+			prev_tpar = tpar
+			tpp_check = subdivide_tuplet(tplt, prev_tplt, tick, tpar, false)[0]
+
 			reduc.call(tpp_check)
 #			reduc.call(tpp_check.flatten)
 
-			if prev_tpp.ar == tpp.ar
-				subdivided, prev_el = subdivide_tuplet(tuple, prev_el, tick, tpp)
+			if prev_tpar.ar == tpar.ar
+				subdivided, prev_tplt = subdivide_tuplet(tplt, prev_tplt, tick, tpar)
 			else
-				subdivided, prev_el = subdivide_tuplet(tpp_check, prev_el, tick, tpp)
-#				subdivided, prev_el = subdivide_tuplet(tpp_check.flatten, prev_el, tick, tpp)
+				subdivided, prev_tplt = subdivide_tuplet(tpp_check, prev_tplt, tick, tpar)
+#				subdivided, prev_tplt = subdivide_tuplet(tpp_check.flatten, prev_tplt, tick, tpar)
 			end
 			reduc.call(subdivided)
 
-			recombined = recombine_tuplet(subdivided, tpp)
+			recombined = recombine_tuplet(subdivided, tpar)
 			reduc.call(recombined)
-			tuples << recombined
+			tpl_ary << recombined
 			idx += 1
 		}
 
-@tpl_param = tuples.map(&:par)
-tuples.map!(&:evt)
+@tpl_param = tpl_ary.map(&:par)
+tpl_ary.map!(&:evt)
 
 		## _seqBars.rb ##
-		@seq = fill_with_rests(tuples, @metre, @finalBar)
+		@seq = fill_with_rests(tpl_ary, @metre, @finalBar)
 		@seq, @tpl_param = connect_beat(@seq, @metre, @tpl_param) if @splitBeat==nil
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)

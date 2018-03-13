@@ -109,13 +109,13 @@ class DataProcess
 	end
 
 
-	def assemble_tuplets(ary, tpl, metre)
-		new_tpl = []
-		new_ary = []
+	def assemble_tuplets(elms, tpl, metre)
+#		new_tpl = []
+		tpls = []
 		beats = beat_structure(metre)
 		idx = 0
 
-		while ary.size>0
+		while elms.size>0
 			begin
 				tp = tpl.on(idx)
 			rescue
@@ -174,10 +174,10 @@ LotusRoot >> #{note_value(tpp.ar)}
 				end
 
 				# Cut tuplet out from array
-				if ary.size>len
-					ay = ary.slice!(0, len)
+				if elms.size>len
+					ay = elms.slice!(0, len)
 				else
-					ay = ary.slice!(0, ary.size)
+					ay = elms.slice!(0, elms.size)
 					ay += Array.new(len-ay.size, "r!")
 				end
 
@@ -209,14 +209,14 @@ LotusRoot >> #{note_value(tpp.ar)}
 
 				ay = ay.map{|e| Event.new(e, tick)}
 				tu.evt = ay
-#				new_ary << ay
-				new_ary << tu
+#				tpls << ay
+				tpls << tu
 			}
 			idx += 1
 		end
 
-		new_ary
-#		[new_ary.dup, new_tpl.dup]
+		tpls
+#		[tpls.dup, new_tpl.dup]
 	end
 
 
