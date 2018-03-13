@@ -4,28 +4,27 @@ require_relative '_notation'
 class DataProcess
 	include Notation
 
-	def fill_with_rests(tuples, metre, final_bar)
+	def assemble_bars(tuples, metre, final_bar)
 		mtr_id = 0
 		bars = []
 		bar_residue = 0
 
+		## fill with rests
 		while tuples.size>0 || bar_residue>0
 			mtr = metre.on(mtr_id)
 			btotal = Rational(mtr.beat.sigma*mtr.unit)
 
-			if tuples.dtotal<btotal
+			if tuples.map(&:evt).dtotal<btotal
 				filler = []
 				tpl_add = []
-				len = tuples.dtotal+filler.dtotal+bar_residue
+				len = tuples.map(&:evt).dtotal+filler.map(&:evt).dtotal+bar_residue
 				gap = btotal-len
 
 				while gap>0
 					tick = note_value(16)
 					tick = tick.select{|key, val| !(@avoidRest.include?(key))}
-#					tick = tick.select{|key, val| key!=2} if mtr.beat.uniq==[3]
 					tick = tick.select{|key, val| key<=gap}.max[0]
-					filler << [Event.new("r!", tick)]
-					tpl_add << [1, 1, tick].to_tpp
+					filler << Tuplet.new([Event.new("r!", tick)], [1, 1, tick].to_tpp)
 					gap -= tick
 				end
 
@@ -36,11 +35,11 @@ class DataProcess
 			end
 
 			bar = []
-			while bar.dtotal+bar_residue<btotal
+			while bar.map(&:evt).dtotal+bar_residue<btotal
 				bar << tuples.shift
 			end
 
-			bar_residue = bar.dtotal+bar_residue-btotal
+			bar_residue = bar.map(&:evt).dtotal+bar_residue-btotal
 			bars << bar
 			mtr_id += 1
 		end
@@ -60,16 +59,14 @@ class DataProcess
 
 					if Fixnum === mtr
 						mtr.times{
-							evts << [Event.new("r!", 1r)]
-							tpps << [1, 1, 1].to_tpp
+							evts << Tuplet.new([Event.new("r!", 1r)], [1, 1, 1].to_tpp)
 						}
 					else
 						mtr[0].map{|e| mtr[1]*e}.each{|e|
 							residue = e
 							while residue>0
 								dur = note_value(2**16).select{|f| f<=residue}.max[0]
-								evts << [Event.new("r!", dur)]
-								tpps << [1, 1, Rational(1, dur.denominator)].to_tpp
+								evts << Tuplet.new([Event.new("r!", dur)], [1, 1, Rational(1, dur.denominator)].to_tpp)
 								residue -= dur
 							end
 						}
@@ -87,26 +84,9 @@ class DataProcess
 	end
 
 
-	def connect_beat(bars, metre, tpl)
-
-		# Associate tuplet and tuplet-number
-		tid = 0
-		beat_n_tpp = bars.map{|bar|
-			bar.map{|beat|
-	
-				tpp = tpl[tid]
-
-## the following is needed ?? (2018.2.11)
-# tpp = [1, 1, beat[0].du].to_tpp if beat.size==1 && Math.log2(beat[0].du).abs%1==0
-raise "\n### the previous line is needed ###\n" if tpl[tid].ar!=tpp.ar
-
-				tid += 1
-				[beat, tpp]
-			}
-		}
-
-		beat_n_tpp.each.with_index{|bar, bar_id|
-			bar_dur = bar.map{|e| e[0]}.dtotal
+	def connect_beat(bars, metre)
+		bars.each.with_index{|bar, bar_id|
+			bar_dur = bar.map(&:evt).dtotal
 			mtr = metre.on(bar_id)
 
 			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bar_dur) || (Fixnum===mtr && mtr!=bar_dur)
@@ -128,26 +108,12 @@ LotusRoot >> #{bar.look}
 					fo, la = bar[bid], bar[bid+1]
 
 					if la!=nil
-						fo_ev, fo_tp = fo
-						la_ev, la_tp = la
+						fo_ev, fo_tp = fo.evt, fo.par
+						la_ev, la_tp = la.evt, la.par
 						fol, laf = fo_ev.last, la_ev.first
 						time += fo_ev[0..-2].dtotal if fo_ev.size>1
+						beat_struc, unit_dur = mtr.ar
 
-#						if Array === mtr
-							beat_struc, unit_dur = mtr.ar
-#						else
-#							beat_struc = [mtr]
-#							unit_dur = 1
-#						end
-=begin
-						beat_struc = beat_struc.map{|e|
-							if e%3==0
-								[3]*(e/3)
-							else
-								[2]*(e/2)+[e%2]-[0]
-							end
-						}.flatten
-=end
 						bothNotes = [
 							[laf.el]-%w(= =:)==[],
 							[
@@ -190,7 +156,6 @@ LotusRoot >> #{bar.look}
 								3 => {
 									1 => [0, 1/2r, 1, 3/2r, 2],
 									3/2r => [0, 1/2r, 1, 3/2r],
-#									2 => [0, 1, 2],
 									2 => [0, 1],
 									3 => [0],
 									6 => [0],
@@ -200,7 +165,6 @@ LotusRoot >> #{bar.look}
 
 						nv = fol.dsum + laf.dsum
 						tp_ary = [beat_struc, beat_struc.sigma, unit_dur].to_tpp
-#						matchValue = note_value(fo_tp)[nv]!=nil
 						matchValue = note_value(tp_ary)[nv]!=nil
 
 						npos = allowed_positions(tp_ary, pos_table, nv)
@@ -218,25 +182,19 @@ LotusRoot >> #{bar.look}
 						samePlet = fo_tp.even? && la_tp.even?
 
 						if [matchValue, matchDup, sameElem, samePlet].all?
-
 							fol.du = [fol.du, laf.du]
 							la_ev.shift
+							unit = fo.evt.dlook.flatten.min
+							mul = (fo.evt.dtotal/unit).to_i
+							bars[bar_id][bid].par = [mul, mul, unit].to_tpp
 
-#							unit = fol.du.flatten.min
-#							mul = (fol.dsum/unit).to_i
-							unit = fo[0].dlook.flatten.min
-							mul = (fo[0].dtotal/unit).to_i
-							beat_n_tpp[bar_id][bid][1] = [mul, mul, unit].to_tpp
-
-#							unit = laf.du.flatten.min
-#							mul = (laf.dsum/unit).to_i
-							if la[0].size > 0
-								unit = la[0].dlook.flatten.min
-								mul = (la[0].dtotal/unit).to_i
-								beat_n_tpp[bar_id][bid+1][1] = [mul, mul, unit].to_tpp
+							if la.evt.size > 0
+								unit = la.evt.dlook.flatten.min
+								mul = (la.evt.dtotal/unit).to_i
+								bars[bar_id][bid+1].par = [mul, mul, unit].to_tpp
 							end
 
-							bar.delete_if{|e| e[0]==[]}
+							bar.delete_if{|e| e.evt==[]}
 							again = again || true
 						end
 
@@ -247,10 +205,7 @@ LotusRoot >> #{bar.look}
 				break if again == false
 			end
 		}
-
-		seq = beat_n_tpp.map{|e| e.map{|f| f[0]}}
-		tpp = beat_n_tpp.inject([]){|s,e| s += e.map{|f| f[1]}}
-		[seq, tpp]
+		bars
 	end
 
 
@@ -259,12 +214,12 @@ LotusRoot >> #{bar.look}
 		u,v,w = nil, nil, nil 
 		seq.each.with_index{|bar,x|
 			bar.each.with_index{|tuple,y|
-				tuple.each.with_index{|note,z|
+				tuple.evt.each.with_index{|note,z|
 					if past!=nil
 						if note.el=~/==/
-							seq[u][v][w].el.gsub!(/#Z.*?Z#/m, "")
+							seq[u][v].evt[w].el.gsub!(/#Z.*?Z#/m, "")
 						else
-							seq[u][v][w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
+							seq[u][v].evt[w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
 						end
 					end
 					u,v,w = x,y,z
@@ -272,7 +227,7 @@ LotusRoot >> #{bar.look}
 				}
 			}
 		}
-		seq[u][v][w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
+		seq[u][v].evt[w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
 		seq
 	end
 
@@ -283,7 +238,7 @@ LotusRoot >> #{bar.look}
 		id = 0
 		seq.each.with_index{|bar,x|
 			bar.each.with_index{|tuple,y|
-				tuple.each.with_index{|note,z|
+				tuple.evt.each.with_index{|note,z|
 					if past!=nil
 						elms = [past.el, note.el].map{|e| e.scan(/%[A-Z]*/)[0]}
 						ptr, ntr = elms
@@ -293,15 +248,15 @@ LotusRoot >> #{bar.look}
 							elms==%w(% %ATK),
 							elms==["%", nil],
 						].any?
-							seq[u][v][w].el = ptr + "SOT" + past.el.sub(ptr, "")
+							seq[u][v].evt[w].el = ptr + "SOT" + past.el.sub(ptr, "")
 						end
 
 						if ntr=="%" && id==seq.flatten.size-1
-							seq[x][y][z].el = ntr + "SOT" + note.el.sub(ntr, "")
+							seq[x][y].evt[z].el = ntr + "SOT" + note.el.sub(ntr, "")
 						end
 					end
 					u,v,w = x,y,z
-					past = seq[x][y][z]
+					past = seq[x][y].evt[z]
 					id += 1
 				}
 			}
@@ -325,30 +280,31 @@ LotusRoot >> #{bar.look}
 		yet = true
 		cnt = 0
 		while yet
-			seq = seq.map.with_index{|bar, b|
-				mtr = metre.on(b)
-				bar.map{|tuple|
-					tuple.map{|note|
+			seq.each.with_index{|bar,x|
+				mtr = metre.on(x)
+				bar.each.with_index{|tuple,y|
+					tuple.evt.each.with_index{|note,z|
 						if avoidedRest.call(note, mtr)
-							note.du.map.with_index{|x, i|
+							seq[x][y].evt[z] = note.du.map.with_index{|d, i|
 								rest = note.el.match(/(r!|s!|rrr|sss)/)[1]
-								i==0 ? y=note.el : y=rest
-								Event.new(y, x)
+								i==0 ? e=note.el : e=rest
+								Event.new(e, d)
 							}
-						else
-							note
+							seq[x][y].evt.flatten!
 						end
-					}.flatten
+					}
 				}
 			}
 
 			yet = false
 			avd = []
-			seq.flatten.each{|note|
-				if avoidedRest.call(note, nil)
-					yet = true
-					avd << note.dsum
-				end
+			seq.flatten.each{|tuple|
+				tuple.evt.each{|note|
+					if avoidedRest.call(note, nil)
+						yet = true
+						avd << note.dsum
+					end
+				}
 			}
 			cnt += 1
 
@@ -361,32 +317,20 @@ LotusRoot >> #{bar.look}
 	end
 
 
-	def whole_bar_rest(seq, tpp)
-		tid = 0
-		new_tpp = []
-		seq = seq.map.with_index{|bar,x|
-			wholebar = bar.flatten
+	def whole_bar_rest(seq)
+		seq.map{|bar|
+			wholebar = bar.map(&:evt).flatten
 			wbel = wholebar.elook
 			wbdu = wholebar.dlook
-
-			bar_tpp = []
-			bar.each.with_index{|tuple,y|
-				bar_tpp << @tpl_param[tid]
-				tid += 1
-			}
 
 			if wbel[0]=~/r!/ && wbel[1..-1].map{|e| e=="r!"}.all?
 				unit = wbdu.flatten.min
 				mul = (wbdu.flatten.sigma/unit).to_i
-				new_tpp << [mul, mul, unit].to_tpp
 				new_el = wbel[0].sub("r!", "R!")
-				[[Event.new(new_el, wbdu)]]
-			else
-				new_tpp += bar_tpp
-				bar
+				bar = [Tuplet.new([Event.new(new_el, wbdu)], [mul, mul, unit].to_tpp)]
 			end
+			bar
 		}
-		[seq, new_tpp]
 	end
 
 end

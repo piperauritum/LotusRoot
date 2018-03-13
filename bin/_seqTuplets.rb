@@ -110,7 +110,6 @@ class DataProcess
 
 
 	def assemble_tuplets(elms, tpl, metre)
-#		new_tpl = []
 		tpls = []
 		beats = beat_structure(metre)
 		idx = 0
@@ -196,36 +195,29 @@ LotusRoot >> #{note_value(tpp.ar)}
 					len = du.numerator
 					ay = [ay[0]] + [ay[1]]*(len-1)
 					tu.par = [len, len, tick].to_tpp
-#					new_tpl << [len, len, tick].to_tpp
 				else
 					if Fixnum === tp
 						tu.par = tpp
-#						new_tpl << tpp
 					else
 						tu.par = tpl.on(idx).to_tpp
-#						new_tpl << tpl.on(idx).to_tpp
 					end
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
 				tu.evt = ay
-#				tpls << ay
 				tpls << tu
 			}
 			idx += 1
 		end
 
 		tpls
-#		[tpls.dup, new_tpl.dup]
 	end
 
 
 	def delete_ties_across_beats(ary)
 		ary.map{|e|
 			if e.evt[0].el=="=" && e.evt.map(&:el).uniq!=["="]
-#			if e[0].el=="=" && e.look.transpose[0]-["="]!=[]
 				re = true
-#				e.map{|f|
 				e.evt.map!{|f|
 					case f.el
 					when /@/
@@ -237,8 +229,6 @@ LotusRoot >> #{note_value(tpp.ar)}
 						f
 					end
 				}
-#			else
-#				e
 			end
 			e
 		}
@@ -248,11 +238,10 @@ LotusRoot >> #{note_value(tpp.ar)}
 	def subdivide_tuplet(evts, prev, tick, tpp, subdiv=true)
 		tuple = evts.evt.deepcopy
 		tpp = evts.par
-#		tuple = evts.deepcopy
 		quad, evt = [], nil
+
 		t = tuple.size
 		beat_struc = [t]
-
 		if subdiv
 			if @dotDuplet
 				beat_struc = [2]*(t/2)+[t%2]
@@ -287,29 +276,15 @@ LotusRoot >> #{note_value(tpp.ar)}
 #					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = prev.evt.el=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
-#					isTriplet = beat_struc.on(j)==3 
-#					headIsAtk = sl[0].el=~/(@|%ATK|rrr|sss)/
-#					restInComp = isTriplet && headIsAtk && bothRests
-
-					if [isTie, bothTrems, bothRests, markedTie].any? # && !restInComp
+					if [isTie, bothTrems, bothRests, markedTie].any?
 						evt.du = [evt.du, tick]
 					else
 						qa << evt
 						evt = ev
 					end
-
-=begin
-					if [isAtk, newRest, noNval].any?
-						qa << evt
-						evt = ev
-					elsif [isTie, bothTrems, bothRests, markedTie].any?
-						evt.du = [evt.du, tick]
-					end
-=end
 				end
 
 				prev = Tuplet.new(ev, tpp)
-#				prev = ev.el
 			}
 			qa << evt
 			quad << qa
@@ -322,7 +297,6 @@ LotusRoot >> #{note_value(tpp.ar)}
 	def recombine_tuplet(evts, tpp)
 		quad = evts.evt
 		tpp = evts.par
-#		quad = evts.deepcopy 
 		tick = tpp.tick
 		beat_struc = quad.map{|e|
 			(e.dlook.flatten.sigma/tick).to_i
@@ -423,7 +397,6 @@ LotusRoot >> #{note_value(tpp.ar)}
 		end
 
 		Tuplet.new(quad.flatten!, tpp)
-#		quad.flatten!
 	end
 
 end

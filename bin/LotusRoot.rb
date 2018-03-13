@@ -26,20 +26,14 @@ class Score < DataProcess
 	def sequence
 		@pitch = pitch_shift(@pitch, @pitchShift)
 		@metre = process_metre(@metre)
-#		tplts, @tpl_param = assemble_tuplets(@tpl_data, @tpl_param, @metre)
 		tplts = assemble_tuplets(@tpl_data, @tpl_param, @metre)
-tplts.each{|e| p e.look}
 		tplts = delete_ties_across_beats(tplts) if @noTieAcrossBeat # ??
 
 		tpl_ary = []
 		idx = 0
 		tplts.inject(Tuplet.new){|prev_tplt, tplt|
-#		tplts.inject("r!"){|prev_tplt, tplt|
-
 			tpar = tplt.par
-#			tpar = @tpl_param[idx]
 			tick = Rational(tpar.denom*tpar.unit, tplt.evt.size)
-#			tick = Rational(tpar.denom*tpar.unit, tplt.size)
 
 			reduc = ->(tup){
 				abbr = tpl_abbreviations(tpar)
@@ -48,7 +42,6 @@ tplts.each{|e| p e.look}
 					abbr.each{|ab|
 						tk = ab.tick
 						dur_map = tup.evt.flatten.map{|e| e.dsum}
-#						dur_map = tup.flatten.map{|e| e.dsum}
 
 						if dur_map.map{|du|
 							(du/tk)%1==0 && note_value(ab)[du]!=nil
@@ -68,18 +61,8 @@ tplts.each{|e| p e.look}
 								end
 							end
 							redu(tup.evt, len, lid)
-=begin
-							len.each_with_index{|e,i|
-								if Array === tup[i]
-									tup[i][0].du = len[i]
-								else
-									tup[i].du = len[i]
-								end
-							}
-=end
 
 							tpar = tup.par = ab
-#							tpar = @tpl_param[idx] = ab
 							tick = tpar.tick
 						end
 					}
@@ -89,15 +72,12 @@ tplts.each{|e| p e.look}
 			## _seqTuplets.rb ##
 			prev_tpar = tpar
 			tpp_check = subdivide_tuplet(tplt, prev_tplt, tick, tpar, false)[0]
-
 			reduc.call(tpp_check)
-#			reduc.call(tpp_check.flatten)
 
 			if prev_tpar.ar == tpar.ar
 				subdivided, prev_tplt = subdivide_tuplet(tplt, prev_tplt, tick, tpar)
 			else
 				subdivided, prev_tplt = subdivide_tuplet(tpp_check, prev_tplt, tick, tpar)
-#				subdivided, prev_tplt = subdivide_tuplet(tpp_check.flatten, prev_tplt, tick, tpar)
 			end
 			reduc.call(subdivided)
 
@@ -107,16 +87,17 @@ tplts.each{|e| p e.look}
 			idx += 1
 		}
 
-@tpl_param = tpl_ary.map(&:par)
-tpl_ary.map!(&:evt)
-
 		## _seqBars.rb ##
-		@seq = fill_with_rests(tpl_ary, @metre, @finalBar)
-		@seq, @tpl_param = connect_beat(@seq, @metre, @tpl_param) if @splitBeat==nil
+		@seq = assemble_bars(tpl_ary, @metre, @finalBar)
+		@seq = connect_beat(@seq, @metre) if @splitBeat==nil
 		@seq = markup_tail(@seq)
 		@seq = slur_over_tremolo(@seq)
 		@seq = rest_dur(@seq, @metre)
-		@seq, @tpl_param = whole_bar_rest(@seq, @tpl_param) if @wholeBarRest!=nil
+		@seq = whole_bar_rest(@seq) if @wholeBarRest!=nil
+
+@tpl_param = @seq.flatten.map(&:par)
+@seq = @seq.map{|e| e.map(&:evt)}
+
 	end
 
 
