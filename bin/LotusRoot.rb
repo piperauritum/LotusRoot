@@ -33,7 +33,7 @@ class Score < DataProcess
 		idx = 0
 		tplts.inject(Tuplet.new){|prev_tplt, tplt|
 			tpar = tplt.par
-			tick = Rational(tpar.denom*tpar.unit, tplt.evt.size)
+			tick = Rational(tpar.denom*tpar.unit, tplt.evts.size)
 
 			reduc = ->(tup){
 				abbr = tpl_abbreviations(tpar)
@@ -41,7 +41,7 @@ class Score < DataProcess
 				if abbr!=[]
 					abbr.each{|ab|
 						tk = ab.tick
-						dur_map = tup.evt.flatten.map{|e| e.dsum}
+						dur_map = tup.evts.flatten.map{|e| e.dsum}
 
 						if dur_map.map{|du|
 							(du/tk)%1==0 && note_value(ab)[du]!=nil
@@ -60,7 +60,7 @@ class Score < DataProcess
 									ary.du = len[lid]
 								end
 							end
-							redu(tup.evt, len, lid)
+							redu(tup.evts, len, lid)
 
 							tpar = tup.par = ab
 							tick = tpar.tick
@@ -71,32 +71,33 @@ class Score < DataProcess
 
 			## _seqTuplets.rb ##
 			prev_tpar = tpar
-			tpp_check = subdivide_tuplet(tplt, prev_tplt, tick, tpar, false)[0]
+			tpp_check = subdivide_tuplet(tplt, prev_tplt, tick, false)[0]
 			reduc.call(tpp_check)
 
 			if prev_tpar.ar == tpar.ar
-				subdivided, prev_tplt = subdivide_tuplet(tplt, prev_tplt, tick, tpar)
+				subdivided, prev_tplt = subdivide_tuplet(tplt, prev_tplt, tick)
 			else
-				subdivided, prev_tplt = subdivide_tuplet(tpp_check, prev_tplt, tick, tpar)
+				subdivided, prev_tplt = subdivide_tuplet(tpp_check, prev_tplt, tick)
 			end
 			reduc.call(subdivided)
 
-			recombined = recombine_tuplet(subdivided, tpar)
+			recombined = recombine_tuplet(subdivided)
 			reduc.call(recombined)
 			tpl_ary << recombined
 			idx += 1
 		}
 
 		## _seqBars.rb ##
-		@seq = assemble_bars(tpl_ary, @metre, @finalBar)
-		@seq = connect_beat(@seq, @metre) if @splitBeat==nil
-		@seq = markup_tail(@seq)
-		@seq = slur_over_tremolo(@seq)
-		@seq = rest_dur(@seq, @metre)
-		@seq = whole_bar_rest(@seq) if @wholeBarRest!=nil
+		bars = assemble_bars(tpl_ary, @metre, @finalBar)
+		bars = connect_beat(bars) if @splitBeat==nil
+		bars = markup_tail(bars)
+		bars = slur_over_tremolo(bars)
+		bars = rest_dur(bars, @metre)
+		bars = whole_bar_rest(bars) if @wholeBarRest!=nil
+		@seq = bars
 
-@tpl_param = @seq.flatten.map(&:par)
-@seq = @seq.map{|e| e.map(&:evt)}
+# @tpl_param = @seq.map{|bar| bar.tpls.map(&:par)}.flatten
+# @seq = @seq.map{|bar| bar.tpls.map(&:evts)}
 
 	end
 
@@ -110,7 +111,10 @@ class Score < DataProcess
 
 		##### MEASURE #####
 		@seq.each.with_index{|bar, bar_id|
-			mtr = @metre[bar_id % @metre.size]
+
+			mtr = bar.mtr
+#			mtr = @metre[bar_id % @metre.size]
+
 #			if Array === mtr
 				beat_dur = mtr.unit
 				bar_dur = mtr.beat.sigma*beat_dur
@@ -120,19 +124,23 @@ class Score < DataProcess
 #			end
 
 			##### TUPLET #####
-			bar.each.with_index{|tuple, beat_id|
-				tpp = @tpl_param.on(@tpp_id)
+			bar.tpls.each.with_index{|tuple, beat_id|
+#			bar.each.with_index{|tuple, beat_id|
+				tpp = tuple.par
+#				tpp = @tpl_param.on(@tpp_id)
 				@dotted = [
 					@dotDuplet!=nil,
-					TplParam === tpp,
+#					TplParam === tpp,
 					Math.log2(tpp.numer)%1==0,
 					tpp.denom%3==0,
 					note_value_dot(tpp)!=nil
 				].all?
 
 				##### NOTE #####
-				tuple.each.with_index{|nte, nte_id|
-					_el, _du = nte.ar
+				tuple.evts.each.with_index{|nte, nte_id|
+					_el = nte.el
+					_du = nte.du
+#					_el, _du = nte.ar
 
 					@voice += "~ " if [_el]-%w(= =:)==[] || _el=~/==/
 					close_bracket(nte_id, beat_id)

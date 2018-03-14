@@ -19,19 +19,6 @@
 end
 
 
-class MtrParam
-	attr_accessor :beat, :unit
-
-	def initialize(array)
-		@beat, @unit = array
-	end
-
-	def ar
-		[@beat, @unit]
-	end
-end
-
-
 class TplParam
 	attr_accessor :numer, :denom, :unit
 
@@ -62,15 +49,41 @@ end
 
 
 class Tuplet
-	attr_accessor :evt, :par
+	attr_accessor :par, :evts
 
-	def initialize(event=nil, param=nil)
-		@evt, @par = event, param
-		@evt = Event.new("r!", nil) if event==nil
+	def initialize(param=nil, event=nil)
+		@par, @evts = param, event
+		@evts = Event.new("r!", nil) if event==nil
 	end
 
 	def ar
-		[@evt.ar, @par.ar]
+		[@par.ar, @evts.ar]
+	end
+end
+
+
+class Bar
+	attr_accessor :mtr, :tpls
+
+	def initialize(metre=nil, tuplets=[])
+		@mtr, @tpls = metre, tuplets
+	end
+
+	def ar
+		[@mtr.ar, @tpls.ar]
+	end
+end
+
+
+class MtrParam
+	attr_accessor :beat, :unit
+
+	def initialize(array)
+		@beat, @unit = array
+	end
+
+	def ar
+		[@beat, @unit]
 	end
 end
 

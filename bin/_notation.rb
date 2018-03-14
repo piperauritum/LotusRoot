@@ -272,7 +272,7 @@ module Notation
 				case e
 				when Array
 					e.lookInside(type)
-				when Event, Tuplet, TplParam
+				when Event, Tuplet, TplParam, Bar
 					sel.call(e)
 				else
 					e

@@ -204,7 +204,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 				end
 
 				ay = ay.map{|e| Event.new(e, tick)}
-				tu.evt = ay
+				tu.evts = ay
 				tpls << tu
 			}
 			idx += 1
@@ -216,9 +216,9 @@ LotusRoot >> #{note_value(tpp.ar)}
 
 	def delete_ties_across_beats(ary)
 		ary.map{|e|
-			if e.evt[0].el=="=" && e.evt.map(&:el).uniq!=["="]
+			if e.evts[0].el=="=" && e.evts.map(&:el).uniq!=["="]
 				re = true
-				e.evt.map!{|f|
+				e.evts.map!{|f|
 					case f.el
 					when /@/
 						re = false
@@ -235,9 +235,9 @@ LotusRoot >> #{note_value(tpp.ar)}
 	end
 
 
-	def subdivide_tuplet(evts, prev, tick, tpp, subdiv=true)
-		tuple = evts.evt.deepcopy
-		tpp = evts.par
+	def subdivide_tuplet(tuplet, prev, tick, subdiv=true)
+		tuple = tuplet.evts.deepcopy
+		tpp = tuplet.par
 		quad, evt = [], nil
 
 		t = tuple.size
@@ -266,15 +266,15 @@ LotusRoot >> #{note_value(tpp.ar)}
 				else
 #					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
 					isTie = [ev.el]-%w(= =:)==[]
-					markedTie = (prev.evt.el=~/@/ || prev.evt.el=~/==/) && ev.el=~/==/
+					markedTie = (prev.evts.el=~/@/ || prev.evts.el=~/==/) && ev.el=~/==/
 #					newRest = %w(r! s!).map{|e|
 #						(!(prev=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
 #					}.any?
 					bothRests = %w(r! s!).map{|e|
-						prev.evt.el=~/#{e}/ && ev.el=="#{e}"
+						prev.evts.el=~/#{e}/ && ev.el=="#{e}"
 					}.any?
 #					noNval = note_value(tpp)[evt.dsum+tick]==nil
-					bothTrems = prev.evt.el=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
+					bothTrems = prev.evts.el=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
 
 					if [isTie, bothTrems, bothRests, markedTie].any?
 						evt.du = [evt.du, tick]
@@ -284,19 +284,19 @@ LotusRoot >> #{note_value(tpp.ar)}
 					end
 				end
 
-				prev = Tuplet.new(ev, tpp)
+				prev = Tuplet.new(tpp, ev)
 			}
 			qa << evt
 			quad << qa
 		}
-		quad = Tuplet.new(quad, tpp)
+		quad = Tuplet.new(tpp, quad)
 		[quad, prev]
 	end
  
  
-	def recombine_tuplet(evts, tpp)
-		quad = evts.evt
-		tpp = evts.par
+	def recombine_tuplet(tuplet)
+		quad = tuplet.evts
+		tpp = tuplet.par
 		tick = tpp.tick
 		beat_struc = quad.map{|e|
 			(e.dlook.flatten.sigma/tick).to_i
@@ -396,7 +396,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 			break if again == false
 		end
 
-		Tuplet.new(quad.flatten!, tpp)
+		Tuplet.new(tpp, quad.flatten!)
 	end
 
 end

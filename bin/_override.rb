@@ -1,4 +1,5 @@
-require 'bigdecimal'
+﻿require 'bigdecimal'
+require 'pp'
 
 # accurate operators
 class Float
