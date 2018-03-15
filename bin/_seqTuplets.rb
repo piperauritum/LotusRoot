@@ -67,24 +67,6 @@ class DataProcess
 
 	def process_metre(metre)
 		begin
-			metre = metre.map{|e|
-				Fixnum===e ? [[e], 1] : e
-			}
-
-			metre = metre.map{|e|
-				if e[0].size==1
-					m = e[0][0]
-					n = if m%3==0
-						[3]*(m/3)
-					else
-						[2]*(m/2)+[m%2]-[0]
-					end
-					[n, e[1]]
-				else
-					e
-				end
-			}
-
 			metre.map{|e| MtrParam.new(e)}
 		rescue
 			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"

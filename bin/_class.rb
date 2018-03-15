@@ -63,10 +63,21 @@ end
 
 
 class MtrParam
-	attr_accessor :beat, :unit
+	attr_accessor :beat, :unit, :orig
 
-	def initialize(array)
-		@beat, @unit = array
+	def initialize(param)
+		@orig = param
+		param = [[param], 1] if Fixnum === param
+		if param[0].size==1
+			x = param[0][0]
+			y = if x%3==0
+				[3]*(x/3)
+			else
+				[2]*(x/2)+[x%2]-[0]
+			end
+			param = [y, param[1]]
+		end
+		@beat, @unit = param
 	end
 
 	def ar

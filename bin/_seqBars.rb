@@ -158,6 +158,15 @@ LotusRoot >> #{mtr}
 							}
 						end
 
+						## show beat structure with rests
+						if bothRests && mtr.ar == mtr.orig
+							if unit_dur >= 1
+								pos_table[2][4] = nil
+							else
+								bothRests = false
+							end
+						end
+
 						nv = fol.dsum + laf.dsum
 						tp_ary = [beat_struc, beat_struc.sigma, unit_dur].to_tpar
 						matchValue = note_value(tp_ary)[nv]!=nil

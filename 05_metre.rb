@@ -2,42 +2,32 @@
 
 ## Simple notation: Beats will be divided automatically
 mtr = [5, 4]		# Cyclic sequence
-mtr = [[[9], 1/2r]]
+# mtr = [[[5], 1/2r]]
 
 ## Explicit description of beat structure
 # mtr = [[[2, 3], 1]]
 # mtr = [[[2, 3], 1/2r]]
 
-def bt(q)
-	if q<4
-		[q]
-	elsif q%3==0
-		[3]*(q/3)
-	elsif q%2==0
-		[2]*(q/2)
-	else
-		[2]*(q/2)+[q%2]-[0]
-	end
-end
+## Default beat structures
+# mtr = [*1..16].map{|e| [MtrParam.new(e).beat, 1]}
 
-## more examples
-# mtr = [*1..16]
+## more examples...
 # mtr = [*1..16].map{|e| [[e], 1/2r]}
 # mtr = [*1..16].map{|e| [[e], 1/4r]}
 # mtr = [*1..16].map{|e| [[e], 1/8r]}
-# mtr = [*1..16].map{|e| [bt(e), 1/2r]}
 
-p mtr
+pp mtr
 
 if Array===mtr[0]
-	dur = [mtr.map{|e| e[0].sigma}.sigma*2]
+	elm = ["r!"]*mtr.map{|e| e[0].sigma}.sigma
 	tpl = [mtr[0][1].denominator]
 else
-	dur = [mtr.sigma*2]
+	elm = ["r!"]*mtr.sigma
 	tpl = [1]
 end
 
-elm = ["r!"]
+elm *= 2 if mtr.size!=16
+dur = [1]
 pch = [nil]
 
 sco = Score.new(dur, elm, tpl, pch)
