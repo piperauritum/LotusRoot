@@ -133,9 +133,9 @@ module Notation
 	def tuplet_num_to_param(tpl, beat=1)
 		case tpl
 		when TplParam
-			tpl.ar.to_tpp
+			tpl.ar.to_tpar
 		when Array
-			tpl.to_tpp
+			tpl.to_tpar
 		when Fixnum
 			if (tpl*beat)%1==0
 				numer = (tpl*beat).to_i
@@ -164,19 +164,19 @@ module Notation
 
 			numer = numer.to_i
 			denom = denom.to_i
-			[numer, denom, unit_dur].to_tpp
+			[numer, denom, unit_dur].to_tpar
 		end
 	end
 
 
-	def tpl_abbreviations(tpp)
-		divisor = [*1..tpp.numer-1].reverse.select{|e| (tpp.numer.to_f/e)%1==0}
-		rto = Rational(tpp.denom, 2**Math.log2(tpp.numer).to_i)
+	def tpar_abbreviations(tpar)
+		divisor = [*1..tpar.numer-1].reverse.select{|e| (tpar.numer.to_f/e)%1==0}
+		rto = Rational(tpar.denom, 2**Math.log2(tpar.numer).to_i)
 		divisor.map{|num|
 			den = 2**Math.log2(num).to_i*rto
-			unit_dur = Rational(tpp.denom*tpp.unit, den)
+			unit_dur = Rational(tpar.denom*tpar.unit, den)
 			if den%1==0
-				[num, den.to_i, unit_dur].to_tpp
+				[num, den.to_i, unit_dur].to_tpar
 			else
 				nil
 			end

@@ -62,19 +62,6 @@ class Tuplet
 end
 
 
-class Bar
-	attr_accessor :mtr, :tpls
-
-	def initialize(metre=nil, tuplets=[])
-		@mtr, @tpls = metre, tuplets
-	end
-
-	def ar
-		[@mtr.ar, @tpls.ar]
-	end
-end
-
-
 class MtrParam
 	attr_accessor :beat, :unit
 
@@ -88,12 +75,25 @@ class MtrParam
 end
 
 
+class Bar
+	attr_accessor :mtr, :tpls
+
+	def initialize(metre=nil, tuplets=[])
+		@mtr, @tpls = metre, tuplets
+	end
+
+	def ar
+		[@mtr.ar, @tpls.ar]
+	end
+end
+
+
 class Array
 	def ar
 		self.map(&:ar)
 	end
 
-	def to_tpp
+	def to_tpar
 		TplParam.new(self)
 	end
 end

@@ -2,7 +2,7 @@
 
 ## Simple notation: Beats will be divided automatically
 mtr = [5, 4]		# Cyclic sequence
-# mtr = [[[5], 1/2r]]
+mtr = [[[9], 1/2r]]
 
 ## Explicit description of beat structure
 # mtr = [[[2, 3], 1]]

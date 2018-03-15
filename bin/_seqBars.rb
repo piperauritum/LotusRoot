@@ -24,7 +24,7 @@ class DataProcess
 					tick = note_value(16)
 					tick = tick.select{|key, val| !(@avoidRest.include?(key))}
 					tick = tick.select{|key, val| key<=gap}.max[0]
-					tpp = [1, 1, tick].to_tpp
+					tpp = [1, 1, tick].to_tpar
 					evt = Event.new("r!", tick)
 					filler << Tuplet.new(tpp, [evt])
 					gap -= tick
@@ -37,9 +37,7 @@ class DataProcess
 			end
 
 			bar = Bar.new(mtr)
-#			bar = []
 			while bar.tpls.map(&:evts).dtotal+bar_residue<btotal
-#			while bar.map(&:evts).dtotal+bar_residue<btotal
 				bar.tpls << tuples.shift
 			end
 
@@ -59,33 +57,19 @@ class DataProcess
 				(final_bar-bars.size).times{
 					mtr = metre.on(mtr_id)
 					events = []
-#					tpps = []
-=begin
-					if Fixnum === mtr
-						mtr.times{
-							tpp = [1, 1, 1].to_tpp
-							evt = Event.new("r!", 1r)
+					mtr.beat.map{|e| mtr.unit*e}.each{|e|
+						residue = e
+						while residue>0
+							dur = note_value(2**16).select{|f| f<=residue}.max[0]
+							tpp = [1, 1, Rational(1, dur.denominator)].to_tpar
+							evt = Event.new("r!", dur)
 							events << Tuplet.new(tpp, [evt])
-						}
-					else
-=end
-						mtr.beat.map{|e| mtr.unit*e}.each{|e|
-#						mtr[0].map{|e| mtr[1]*e}.each{|e|
-							residue = e
-							while residue>0
-								dur = note_value(2**16).select{|f| f<=residue}.max[0]
-								tpp = [1, 1, Rational(1, dur.denominator)].to_tpp
-								evt = Event.new("r!", dur)
-								events << Tuplet.new(tpp, [evt])
-								residue -= dur
-							end
-						}
-#					end
+							residue -= dur
+						end
+					}
 					bar = Bar.new(mtr, events)
 
 					bars << bar
-#					bars << events
-#					@tpl_param += tpps
 					mtr_id += 1
 				}
 			else
@@ -100,10 +84,7 @@ class DataProcess
 		bars.each.with_index{|bar, bar_id|
 			bar_dur = bar.tpls.map(&:evts).dtotal
 			mtr = bar.mtr
-#			bar_dur = bar.map(&:evts).dtotal
-#			mtr = metre.on(bar_id)
 			if Rational(mtr.beat.sigma*mtr.unit)!=bar_dur
-#			if (Array===mtr && Rational(mtr[0].sigma*mtr[1])!=bar_dur) || (Fixnum===mtr && mtr!=bar_dur)
 				puts <<-EOS
 
 LotusRoot >> Total duration of bar (#{bar_dur}) is different from the time signature (#{mtr})
@@ -178,14 +159,13 @@ LotusRoot >> #{mtr}
 						end
 
 						nv = fol.dsum + laf.dsum
-						tp_ary = [beat_struc, beat_struc.sigma, unit_dur].to_tpp
+						tp_ary = [beat_struc, beat_struc.sigma, unit_dur].to_tpar
 						matchValue = note_value(tp_ary)[nv]!=nil
 
 						npos = allowed_positions(tp_ary, pos_table, nv)
 						matchValue = false if npos.all?{|e| time!=e}
 
 						mt = mtr.unit
-#						Array === mtr ? mt=mtr[1] : mt=1
 						if @dotDuplet && fo_tp.dot? && la_tp.dot?
 							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)*mt}
 						else
@@ -201,12 +181,12 @@ LotusRoot >> #{mtr}
 							la_ev.shift
 							unit = fo.evts.dlook.flatten.min
 							mul = (fo.evts.dtotal/unit).to_i
-							bars[bar_id].tpls[bid].par = [mul, mul, unit].to_tpp
+							bars[bar_id].tpls[bid].par = [mul, mul, unit].to_tpar
 
 							if la.evts.size > 0
 								unit = la.evts.dlook.flatten.min
 								mul = (la.evts.dtotal/unit).to_i
-								bars[bar_id].tpls[bid+1].par = [mul, mul, unit].to_tpp
+								bars[bar_id].tpls[bid+1].par = [mul, mul, unit].to_tpar
 							end
 
 							bar.tpls.delete_if{|e| e.evts==[]}
@@ -281,13 +261,13 @@ LotusRoot >> #{mtr}
 
 
 	def rest_dur(bars, metre)
-		avoidedRest = ->(nte, mtr){
+		avoidedRest = ->(evt, mtr){
 			[
-				nte.el=~/(r!|s!|rrr|sss)/,
-				Array === nte.du,
+				evt.el=~/(r!|s!|rrr|sss)/,
+				Array === evt.du,
 				[
-					mtr!=nil && mtr.beat.uniq==[3] && nte.dsum==2,
-					@avoidRest.include?(nte.dsum),
+					mtr!=nil && mtr.beat.uniq==[3] && evt.dsum==2,
+					@avoidRest.include?(evt.dsum),
 				].any?
 			].all?
 		}
@@ -344,7 +324,7 @@ LotusRoot >> #{mtr}
 				unit = wbdu.flatten.min
 				mul = (wbdu.flatten.sigma/unit).to_i
 				new_el = wbel[0].sub("r!", "R!")
-				tpp = [mul, mul, unit].to_tpp
+				tpp = [mul, mul, unit].to_tpar
 				evt = Event.new(new_el, wbdu)
 				bar.tpls = [Tuplet.new(tpp, [evt])]
 			end

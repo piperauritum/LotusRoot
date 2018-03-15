@@ -94,29 +94,24 @@ class DataProcess
 
 
 	def beat_structure(metre)
-		begin
-			metre.map{|e|
-				if e.unit==1
-					[1]*e.beat.sigma
-				else
-					e.beat.map{|f| e.unit*f}
-				end
-			}.flatten
-		rescue
-			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
-			raise
-		end	
+		metre.map{|e|
+			if e.unit==1
+				[1]*e.beat.sigma
+			else
+				e.beat.map{|f| e.unit*f}
+			end
+		}.flatten
 	end
 
 
-	def assemble_tuplets(elms, tpl, metre)
+	def assemble_tuplets(elms, tpar, metre)
 		tpls = []
 		beats = beat_structure(metre)
 		idx = 0
 
 		while elms.size>0
 			begin
-				tp = tpl.on(idx)
+				tp = tpar.on(idx)
 			rescue
 				puts "LotusRoot >> Parameter of tuplet must be [Fixnum..] or [[Fixnum, Fixnum, Rational]..]"
 				raise
@@ -127,7 +122,7 @@ class DataProcess
 
 			case tp
 			when Array
-				tpp = tp.to_tpp
+				tpp = tp.to_tpar
 			when Fixnum
 				tpp = tuplet_num_to_param(tp, beat)
 				rto = Rational(tpp.numer, tpp.denom)
@@ -139,10 +134,10 @@ class DataProcess
 				].all?
 					if beat%1==0
 						rept = tpp.numer/tp
-						tpp = [tp, tpp.denom/rept, tpp.unit].to_tpp
+						tpp = [tp, tpp.denom/rept, tpp.unit].to_tpar
 					else
 						rept = tpp.numer/rto.numerator
-						tpp = [rto.numerator, rto.denominator, tpp.unit].to_tpp
+						tpp = [rto.numerator, rto.denominator, tpp.unit].to_tpar
 					end
 				end
 			end
@@ -194,12 +189,12 @@ LotusRoot >> #{note_value(tpp.ar)}
 					tick = Rational(1, du.denominator)
 					len = du.numerator
 					ay = [ay[0]] + [ay[1]]*(len-1)
-					tu.par = [len, len, tick].to_tpp
+					tu.par = [len, len, tick].to_tpar
 				else
 					if Fixnum === tp
 						tu.par = tpp
 					else
-						tu.par = tpl.on(idx).to_tpp
+						tu.par = tpar.on(idx).to_tpar
 					end
 				end
 
@@ -214,8 +209,8 @@ LotusRoot >> #{note_value(tpp.ar)}
 	end
 
 
-	def delete_ties_across_beats(ary)
-		ary.map{|e|
+	def delete_ties_across_beats(tpls)
+		tpls.map{|e|
 			if e.evts[0].el=="=" && e.evts.map(&:el).uniq!=["="]
 				re = true
 				e.evts.map!{|f|
@@ -264,17 +259,17 @@ LotusRoot >> #{note_value(tpp.ar)}
 				if i==0
 					evt = ev
 				else
-#					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
 					isTie = [ev.el]-%w(= =:)==[]
 					markedTie = (prev.evts.el=~/@/ || prev.evts.el=~/==/) && ev.el=~/==/
-#					newRest = %w(r! s!).map{|e|
-#						(!(prev=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
-#					}.any?
 					bothRests = %w(r! s!).map{|e|
 						prev.evts.el=~/#{e}/ && ev.el=="#{e}"
 					}.any?
-#					noNval = note_value(tpp)[evt.dsum+tick]==nil
 					bothTrems = prev.evts.el=~/%/ && ev.el=~/%/ && !(ev.el=~/%ATK/)
+#					isAtk = ev.el=~/(@|%ATK|rrr|sss)/
+#					newRest = %w(r! s!).map{|e|
+#						(!(prev=~/#{e}/) && ev.el=~/#{e}/) || ev.el=~/#{e}./
+#					}.any?
+#					noNval = note_value(tpp)[evt.dsum+tick]==nil
 
 					if [isTie, bothTrems, bothRests, markedTie].any?
 						evt.du = [evt.du, tick]
@@ -312,7 +307,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 			}.flatten
 		end
 
-		tp_ary = [beat_struc, tpp.denom, tpp.unit].to_tpp
+		tp_ary = [beat_struc, tpp.denom, tpp.unit].to_tpar
 
 		while 0
 			id = 0
