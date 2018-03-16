@@ -5,30 +5,28 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.2"
-   width="48.579697mm"
-   height="13.283352mm"
-   viewBox="0 0 34.555664 9.4486987"
-   id="svg154"
-   sodipodi:docname="09-3.svg"
-   inkscape:version="0.92.1 r15371">
+   width="172.1245"
+   height="47.06699"
+   viewBox="0 0 34.554 9.4486979"
+   id="svg2"
+   inkscape:version="0.48.2 r9819"
+   sodipodi:docname="test.svg">
   <metadata
-     id="metadata160">
+     id="metadata114">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs158" />
+     id="defs112" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -38,472 +36,316 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="716"
+     inkscape:window-width="769"
      inkscape:window-height="480"
-     id="namedview156"
+     id="namedview110"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:zoom="0.2102413"
-     inkscape:cx="302.36647"
-     inkscape:cy="-486.84397"
+     inkscape:zoom="0.22425739"
+     inkscape:cx="283.46445"
+     inkscape:cy="-456.41609"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg154" />
+     inkscape:current-layer="svg2" />
   <!-- Page: 1/1 -->
   <text
      font-size="2.1999"
      id="text4"
-     style="font-size:2.19989991px;font-family:serif;text-anchor:start;fill:currentColor"
-     x="-10.668971"
-     y="-1">
+     style="font-size:2.19989991px;text-anchor:start;fill:currentColor;font-family:serif"
+     x="-10.6698"
+     y="-1.0000272">
     <tspan
-       id="tspan2" />
+       id="tspan6" />
   </text>
   <line
-     x1="0.059028916"
-     y1="5.776"
-     x2="34.496628"
-     y2="5.776"
-     id="line6"
-     style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
-  <line
-     x1="0.059028916"
-     y1="4.776"
-     x2="34.496628"
-     y2="4.776"
+     x1="0.058200002"
+     y1="5.7759728"
+     x2="34.4958"
+     y2="5.7759728"
      id="line8"
      style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
   <line
-     x1="0.059028916"
-     y1="3.776"
-     x2="34.496628"
-     y2="3.776"
+     x1="0.058200002"
+     y1="4.7759728"
+     x2="34.4958"
+     y2="4.7759728"
      id="line10"
      style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
   <line
-     x1="0.059028916"
-     y1="2.776"
-     x2="34.496628"
-     y2="2.776"
+     x1="0.058200002"
+     y1="3.7759728"
+     x2="34.4958"
+     y2="3.7759728"
      id="line12"
      style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
   <line
-     x1="0.059028916"
-     y1="1.776"
-     x2="34.496628"
-     y2="1.776"
+     x1="0.058200002"
+     y1="2.7759728"
+     x2="34.4958"
+     y2="2.7759728"
      id="line14"
      style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
+  <line
+     x1="0.058200002"
+     y1="1.7759728"
+     x2="34.4958"
+     y2="1.7759728"
+     id="line16"
+     style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
   <rect
-     x="22.854429"
-     y="1.776"
+     x="22.8536"
+     y="1.7759728"
      width="0.2212"
      height="4"
-     ry="0.0000"
-     id="rect16"
-     style="fill:currentColor" />
-  <rect
-     x="14.708429"
-     y="1.776"
-     width="0.2212"
-     height="4"
-     ry="0.0000"
+     ry="0"
      id="rect18"
      style="fill:currentColor" />
   <rect
-     x="34.33353"
-     y="1.776"
+     x="14.7076"
+     y="1.7759728"
      width="0.2212"
      height="4"
-     ry="0.0000"
+     ry="0"
      id="rect20"
      style="fill:currentColor" />
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:46:47"
-     id="a24"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,50.0149,7.8326)"
-       d="m 212,138 c 59,0 113,-31 113,-95 0,-71 -52,-120 -99,-148 -34,-21 -73,-33 -113,-33 -59,0 -113,31 -113,95 0,71 53,120 100,148 34,21 72,33 112,33 z"
-       id="path22"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:28:29"
-     id="a32"
-     transform="translate(-17.782171,-4.5566)">
-    <polygon
-       transform="translate(45.6397,9.2151)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon26"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(45.6397,10.0251)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon28"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(45.6397,10.8351)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon30"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
   <rect
-     x="28.53183"
-     y="3.4473"
+     x="34.332699"
+     y="1.7759728"
+     width="0.2212"
+     height="4"
+     ry="0"
+     id="rect22"
+     style="fill:currentColor" />
+  <path
+     d="m 33.0799,2.7239728 c 0.236,0 0.452,0.124 0.452,0.38 0,0.284 -0.208,0.48 -0.396,0.592 -0.136,0.084 -0.292,0.132 -0.452,0.132 -0.236,0 -0.452,-0.124 -0.452,-0.38 0,-0.284 0.212,-0.48 0.4,-0.592 0.136,-0.084 0.288,-0.132 0.448,-0.132 z"
+     id="path24"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <polygon
+     transform="translate(27.8567,4.6584728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon26"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(27.8567,5.4684728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon28"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(27.8567,6.2784728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon30"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="28.531"
+     y="3.4472728"
      width="0.1514"
      height="3.4537001"
      ry="0.050000001"
-     id="rect34"
+     id="rect32"
      style="fill:currentColor" />
   <path
-     d="m 30.274129,3.276 c 0,-0.12 0.1,-0.22 0.22,-0.22 0.12,0 0.22,0.1 0.22,0.22 0,0.12 -0.1,0.22 -0.22,0.22 -0.12,0 -0.22,-0.1 -0.22,-0.22 z"
+     d="m 30.2733,3.2759728 c 0,-0.12 0.1,-0.22 0.22,-0.22 0.12,0 0.22,0.1 0.22,0.22 0,0.12 -0.1,0.22 -0.22,0.22 -0.12,0 -0.22,-0.1 -0.22,-0.22 z"
+     id="path34"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <path
+     d="m 29.1815,0.45377283 c 0.296,0 0.532,0.236 0.532,0.532 0,0.29599997 -0.236,0.53199997 -0.532,0.53199997 -0.296,0 -0.532,-0.236 -0.532,-0.53199997 0,-0.296 0.236,-0.532 0.532,-0.532 z m 0,0.1 c -0.24,0 -0.432,0.192 -0.432,0.432 0,0.23999997 0.192,0.43199997 0.432,0.43199997 0.24,0 0.432,-0.192 0.432,-0.43199997 0,-0.24 -0.192,-0.432 -0.432,-0.432 z"
      id="path36"
      inkscape:connector-curvature="0"
-     style="fill:currentColor;stroke-width:0.004" />
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:32:33"
-     id="a40"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,46.9645,5.5424)"
-       d="M 0,133 C 74,133 133,74 133,0 133,-74 74,-133 0,-133 c -74,0 -133,59 -133,133 0,74 59,133 133,133 z m 0,-25 c -60,0 -108,-48 -108,-108 0,-60 48,-108 108,-108 60,0 108,48 108,108 0,60 -48,108 -108,108 z"
-       id="path38"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:23:24"
-     id="a44"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,46.3141,7.8326)"
-       d="m 212,138 c 59,0 113,-31 113,-95 0,-71 -52,-120 -99,-148 -34,-21 -73,-33 -113,-33 -59,0 -113,31 -113,95 0,71 53,120 100,148 34,21 72,33 112,33 z"
-       id="path42"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:2:32:33"
-     id="a50"
-     transform="translate(-17.782171,-4.5566)">
-    <line
-       transform="translate(29.8803,12.6933)"
-       x1="0"
-       y1="0"
-       x2="19.1448"
-       y2="0.66659999"
-       id="line46"
-       style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
-    <line
-       transform="translate(29.8803,12.6933)"
-       x1="0"
-       y1="0"
-       x2="19.1448"
-       y2="-0.66659999"
-       id="line48"
-       style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:2:36:37"
-     id="a54"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="translate(26.4659,8.3326)"
-       d="m 1.1634,-1.225 c 1.1108,-0.9158 6.6351,-0.9158 7.7459,0 v 0 c -1.1108,-0.7761 -6.6351,-0.7761 -7.7459,0 z"
-       id="path52"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:3:21:22"
-     id="a58"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="translate(34.6118,8.3326)"
-       d="m 1.1634,-1.225 c 1.0423,-0.8941 5.7064,-0.8941 6.7488,0 v 0 c -1.0424,-0.7544 -5.7065,-0.7544 -6.7488,0 z"
-       id="path56"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:21:22"
-     id="a62"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="translate(42.0321,8.3326)"
-       d="m 0.8919,-1.225 c 0.765,-0.7758 3.0754,-0.7758 3.8404,0 v 0 c -0.765,-0.6361 -3.0754,-0.6361 -3.8404,0 z"
-       id="path60"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:44:45"
-     id="a66"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="translate(46.3141,8.3326)"
-       d="m 0.8504,-1.225 c 0.6949,-0.7357 2.606,-0.7357 3.3009,0 v 0 c -0.6949,-0.5959 -2.606,-0.5959 -3.3009,0 z"
-       id="path64"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:65:66"
-     id="a70"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,50.0251,13.2933)"
-       d="M 252,237 203,77 C 173,-22 82,-178 -15,-178 c -46,0 -87,32 -87,76 0,39 17,77 52,77 24,0 44,-20 44,-44 0,-30 -38,-25 -38,-55 0,-10 11,-10 23,-10 h 6 c 46,0 61,54 73,102 l 67,269 H 80 c -12,0 -22,10 -22,22 0,12 10,23 22,23 h 58 c 32,95 118,187 212,187 46,0 87,-31 87,-75 0,-39 -17,-78 -52,-78 -24,0 -44,20 -44,44 0,30 38,25 38,55 0,10 -10,11 -22,11 h -7 c -58,0 -69,-81 -85,-144 h 50 c 12,0 23,-11 23,-23 0,-12 -11,-22 -23,-22 z"
-       id="path68"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
+     style="fill:currentColor" />
   <path
-     d="m 32.384029,7.256 h -0.076 v -1 h 0.076 c 0.38,-0.236 0.88,-0.596 0.88,-1.036 0,-0.224 -0.064,-0.444 -0.164,-0.644 -0.012,-0.072 0.048,-0.12 0.104,-0.12 0.032,0 0.068,0.016 0.088,0.052 0.1,0.224 0.16,0.464 0.16,0.712 0,0.812 -1.068,1.224 -1.068,2.036 z"
-     id="path72"
+     d="m 29.3791,2.7239728 c 0.236,0 0.452,0.124 0.452,0.38 0,0.284 -0.208,0.48 -0.396,0.592 -0.136,0.084 -0.292,0.132 -0.452,0.132 -0.236,0 -0.452,-0.124 -0.452,-0.38 0,-0.284 0.212,-0.48 0.4,-0.592 0.136,-0.084 0.288,-0.132 0.448,-0.132 z"
+     id="path38"
      inkscape:connector-curvature="0"
-     style="fill:currentColor;stroke-width:0.004" />
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:50:51"
-     id="a78"
-     transform="translate(-17.782171,-4.5566)">
-    <polygon
-       transform="translate(49.3406,9.7326)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.79 1.45,-0.41 "
-       id="polygon74"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(49.3406,10.5426)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.79 1.45,-0.41 "
-       id="polygon76"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
+     style="fill:currentColor" />
+  <line
+     x1="12.0973"
+     y1="8.136673"
+     x2="31.2421"
+     y2="8.8032732"
+     id="line40"
+     style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
+  <line
+     x1="12.0973"
+     y1="8.136673"
+     x2="31.2421"
+     y2="7.4700727"
+     id="line42"
+     style="stroke:currentColor;stroke-width:0.1164;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 9.8463,2.5509728 c 1.1108,-0.9158 6.6351,-0.9158 7.7459,0 l 0,0 c -1.1108,-0.7761 -6.6351,-0.7761 -7.7459,0 z"
+     id="path44"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 17.9922,2.5509728 c 1.0423,-0.8941 5.7064,-0.8941 6.7488,0 l 0,0 c -1.0424,-0.7544 -5.7065,-0.7544 -6.7488,0 z"
+     id="path46"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 25.141,2.5509728 c 0.765,-0.7758 3.0754,-0.7758 3.8404,0 l 0,0 c -0.765,-0.6361 -3.0754,-0.6361 -3.8404,0 z"
+     id="path48"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 29.3815,2.5509728 c 0.6949,-0.7357 2.606,-0.7357 3.3009,0 l 0,0 c -0.6949,-0.5959 -2.606,-0.5959 -3.3009,0 z"
+     id="path50"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.0931;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 33.2501,7.7886728 -0.196,0.64 c -0.12,0.396 -0.484,1.02 -0.872,1.02 -0.184,0 -0.348,-0.128 -0.348,-0.304 0,-0.156 0.068,-0.308 0.208,-0.308 0.096,0 0.176,0.08 0.176,0.176 0,0.12 -0.152,0.1 -0.152,0.22 0,0.04 0.044,0.04 0.092,0.04 h 0.024 c 0.184,0 0.244,-0.216 0.292,-0.408 l 0.268,-1.076 h -0.18 c -0.048,0 -0.088,-0.04 -0.088,-0.088 0,-0.048 0.04,-0.092 0.088,-0.092 h 0.232 c 0.128,-0.38 0.472,-0.748 0.848,-0.748 0.184,0 0.348,0.124 0.348,0.3 0,0.156 -0.068,0.312 -0.208,0.312 -0.096,0 -0.176,-0.08 -0.176,-0.176 0,-0.12 0.152,-0.1 0.152,-0.22 0,-0.04 -0.04,-0.044 -0.088,-0.044 h -0.028 c -0.232,0 -0.276,0.324 -0.34,0.576 h 0.2 c 0.048,0 0.092,0.044 0.092,0.092 0,0.048 -0.044,0.088 -0.092,0.088 h -0.252 z"
+     id="path52"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <path
+     d="m 32.3832,7.2559728 h -0.076 v -1 h 0.076 c 0.38,-0.236 0.88,-0.596 0.88,-1.036 0,-0.224 -0.064,-0.444 -0.164,-0.644 -0.012,-0.072 0.048,-0.12 0.104,-0.12 0.032,0 0.068,0.016 0.088,0.052 0.1,0.224 0.16,0.464 0.16,0.712 0,0.812 -1.068,1.224 -1.068,2.036 z"
+     id="path54"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <polygon
+     transform="translate(31.5576,5.1759728)"
+     points="0.05,-0.19 1.45,-0.79 1.45,-0.41 0.05,0.19 "
+     id="polygon56"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(31.5576,5.9859728)"
+     points="0.05,-0.19 1.45,-0.79 1.45,-0.41 0.05,0.19 "
+     id="polygon58"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
   <rect
-     x="32.232727"
-     y="3.4473"
+     x="32.231899"
+     y="3.4472728"
      width="0.1514"
      height="3.8587"
      ry="0.050000001"
-     id="rect80"
+     id="rect60"
      style="fill:currentColor" />
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:54:55"
-     id="a84"
-     transform="translate(-17.782171,-4.5566)">
+  <path
+     d="m 32.8823,0.45377283 c 0.296,0 0.532,0.236 0.532,0.532 0,0.29599997 -0.236,0.53199997 -0.532,0.53199997 -0.296,0 -0.532,-0.236 -0.532,-0.53199997 0,-0.296 0.236,-0.532 0.532,-0.532 z m 0,0.1 c -0.24,0 -0.432,0.192 -0.432,0.432 0,0.23999997 0.192,0.43199997 0.432,0.43199997 0.24,0 0.432,-0.192 0.432,-0.43199997 0,-0.24 -0.192,-0.432 -0.432,-0.432 z"
+     id="path62"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <polygon
+     transform="translate(8.8962,6.5834728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon64"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(8.8962,5.7734728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon66"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(8.8962,4.9634728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon68"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 17.6688,2.8359728 c -0.196,0 -0.268,0.172 -0.268,0.352 0,0.296 0.224,0.528 0.516,0.528 0.196,0 0.268,-0.172 0.268,-0.352 0,-0.296 -0.224,-0.528 -0.516,-0.528 z m 1.088,0.44 c 0,0.172 -0.132,0.304 -0.284,0.392 -0.204,0.12 -0.444,0.16 -0.68,0.16 -0.236,0 -0.476,-0.04 -0.68,-0.16 -0.152,-0.088 -0.284,-0.22 -0.284,-0.392 0,-0.172 0.132,-0.304 0.284,-0.392 0.204,-0.12 0.444,-0.16 0.68,-0.16 0.236,0 0.476,0.04 0.68,0.16 0.152,0.088 0.284,0.22 0.284,0.392 z"
+     id="path70"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <path
+     d="m 17.7922,0.45377283 c 0.296,0 0.532,0.236 0.532,0.532 0,0.29599997 -0.236,0.53199997 -0.532,0.53199997 -0.296,0 -0.532,-0.236 -0.532,-0.53199997 0,-0.296 0.236,-0.532 0.532,-0.532 z m 0,0.1 c -0.24,0 -0.432,0.192 -0.432,0.432 0,0.23999997 0.192,0.43199997 0.432,0.43199997 0.24,0 0.432,-0.192 0.432,-0.43199997 0,-0.24 -0.192,-0.432 -0.432,-0.432 z"
+     id="path72"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <path
+     d="m 6.424,3.6559728 c -0.192,0 -0.288,-0.16 -0.288,-0.288 0,-0.148 0.104,-0.3 0.28,-0.3 0.012,0 0.024,0.004 0.036,0.004 -0.104,-0.144 -0.268,-0.236 -0.452,-0.236 -0.428,0 -0.452,0.296 -0.452,0.756 0,0.06 0.004,0.12 0.004,0.184 0,0.064 -0.004,0.124 -0.004,0.184 0,0.46 0.024,0.756 0.452,0.756 0.312,0 0.532,-0.28 0.604,-0.596 0.008,-0.032 0.032,-0.044 0.056,-0.044 0.028,0 0.06,0.02 0.06,0.056 0,0.38 -0.412,0.704 -0.72,0.704 -0.272,0 -0.548,-0.08 -0.736,-0.28 -0.196,-0.208 -0.264,-0.496 -0.264,-0.78 0,-0.284 0.068,-0.572 0.264,-0.78 0.188,-0.2 0.464,-0.28 0.736,-0.28 0.344,0 0.624,0.268 0.684,0.612 0.004,0.016 0.004,0.036 0.004,0.052 0,0.152 -0.12,0.276 -0.264,0.276 z"
+     id="path74"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <path
+     d="m 2.316,3.7199728 c 0.012,0 0.028,-0.004 0.04,-0.004 0.628,0 1.032,0.516 1.032,1.052 0,0.308 -0.132,0.62 -0.432,0.844 -0.088,0.064 -0.184,0.116 -0.288,0.148 0.012,0.132 0.016,0.264 0.016,0.396 0,0.084 0,0.164 -0.004,0.248 -0.028,0.484 -0.364,0.916 -0.844,0.916 -0.432,0 -0.784,-0.352 -0.784,-0.788 0,-0.232 0.216,-0.412 0.452,-0.412 0.216,0 0.38,0.188 0.38,0.412 0,0.208 -0.172,0.38 -0.38,0.38 -0.036,0 -0.072,-0.004 -0.108,-0.016 0.1,0.148 0.264,0.244 0.452,0.244 0.38,0 0.624,-0.372 0.648,-0.764 0.004,-0.076 0.008,-0.152 0.008,-0.228 0,-0.116 -0.004,-0.232 -0.012,-0.348 -0.116,0.02 -0.232,0.032 -0.352,0.032 -0.756,0 -1.332,-0.692 -1.332,-1.504 0,-0.708 0.516,-1.232 0.976,-1.772 -0.08,-0.248 -0.16,-0.496 -0.192,-0.756 -0.028,-0.208 -0.028,-0.42 -0.028,-0.632 0,-0.45599997 0.216,-0.88399997 0.588,-1.15199997 0.016,-0.012 0.032,-0.01600000111 0.048,-0.01600000111 0.02,0 0.036,0.0080000011 0.052,0.02000000111 0.288,0.332 0.54,0.972 0.54,1.42399997 0,0.568 -0.336,1.02 -0.704,1.456 0.084,0.272 0.16,0.544 0.228,0.82 z m 0.336,1.86 c 0.26,-0.096 0.44,-0.376 0.44,-0.644 0,-0.352 -0.256,-0.7 -0.668,-0.752 0.096,0.456 0.176,0.908 0.228,1.396 z m -1.544,-0.904 c 0,0.532 0.512,0.972 1.044,0.972 0.108,0 0.22,-0.004 0.324,-0.02 -0.052,-0.504 -0.14,-0.976 -0.24,-1.448 -0.316,0.032 -0.496,0.24 -0.496,0.472 0,0.172 0.1,0.352 0.32,0.48 0.02,0.02 0.028,0.044 0.028,0.068 0,0.048 -0.04,0.092 -0.092,0.092 -0.012,0 -0.028,-0.004 -0.04,-0.008 -0.324,-0.172 -0.472,-0.46 -0.472,-0.744 0,-0.356 0.24,-0.708 0.652,-0.8 -0.056,-0.228 -0.12,-0.452 -0.188,-0.676 -0.42,0.488 -0.84,0.972 -0.84,1.612 z M 2.412,0.62397283 c -0.396,0.184 -0.644,0.57999997 -0.644,1.01599997 0,0.284 0.084,0.52 0.156,0.752 0.312,-0.388 0.568,-0.796 0.568,-1.296 0,-0.20399997 -0.016,-0.28799997 -0.08,-0.47199997 z"
+     id="path76"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <path
+     d="m 9.6462,0.45377283 c 0.296,0 0.532,0.236 0.532,0.532 0,0.29599997 -0.236,0.53199997 -0.532,0.53199997 -0.296,0 -0.532,-0.236 -0.532,-0.53199997 0,-0.296 0.236,-0.532 0.532,-0.532 z m 0,0.1 c -0.24,0 -0.432,0.192 -0.432,0.432 0,0.23999997 0.192,0.43199997 0.432,0.43199997 0.24,0 0.432,-0.192 0.432,-0.43199997 0,-0.24 -0.192,-0.432 -0.432,-0.432 z"
+     id="path78"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <g
+     transform="translate(8.1951,8.7366728)"
+     id="g80">
     <path
-       transform="matrix(0.004,0,0,-0.004,50.6653,5.5424)"
-       d="M 0,133 C 74,133 133,74 133,0 133,-74 74,-133 0,-133 c -74,0 -133,59 -133,133 0,74 59,133 133,133 z m 0,-25 c -60,0 -108,-48 -108,-108 0,-60 48,-108 108,-108 60,0 108,48 108,108 0,60 -48,108 -108,108 z"
+       transform="scale(0.004,-0.004)"
+       d="M 233,243 C 177,243 130,134 130,68 c 0,-22 9,-38 31,-38 63,0 97,128 97,180 0,18 -7,33 -25,33 z M 110,-146 c -37,0 -75,5 -113,5 -38,0 -77,-5 -113,-5 -10,0 -16,8 -16,16 0,20 30,18 49,19 23,1 48,9 55,30 l 99,290 c 3,8 5,16 5,22 0,7 -2,12 -10,12 -33,0 -58,-61 -74,-97 -6,-14 -19,-20 -29,-20 -9,0 -16,5 -16,14 0,3 0,6 2,10 30,68 73,142 134,142 35,0 57,-22 64,-52 29,31 67,52 103,52 69,0 107,-49 107,-114 0,-21 -4,-44 -12,-67 C 325,53 254,-10 198,-10 171,-10 146,-4 125,8 115,14 101,11 98,2 L 73,-72 c -1,-3 -2,-7 -2,-10 0,-22 17,-30 40,-32 10,-1 15,-8 15,-16 0,-8 -6,-16 -16,-16 z"
        id="path82"
        inkscape:connector-curvature="0"
        style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:2:14:15"
-     id="a92"
-     transform="translate(-17.782171,-4.5566)">
-    <polygon
-       transform="translate(26.6792,11.1401)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon86"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(26.6792,10.3301)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon88"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(26.6792,9.5201)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon90"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:3:0:1"
-     id="a96"
-     transform="translate(-17.782171,-4.5566)">
     <path
-       transform="matrix(0.004,0,0,-0.004,34.6118,7.8326)"
-       d="m 210,110 c -49,0 -67,-43 -67,-88 0,-74 56,-132 129,-132 49,0 67,43 67,88 0,74 -56,132 -129,132 z M 482,0 c 0,-43 -33,-76 -71,-98 -51,-30 -111,-40 -170,-40 -59,0 -119,10 -170,40 -38,22 -71,55 -71,98 0,43 33,76 71,98 51,30 111,40 170,40 59,0 119,-10 170,-40 38,-22 71,-55 71,-98 z"
-       id="path94"
+       transform="matrix(0.004,0,0,-0.004,1.4511,0)"
+       d="M 233,243 C 177,243 130,134 130,68 c 0,-22 9,-38 31,-38 63,0 97,128 97,180 0,18 -7,33 -25,33 z M 110,-146 c -37,0 -75,5 -113,5 -38,0 -77,-5 -113,-5 -10,0 -16,8 -16,16 0,20 30,18 49,19 23,1 48,9 55,30 l 99,290 c 3,8 5,16 5,22 0,7 -2,12 -10,12 -33,0 -58,-61 -74,-97 -6,-14 -19,-20 -29,-20 -9,0 -16,5 -16,14 0,3 0,6 2,10 30,68 73,142 134,142 35,0 57,-22 64,-52 29,31 67,52 103,52 69,0 107,-49 107,-114 0,-21 -4,-44 -12,-67 C 325,53 254,-10 198,-10 171,-10 146,-4 125,8 115,14 101,11 98,2 L 73,-72 c -1,-3 -2,-7 -2,-10 0,-22 17,-30 40,-32 10,-1 15,-8 15,-16 0,-8 -6,-16 -16,-16 z"
+       id="path84"
        inkscape:connector-curvature="0"
        style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:3:8:9"
-     id="a100"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,35.5752,5.5424)"
-       d="M 0,133 C 74,133 133,74 133,0 133,-74 74,-133 0,-133 c -74,0 -133,59 -133,133 0,74 59,133 133,133 z m 0,-25 c -60,0 -108,-48 -108,-108 0,-60 48,-108 108,-108 60,0 108,48 108,108 0,60 -48,108 -108,108 z"
-       id="path98"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:2:0:1"
-     id="a104"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,22.783,8.3326)"
-       d="m 356,30 c -48,0 -72,40 -72,72 0,37 26,75 70,75 3,0 6,-1 9,-1 -26,36 -67,59 -113,59 -107,0 -113,-74 -113,-189 0,-15 1,-30 1,-46 0,-16 -1,-31 -1,-46 0,-115 6,-189 113,-189 78,0 133,70 151,149 2,8 8,11 14,11 7,0 15,-5 15,-14 0,-95 -103,-176 -180,-176 -68,0 -137,20 -184,70 C 17,-143 0,-71 0,0 c 0,71 17,143 66,195 47,50 116,70 184,70 86,0 156,-67 171,-153 1,-4 1,-9 1,-13 0,-38 -30,-69 -66,-69 z"
-       id="path102"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
+  </g>
   <path
-     d="m 2.3168289,3.72 c 0.012,0 0.028,-0.004 0.04,-0.004 0.628,0 1.032,0.516 1.032,1.052 0,0.308 -0.132,0.62 -0.432,0.844 -0.088,0.064 -0.184,0.116 -0.288,0.148 0.012,0.132 0.016,0.264 0.016,0.396 0,0.084 0,0.164 -0.004,0.248 -0.028,0.484 -0.364,0.916 -0.844,0.916 -0.432,0 -0.784,-0.352 -0.784,-0.788 0,-0.232 0.216,-0.412 0.452,-0.412 0.216,0 0.38,0.188 0.38,0.412 0,0.208 -0.172,0.38 -0.38,0.38 -0.036,0 -0.072,-0.004 -0.108,-0.016 0.1,0.148 0.264,0.244 0.452,0.244 0.38,0 0.624,-0.372 0.648,-0.764 0.004,-0.076 0.008,-0.152 0.008,-0.228 0,-0.116 -0.004,-0.232 -0.012,-0.348 -0.116,0.02 -0.232,0.032 -0.352,0.032 -0.756,0 -1.33199999,-0.692 -1.33199999,-1.504 0,-0.708 0.51599999,-1.232 0.97599999,-1.772 -0.08,-0.248 -0.16,-0.496 -0.192,-0.756 -0.028,-0.208 -0.028,-0.42 -0.028,-0.632 0,-0.456 0.216,-0.884 0.588,-1.152 0.016,-0.012 0.032,-0.016 0.048,-0.016 0.02,0 0.036,0.008 0.052,0.02 0.288,0.332 0.54,0.972 0.54,1.424 0,0.568 -0.336,1.02 -0.704,1.456 0.084,0.272 0.16,0.544 0.228,0.82 z m 0.336,1.86 c 0.26,-0.096 0.44,-0.376 0.44,-0.644 0,-0.352 -0.256,-0.7 -0.668,-0.752 0.096,0.456 0.176,0.908 0.228,1.396 z m -1.544,-0.904 c 0,0.532 0.512,0.972 1.044,0.972 0.108,0 0.22,-0.004 0.324,-0.02 -0.052,-0.504 -0.14,-0.976 -0.24,-1.448 -0.316,0.032 -0.496,0.24 -0.496,0.472 0,0.172 0.1,0.352 0.32,0.48 0.02,0.02 0.028,0.044 0.028,0.068 0,0.048 -0.04,0.092 -0.092,0.092 -0.012,0 -0.028,-0.004 -0.04,-0.008 -0.324,-0.172 -0.472,-0.46 -0.472,-0.744 0,-0.356 0.24,-0.708 0.652,-0.8 -0.056,-0.228 -0.12,-0.452 -0.188,-0.676 -0.42,0.488 -0.84,0.972 -0.84,1.612 z m 1.304,-4.052 c -0.396,0.184 -0.644,0.58 -0.644,1.016 0,0.284 0.084,0.52 0.156,0.752 0.312,-0.388 0.568,-0.796 0.568,-1.296 0,-0.204 -0.016,-0.288 -0.08,-0.472 z"
-     id="path106"
+     d="m 9.5229,2.8359728 c -0.196,0 -0.268,0.172 -0.268,0.352 0,0.296 0.224,0.528 0.516,0.528 0.196,0 0.268,-0.172 0.268,-0.352 0,-0.296 -0.224,-0.528 -0.516,-0.528 z m 1.088,0.44 c 0,0.172 -0.132,0.304 -0.284,0.392 -0.204,0.12 -0.444,0.16 -0.68,0.16 -0.236,0 -0.476,-0.04 -0.68,-0.16 -0.152,-0.088 -0.284,-0.22 -0.284,-0.392 0,-0.172 0.132,-0.304 0.284,-0.392 0.204,-0.12 0.444,-0.16 0.68,-0.16 0.236,0 0.476,0.04 0.68,0.16 0.152,0.088 0.284,0.22 0.284,0.392 z"
+     id="path86"
      inkscape:connector-curvature="0"
-     style="fill:currentColor;stroke-width:0.004" />
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:2:18:19"
-     id="a110"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,27.4292,5.5424)"
-       d="M 0,133 C 74,133 133,74 133,0 133,-74 74,-133 0,-133 c -74,0 -133,59 -133,133 0,74 59,133 133,133 z m 0,-25 c -60,0 -108,-48 -108,-108 0,-60 48,-108 108,-108 60,0 108,48 108,108 0,60 -48,108 -108,108 z"
-       id="path108"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:2:29:30"
-     id="a118"
-     transform="translate(-17.782171,-4.5566)">
-    <g
-       transform="translate(25.9781,13.2933)"
-       id="g116">
-      <path
-         transform="scale(0.004,-0.004)"
-         d="M 233,243 C 177,243 130,134 130,68 c 0,-22 9,-38 31,-38 63,0 97,128 97,180 0,18 -7,33 -25,33 z M 110,-146 c -37,0 -75,5 -113,5 -38,0 -77,-5 -113,-5 -10,0 -16,8 -16,16 0,20 30,18 49,19 23,1 48,9 55,30 l 99,290 c 3,8 5,16 5,22 0,7 -2,12 -10,12 -33,0 -58,-61 -74,-97 -6,-14 -19,-20 -29,-20 -9,0 -16,5 -16,14 0,3 0,6 2,10 30,68 73,142 134,142 35,0 57,-22 64,-52 29,31 67,52 103,52 69,0 107,-49 107,-114 0,-21 -4,-44 -12,-67 C 325,53 254,-10 198,-10 171,-10 146,-4 125,8 115,14 101,11 98,2 L 73,-72 c -1,-3 -2,-7 -2,-10 0,-22 17,-30 40,-32 10,-1 15,-8 15,-16 0,-8 -6,-16 -16,-16 z"
-         id="path112"
-         inkscape:connector-curvature="0"
-         style="fill:currentColor" />
-      <path
-         transform="matrix(0.004,0,0,-0.004,1.4511,0)"
-         d="M 233,243 C 177,243 130,134 130,68 c 0,-22 9,-38 31,-38 63,0 97,128 97,180 0,18 -7,33 -25,33 z M 110,-146 c -37,0 -75,5 -113,5 -38,0 -77,-5 -113,-5 -10,0 -16,8 -16,16 0,20 30,18 49,19 23,1 48,9 55,30 l 99,290 c 3,8 5,16 5,22 0,7 -2,12 -10,12 -33,0 -58,-61 -74,-97 -6,-14 -19,-20 -29,-20 -9,0 -16,5 -16,14 0,3 0,6 2,10 30,68 73,142 134,142 35,0 57,-22 64,-52 29,31 67,52 103,52 69,0 107,-49 107,-114 0,-21 -4,-44 -12,-67 C 325,53 254,-10 198,-10 171,-10 146,-4 125,8 115,14 101,11 98,2 L 73,-72 c -1,-3 -2,-7 -2,-10 0,-22 17,-30 40,-32 10,-1 15,-8 15,-16 0,-8 -6,-16 -16,-16 z"
-         id="path114"
-         inkscape:connector-curvature="0"
-         style="fill:currentColor" />
-    </g>
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:2:10:11"
-     id="a122"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,26.4659,7.8326)"
-       d="m 210,110 c -49,0 -67,-43 -67,-88 0,-74 56,-132 129,-132 49,0 67,43 67,88 0,74 -56,132 -129,132 z M 482,0 c 0,-43 -33,-76 -71,-98 -51,-30 -111,-40 -170,-40 -59,0 -119,10 -170,40 -38,22 -71,55 -71,98 0,43 33,76 71,98 51,30 111,40 170,40 59,0 119,-10 170,-40 38,-22 71,-55 71,-98 z"
-       id="path120"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:4:5"
-     id="a130"
-     transform="translate(-17.782171,-4.5566)">
-    <polygon
-       transform="translate(41.3578,9.2151)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon124"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(41.3578,10.0251)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon126"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(41.3578,10.8351)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon128"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
+     style="fill:currentColor" />
+  <polygon
+     transform="translate(23.5748,4.6584728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon88"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(23.5748,5.4684728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon90"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(23.5748,6.2784728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon92"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
   <rect
-     x="24.249929"
-     y="3.5216"
+     x="24.2491"
+     y="3.5215728"
      width="0.1514"
      height="3.3794"
      ry="0.050000001"
-     id="rect132"
+     id="rect94"
      style="fill:currentColor" />
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:8:9"
-     id="a136"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,42.7241,5.5424)"
-       d="M 0,133 C 74,133 133,74 133,0 133,-74 74,-133 0,-133 c -74,0 -133,59 -133,133 0,74 59,133 133,133 z m 0,-25 c -60,0 -108,-48 -108,-108 0,-60 48,-108 108,-108 60,0 108,48 108,108 0,60 -48,108 -108,108 z"
-       id="path134"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:4:0:1"
-     id="a140"
-     transform="translate(-17.782171,-4.5566)">
-    <path
-       transform="matrix(0.004,0,0,-0.004,42.0321,7.8326)"
-       d="m 310,63 c 0,23 -19,40 -40,40 -4,0 -8,-1 -12,-2 C 228,93 183,63 147,40 111,17 66,-12 46,-36 39,-44 36,-53 36,-63 c 0,-23 19,-40 40,-40 4,0 8,1 12,2 30,8 75,38 111,61 36,23 81,52 101,76 7,8 10,17 10,27 z m -54,75 c 50,0 90,-22 90,-77 0,-18 -5,-37 -10,-55 -11,-38 -30,-74 -63,-96 -53,-35 -111,-48 -183,-48 -50,0 -90,22 -90,77 0,18 5,37 10,55 11,38 30,74 63,96 53,36 111,48 183,48 z"
-       id="path138"
-       inkscape:connector-curvature="0"
-       style="fill:currentColor" />
-  </a>
-  <a
-     style="color:inherit"
-     xlink:href="textedit://C:/Users/tikeda/Documents/git/LotusRoot/sco.txt:3:4:5"
-     id="a148"
-     transform="translate(-17.782171,-4.5566)">
-    <polygon
-       transform="translate(34.8252,11.1401)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon142"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(34.8252,10.3301)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon144"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-    <polygon
-       transform="translate(34.8252,9.5201)"
-       points="0.05,0.19 0.05,-0.19 1.45,-0.565 1.45,-0.185 "
-       id="polygon146"
-       style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
-  </a>
+  <path
+     d="m 24.9411,0.45377283 c 0.296,0 0.532,0.236 0.532,0.532 0,0.29599997 -0.236,0.53199997 -0.532,0.53199997 -0.296,0 -0.532,-0.236 -0.532,-0.53199997 0,-0.296 0.236,-0.532 0.532,-0.532 z m 0,0.1 c -0.24,0 -0.432,0.192 -0.432,0.432 0,0.23999997 0.192,0.43199997 0.432,0.43199997 0.24,0 0.432,-0.192 0.432,-0.43199997 0,-0.24 -0.192,-0.432 -0.432,-0.432 z"
+     id="path96"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <path
+     d="m 25.4891,3.0239728 c 0,-0.092 -0.076,-0.16 -0.16,-0.16 -0.016,0 -0.032,0.004 -0.048,0.008 -0.12,0.032 -0.3,0.152 -0.444,0.244 -0.144,0.092 -0.324,0.208 -0.404,0.304 -0.028,0.032 -0.04,0.068 -0.04,0.108 0,0.092 0.076,0.16 0.16,0.16 0.016,0 0.032,-0.004 0.048,-0.008 0.12,-0.032 0.3,-0.152 0.444,-0.244 0.144,-0.092 0.324,-0.208 0.404,-0.304 0.028,-0.032 0.04,-0.068 0.04,-0.108 z m -0.216,-0.3 c 0.2,0 0.36,0.088 0.36,0.308 0,0.072 -0.02,0.148 -0.04,0.22 -0.044,0.152 -0.12,0.296 -0.252,0.384 -0.212,0.14 -0.444,0.192 -0.732,0.192 -0.2,0 -0.36,-0.088 -0.36,-0.308 0,-0.072 0.02,-0.148 0.04,-0.22 0.044,-0.152 0.12,-0.296 0.252,-0.384 0.212,-0.144 0.444,-0.192 0.732,-0.192 z"
+     id="path98"
+     inkscape:connector-curvature="0"
+     style="fill:currentColor" />
+  <polygon
+     transform="translate(17.0422,6.5834728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon100"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(17.0422,5.7734728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon102"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
+  <polygon
+     transform="translate(17.0422,4.9634728)"
+     points="0.05,-0.19 1.45,-0.565 1.45,-0.185 0.05,0.19 "
+     id="polygon104"
+     style="fill:currentColor;stroke:currentColor;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round" />
   <text
      font-size="2.1999"
-     id="text152"
-     style="font-size:2.19989991px;font-family:serif;text-anchor:start;fill:currentColor"
-     x="56.90633"
-     y="202.43719">
+     id="text106"
+     style="font-size:2.19989991px;text-anchor:start;fill:currentColor;font-family:serif"
+     x="56.905499"
+     y="202.43718">
     <tspan
-       id="tspan150" />
+       id="tspan108" />
   </text>
 </svg>
