@@ -42,10 +42,18 @@
 
 \score {
   {
-%    \override Score.MetronomeMark.padding = #3
     \config
     \hoge
   }
   \layout {}
+}
+
+%{
+\score {
+  {
+    \unfoldRepeats
+    \hoge
+  }
   \midi {}
 }
+%}

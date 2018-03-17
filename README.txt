@@ -5,14 +5,14 @@ An assistance program for musical composition on Ruby.
 Generates LilyPond script from some numeric/string arrays.
 
 ## Requirement
-Ruby 2.2 ~
+Ruby 2.2 or later
 https://www.ruby-lang.org
 http://rubyinstaller.org/downloads (win)
 
-LilyPond 2.18.2 ~
+LilyPond 2.18.2 or later
 http://lilypond.org
 
-Frescobaldi 2.18 ~ (recommended)
+Frescobaldi 2.18 or later (recommended)
 http://www.frescobaldi.org
 
 ## Usage
@@ -151,7 +151,7 @@ sco.dotDuplet = 0
 sco.splitBeat = 0
 	Disable connecting of beats.
 
-sco.omitRest = [a0, a1, a2, ...]
+sco.avoidRest = [a0, a1, a2, ...]
 	Excludes rests of given note values.
 
 	a	note value (Fixnum/Float/Rational)

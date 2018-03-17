@@ -33,9 +33,8 @@ fractpl = {
 \layout {
   \context {
     \Staff
-%    \override Stem.details.beamed-lengths = #'(5 5 4)
     \override Stem.stemlet-length = #1.5	%% spacing bug
-%    \override Stem.length = #longer-for-tremolo	%% Assertion failed (?)
+    %    \override Stem.length = #longer-for-tremolo	%% Assertion failed (?)
     \override Beam.auto-knee-gap = ##f
     \override Beam.damping = #5
     \override Beam.beam-thickness = #0.7
@@ -44,7 +43,6 @@ fractpl = {
     \override LedgerLineSpanner.minimum-length-fraction = #0.4
     \override TrillSpanner.bound-details.right.padding = #2
     \override TupletBracket.bracket-visibility = ##t
-    %\override TupletBracket.padding = #2
     \override TupletBracket.positions = #flat-brackets
     \override MultiMeasureRest.expand-limit = #2
     \override VerticalAxisGroup.staff-staff-spacing =
@@ -76,8 +74,6 @@ config = {
   \override Staff.DynamicLineSpanner.outside-staff-priority = #500
   \override TupletNumber.font-size = #0
   \override TupletNumber.font-series = #'bold
-  %\set tupletFullLength = ##t
-  %\override TupletBracket.full-length-to-extent = ##f
   \tupletUp
   \overrideTimeSignatureSettings	%% fix odd beaming
   4/4        % timeSignatureFraction

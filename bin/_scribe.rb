@@ -221,8 +221,8 @@ def add_beam(tuple, evt_id)
 			elz = []
 
 			while 0
-				n_el = tuple[n].el
-				n_va = tuple[n].dsum
+				n_el = tuple.evts[n].el
+				n_va = tuple.evts[n].dsum
 				elz << n_el
 
 				nv = note_value(tuple.par)[n_va]
@@ -234,7 +234,7 @@ def add_beam(tuple, evt_id)
 				n += 1
 
 				# search forward
-				break if n==tuple.size
+				break if n==tuple.evts.size
 			end
 
 			# only the first note

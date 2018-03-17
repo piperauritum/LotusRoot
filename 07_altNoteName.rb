@@ -8,7 +8,7 @@ tpl = [1]
 ## Note names which will be replaced
 alt = [[1, "des"], [3, "ees"], [10, "bes"]]
 
-## In other words
+## In other words...
 # alt = [[1, 3, 10], %w(des ees bes)].transpose
 
 ## Over an octave (note the effect of .pitchShift)

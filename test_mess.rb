@@ -1,46 +1,37 @@
 ﻿require_relative 'bin/LotusRoot'
 
+mtr = [*0..9].map{[[rand(3..8)], 1/4r]}
+
+tpl = mtr.map{|e| [e[0][0]+rand(e[0][0]), e[0][0], e[1]]}
+
+x, y = 0, 0
 pch = [*0..99].map{
-	Array.new([rand(10)-4, 1].max).map{
-		Rational(rand(96),4)
-	}.uniq
+	a = [rand(-3..2), 0].max
+	[*0..a].map{
+		y += 5+x%2
+		x+=1
+		y%=24
+	}
 }
 
-dur = pch.map{[rand(12)-4,1].max}
+dur = pch.map{rand(1..3)}
 
-elm = pch.map.with_index{|e,i|
-	dyn = %w(fff ff f mf mp p pp ppp).at(rand(8))
-	art = %w(^ - ! > .).at(rand(5))
-	eee = %W(r! @ @:128 @GRC16;#{rand(4)+1}; %128[#{pch.on(i+500)}]).at(rand(5))
+elm = dur.map.with_index{|e,i|
+	dyn = %w(fff ff f mf mp p pp ppp)[rand(8)]
+	art = %w(^ - ! > .)[rand(5)]
+	e<2 ? sel=3 : sel=5
+	eee = %W(r! @ @GRC16;#{rand(3)+1}; @:32 %32[#{pch.on(i+1)}])[rand(sel)]
 	eee += "-#{art}\\#{dyn} " unless eee=="r!"
 	eee
 }
 
-tpl = pch.map{rand(10)+3}
-
-def bt(q)
-	if q<4
-		[q]
-	elsif q%3==0
-		[3]*(q/3)
-	elsif q%2==0
-		[2]*(q/2)
-	else
-		[2]*(q/2-1)+[3]
-	end
-end
-
-met = pch.map{|e| [bt(rand(12)+1), 1/2r]}
-
-p dur, elm, tpl, pch, met
+p dur, elm, tpl, pch, mtr
 
 sco = Score.new(dur, elm, tpl, pch)
-sco.metre = met
+sco.metre = mtr
 sco.autoChordAcc = 0
 sco.pitchShift = 12
 sco.fracTuplet = 0
 sco.gen
 sco.print
 sco.export("sco.txt")
-
-
