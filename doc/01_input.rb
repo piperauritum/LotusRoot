@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 ## Elements will be unfold with Durations ##
 

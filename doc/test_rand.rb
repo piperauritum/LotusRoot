@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 chd = [2,3,2,1]*3
 chd = chd.inject([0]){|s,e|

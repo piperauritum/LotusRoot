@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 mtr = [*0..9].map{[[rand(3..8)], 1/4r]}
 

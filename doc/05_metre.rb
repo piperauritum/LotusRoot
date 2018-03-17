@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 ## Simple notation: Beats will be divided automatically
 mtr = [5, 4]		# Cyclic sequence

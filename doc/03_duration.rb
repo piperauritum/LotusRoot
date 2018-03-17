@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 ## Durations are fit into Tuplets ##
 

@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 pch = [*0..11].map{|x| [0,1,5].map{|y| x+y}}
 elm = pch.map{"@"}

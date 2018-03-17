@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 pch = [12]
 elm = %w(r!\\fermata r! @ @ r!)			# Plain rests are automatically unioned

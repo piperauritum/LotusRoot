@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 ## Simple notation: Division of a quarter note
 mtr = [*1..16].map{|e| [[e], 1/2r]}

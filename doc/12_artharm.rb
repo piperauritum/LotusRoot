@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 pca = [*0..23].map{|e| e/2.0}	# Applies on quarter tones
 pch = [*1..11].map{|n|			# ... and chromatic intervals

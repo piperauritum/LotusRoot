@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 pch = [*0..11].map{|e| [0,1].add(3*e)}.flatten
 elm = pch.map{"@"}

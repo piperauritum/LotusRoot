@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 ## Repeats markup for each tied notes (@=)
 elm = ["@= \\flageolet", "@"]

@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 dur = [*0..99].map{rand(4)+1}
 elm = dur.map{"@"}

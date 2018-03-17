@@ -1,4 +1,4 @@
-﻿require_relative 'bin/LotusRoot'
+﻿require_relative '../bin/LotusRoot'
 
 pch = [[3,6,10],[3,6,10],[2,6,10],[3,6,10]]
 elm = pch.map{"@"}
