@@ -16,7 +16,7 @@ Frescobaldi 2.18 or later (recommended)
 http://www.frescobaldi.org
 
 ## Usage
-cd <path>\LotusRoot
+cd <path>\LotusRoot\doc
 ruby test_mess.rb
 lilypond test.ly
 
