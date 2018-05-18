@@ -19,25 +19,47 @@ def put_note_name(pc, _el=nil)
 	if Array === pc # && pc.size>1
 		acc = @accMode
 		acc = auto_accmode(pc, @accMode, @autoChordAcc) if @autoChordAcc
+		del_prev_acc = []
 		nn = pc.map{|e|
 			n = note_name(e, acc, @altNoteName)
-			if @prev_pch.include?(e) && !natural?(e) && !(_el=~/=/)
+			if [!(_el=~/=/), !natural?(e), @last_pch.include?(e)].all?
 				case @reptChordAcc
 				when 0
 					n += "!"
 				when 1
-					n += "!" if @prev_pch!=pc
+					n += "!" if @last_pch!=pc
 				end
+			elsif [@distNat, !(_el=~/=/), natural?(e), @prev_acc.index(n)!=nil].all?
+				del_prev_acc << n
+				n += "!"
 			end
 			n
 		}.join(' ')
-		@prev_pch = pc
+		@last_pch = pc
 		nn = "<#{nn}>"
+		del_prev_acc.each{|e|
+			@prev_acc -= [e]
+		}
 	else
-		pc = pc[0] if Array === pc
-		@prev_pch = [pc]
+#		pc = pc[0] if Array === pc
+		@last_pch = [pc]
 		nn = note_name(pc, @accMode, @altNoteName)
+
+		if [@distNat, !(_el=~/=/), natural?(pc), @prev_acc.index(nn)!=nil].all?
+			@prev_acc -= [nn]
+			nn += "!"
+		end
 	end
+
+	nx = nn.gsub(/[<>!]/, "").split(" ")
+	nx.each{|e|
+		xoc = e.gsub(/[',]/, "")
+		nat = e.gsub(/[iesh]/, "")
+		if xoc.size>1 && @prev_acc.index(nat)==nil
+			@prev_acc << nat
+		end
+	}
+
 	nn
 end
 

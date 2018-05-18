@@ -7,7 +7,8 @@ class Score < DataProcess
 	include Notation
 	attr_reader :output
 	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
-	:accMode, :autoChordAcc, :reptChordAcc, :altNoteName, :beamOverRest, :noTieAcrossBeat, # :pnoTrem,
+	:accMode, :autoChordAcc, :reptChordAcc, :distNat, :altNoteName,
+	:beamOverRest, :noTieAcrossBeat, # :pnoTrem,
 	:fracTuplet, :tidyTuplet, :dotDuplet, :avoidRest, :wholeBarRest, :splitBeat
 
 
@@ -100,7 +101,8 @@ class Score < DataProcess
 
 	def scribe
 		@pch_id  = -1
-		@prev_pch = []
+		@last_pch = []
+		@prev_acc = []
 		@prev_dur, @prev_elm, @prev_tpl, @prev_mtr = [nil]*4
 		@bracketing, @beaming = nil, nil
 		@voice = ""

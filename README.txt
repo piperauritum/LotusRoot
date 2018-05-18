@@ -124,6 +124,8 @@ sco.reptChordAcc = a
 		0: 
 		1: Except if the chord is immediately repeated
 
+sco.distNat = 0
+
 sco.altNoteName = [a0, a1, a2, ...]
 	Replaces note-names.
 
