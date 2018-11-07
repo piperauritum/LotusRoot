@@ -102,6 +102,7 @@ class Score < DataProcess
 	def scribe
 		@pch_id  = -1
 		@last_pch = []
+		@all_pch = []
 		@prev_acc = []
 		@prev_dur, @prev_elm, @prev_tpl, @prev_mtr = [nil]*4
 		@bracketing, @beaming = nil, nil
@@ -209,6 +210,42 @@ class Score < DataProcess
 		puts "exported > #{n}"
 		f.puts @output
 		f.close
+	end
+
+
+	def scsco(tempo=60)
+		scx = []
+		px = @all_pch
+		tme = 0
+		c = -1
+		s = []
+		@seq.each{|e|
+			e.tpls.each{|f|
+				f.evts.each{|g|
+					dx = g.du.flatten.sigma
+					dx = dx*(60.0/tempo)
+					case g.el
+					when /@/
+						scx << s if s!=[]
+						c += 1
+						s = [tme, px[c], dx]
+					when /=/
+						s[2] += dx
+					when /r!/
+						scx << s if s!=[]
+						s = []
+					end
+					tme += dx
+				}
+			}
+		}
+		scx << s if s!=[]
+		txt = "~sco = [\n"
+		scx.each{|e|
+			txt += "[#{e[0].to_f}, [\\s_new, \\hoge, -1, 0, 0, \\pch, #{e[1]}, \\dur, #{e[2].to_f}]],\n"
+		}
+		txt += "];"
+		txt
 	end
 end
 

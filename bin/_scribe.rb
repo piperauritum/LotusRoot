@@ -147,6 +147,7 @@ def put_note(evt, tp)
 		#	@mainnote += "\\change Staff = lower " if @pnoTrem
 		else
 			@mainnote += put_note_name(@pitch.on(@pch_id), _el)
+			@all_pch << @pitch.on(@pch_id) if _el=~/@/
 		end
 	end
 	trem_nval
