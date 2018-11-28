@@ -5,6 +5,16 @@ module Notation
 ### Pitch ###
 
 	def note_name(pc, acc=0, alt=nil)
+		if Complex===pc
+			case pc.imag
+			when 1
+				acc = 0
+			when -1
+				acc = 1
+			end
+			pc = pc.real
+		end
+
 		diatonic = %w(c d e f g a b)
 
 		chromatic = [[2,6],[0,3]].map.with_index{|x,i|
@@ -90,6 +100,7 @@ module Notation
 		if chord.size==2 && func>0
 			wht = [2,2,1,2,2,2,1].map.with_index{|e,i| [i]*e}.flatten
 			itv = (chord.max-chord.min)%12		# applies on chromatic intervals
+			itv = itv.real if Complex===itv
 			sft = [wht, wht.rotate(itv)].transpose.map{|x,y| (y-x)%7}
 			mnr = sft.uniq.sort{|x,y| sft.count(x) <=> sft.count(y)}[0]
 			ary = sft.map.with_index{|e,i| e==mnr ? i : nil}-[nil]

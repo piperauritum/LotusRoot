@@ -60,14 +60,17 @@ tpl = [a0, a1, a2, ...]		(cyclic sequence)
 
 # Pitches
 pch = [a0, a1, a2, ...]		(cyclic sequence)
-	a	Fixnum/Float/Rational (single note)
+	a	Fixnum/Float/Rational/Complex (single note)
 
 		or
 
-	a	[Fixnum/Float/Rational] (chord)
+	a	[Fixnum/Float/Rational/Complex] (chord)
 
 		Fixnum			chromatic scale
 		Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
+		Complex(b, c)	Specifies an accidental (experimental)
+			b	single note
+			c	-1: flat / 1: sharp
 
 # Initialize
 sco = Score.new(dur, elm, tpl, pch)
@@ -75,11 +78,18 @@ sco = Score.new(dur, elm, tpl, pch)
 # Generates LilyPond script
 sco.gen
 
-# Outputs to console
+# Outputs
+a = sco.output
+	a	LilyPond script
+
 sco.print
+	Outputs to console
+
+a = sco.sc(tempo=60, synth="hoge")
+	a	SuperCollider score (experimental)
 
 # Exports to a textfile
-sco.export("sco.txt")
+sco.export(filename)
 
 # Options
 sco.pitchShift = a
@@ -125,6 +135,7 @@ sco.reptChordAcc = a
 		1: Except if the chord is immediately repeated
 
 sco.distNat = 0
+	Adds naturals regardless of bars, but ignores the octaves.
 
 sco.altNoteName = [a0, a1, a2, ...]
 	Replaces note-names.

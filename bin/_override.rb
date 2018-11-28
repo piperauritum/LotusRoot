@@ -16,11 +16,44 @@ class Float
 end
 
 
+class Complex
+	%w(+ - * / % **).each{|op|
+		class_eval <<-EOS
+			def #{op}(other)
+				x = BigDecimal(self.real.to_s)
+				if Complex===other
+					y = BigDecimal(other.real.to_s)
+				else
+					y = BigDecimal(other.to_s)
+				end
+				z = x #{op} y
+				Complex(z.to_f, self.imag)
+			end
+		EOS
+	}
+
+	%w(== != < > <= >= <=>).each{|op|
+		class_eval <<-EOS
+			def #{op}(other)
+				x = self.real
+				if Complex===other
+					y = other.real
+				else
+					y = other
+				end
+				x #{op} y
+			end
+		EOS
+	}
+end
+
+
 class Array
 
 	# circular index
 	def on(idx)
-		self.at(idx%self.size)
+		Complex===idx ? i=idx.real : i=idx 
+		self.at(i%self.size)
 	end
 
 	# sum of array

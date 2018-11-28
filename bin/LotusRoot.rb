@@ -213,7 +213,7 @@ class Score < DataProcess
 	end
 
 
-	def scsco(tempo=60, synth="hoge")
+	def sc(tempo=60, synth="hoge")
 		scx = []
 		px = @all_pch
 		tme = 0
