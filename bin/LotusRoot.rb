@@ -213,7 +213,7 @@ class Score < DataProcess
 	end
 
 
-	def scsco(tempo=60)
+	def scsco(tempo=60, synth="hoge")
 		scx = []
 		px = @all_pch
 		tme = 0
@@ -242,7 +242,7 @@ class Score < DataProcess
 		scx << s if s!=[]
 		txt = "~sco = [\n"
 		scx.each{|e|
-			txt += "[#{e[0].to_f}, [\\s_new, \\hoge, -1, 0, 0, \\pch, #{e[1]}, \\dur, #{e[2].to_f}]],\n"
+			txt += "[#{e[0].to_f}, [\\s_new, \\#{synth}, -1, 0, 0, \\pch, #{e[1]}, \\dur, #{e[2].to_f}]],\n"
 		}
 		txt += "];"
 		txt
