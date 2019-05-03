@@ -53,8 +53,10 @@ def put_note_name(pc, _el=nil)
 
 	nx = nn.gsub(/[<>!]/, "").split(" ")
 	nx.each{|e|
-		xoc = e.gsub(/[',]/, "")
-		nat = e.gsub(/[iesh]/, "")
+		oct = e.gsub(/[a-z]/, "")
+		xoc = e.gsub(oct, "")
+		nat = xoc[0]+oct
+
 		if xoc.size>1 && @prev_acc.index(nat)==nil
 			@prev_acc << nat
 		end
