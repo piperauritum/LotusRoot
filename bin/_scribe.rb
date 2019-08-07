@@ -106,7 +106,7 @@ end
 
 def add_tuplet_bracket(tpp, evt_id)
 	if evt_id==0 && !@bracketing
-		if !@dotted && ((Fixnum===tpp && Math.log2(tpp)%1>0) || (TplParam===tpp && !tpp.even?))
+		if !@dotted && ((Integer===tpp && Math.log2(tpp)%1>0) || (TplParam===tpp && !tpp.even?))
 			@bracketing = true
 
 			if TplParam === tpp

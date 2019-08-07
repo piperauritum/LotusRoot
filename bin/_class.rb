@@ -67,7 +67,7 @@ class MtrParam
 
 	def initialize(param)
 		@orig = param
-		param = [[param], 1] if Fixnum === param
+		param = [[param], 1] if Integer === param
 		if param[0].size==1
 			x = param[0][0]
 			y = if x%3==0

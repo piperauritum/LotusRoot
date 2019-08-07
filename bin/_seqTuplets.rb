@@ -69,7 +69,7 @@ class DataProcess
 		begin
 			metre.map{|e| MtrParam.new(e)}
 		rescue
-			puts "LotusRoot >> .metre must be [Fixnum..] or [[[Fixnum..], Rational]..]"
+			puts "LotusRoot >> .metre must be [Integer..] or [[[Integer..], Rational]..]"
 			raise
 		end	
 	end
@@ -95,7 +95,7 @@ class DataProcess
 			begin
 				tp = tpar.on(idx)
 			rescue
-				puts "LotusRoot >> Parameter of tuplet must be [Fixnum..] or [[Fixnum, Fixnum, Rational]..]"
+				puts "LotusRoot >> Parameter of tuplet must be [Integer..] or [[Integer, Integer, Rational]..]"
 				raise
 			end
 
@@ -105,7 +105,7 @@ class DataProcess
 			case tp
 			when Array
 				tpp = tp.to_tpar
-			when Fixnum
+			when Integer
 				tpp = tuplet_num_to_param(tp, beat)
 				rto = Rational(tpp.numer, tpp.denom)
 				if [
@@ -129,12 +129,12 @@ class DataProcess
 					len = tpp.numer
 					tick = tpp.tick
 				rescue
-					puts "LotusRoot >> Parameter of tuplet must be [Fixnum..] or [[Fixnum, Fixnum, Rational]..]"
+					puts "LotusRoot >> Parameter of tuplet must be [Integer..] or [[Integer, Integer, Rational]..]"
 					raise
 				end
 
 
-				if Fixnum===tp && tick.numerator>1
+				if Integer===tp && tick.numerator>1
 					len = tp
 					tick *= Rational(tpp.numer, tp)
 				end
@@ -173,7 +173,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 					ay = [ay[0]] + [ay[1]]*(len-1)
 					tu.par = [len, len, tick].to_tpar
 				else
-					if Fixnum === tp
+					if Integer === tp
 						tu.par = tpp
 					else
 						tu.par = tpar.on(idx).to_tpar

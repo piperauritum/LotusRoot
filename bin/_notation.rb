@@ -147,7 +147,7 @@ module Notation
 			tpl.ar.to_tpar
 		when Array
 			tpl.to_tpar
-		when Fixnum
+		when Integer
 			if (tpl*beat)%1==0
 				numer = (tpl*beat).to_i
 				unit_dur = Rational(numer, beat)
