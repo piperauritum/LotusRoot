@@ -19,10 +19,10 @@ mtr = [5, 4]		# Cyclic sequence
 pp mtr
 
 if Array===mtr[0]
-	elm = ["r!"]*mtr.map{|e| e[0].sigma}.sigma
+	elm = ["r!"]*mtr.map{|e| e[0].sum}.sum
 	tpl = [mtr[0][1].denominator]
 else
-	elm = ["r!"]*mtr.sigma
+	elm = ["r!"]*mtr.sum
 	tpl = [1]
 end
 

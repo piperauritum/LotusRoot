@@ -76,7 +76,7 @@ module Notation
 
 	def auto_accmode(chord, mode, func)
 		mo = mode
-		
+
 		## Avoids imperfect unison in chromatic chords
 		am = chord.map{|x| x%12}
 		[0,2,5,7,9].each{|e|
@@ -197,7 +197,7 @@ module Notation
 
 	def note_value(tpl)
 		tpp = tuplet_num_to_param(tpl)
-		tpp.numer = tpp.numer.sigma if Array === tpp.numer
+		tpp.numer = tpp.numer.sum if Array === tpp.numer
 
 		duple_note = [*-16..2].map{|e|
 			x = 2**e
@@ -247,11 +247,11 @@ module Notation
 		bt_struct, unit_num, unit_dur = tp_ary.ar
 		tme = 0
 		ary = []
-		rto = Rational(unit_num*unit_dur, bt_struct.sigma)
+		rto = Rational(unit_num*unit_dur, bt_struct.sum)
 		bt_struct.each{|bt|
 			nv = Rational(notevalue, rto)
 			tbl = pos_table[bt]
-			if tbl!=nil 
+			if tbl!=nil
 				sel = tbl.select{|k,v| k==nv}.values[0]
 				if sel!=nil
 					ary += sel.map{|po|

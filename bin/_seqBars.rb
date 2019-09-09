@@ -12,7 +12,7 @@ class DataProcess
 		## fill with rests
 		while tuples.size>0 || bar_residue>0
 			mtr = metre.on(mtr_id)
-			btotal = Rational(mtr.beat.sigma*mtr.unit)
+			btotal = Rational(mtr.beat.sum*mtr.unit)
 
 			if tuples.map(&:evts).dtotal<btotal
 				filler = []
@@ -84,7 +84,7 @@ class DataProcess
 		bars.each.with_index{|bar, bar_id|
 			bar_dur = bar.tpls.map(&:evts).dtotal
 			mtr = bar.mtr
-			if Rational(mtr.beat.sigma*mtr.unit)!=bar_dur
+			if Rational(mtr.beat.sum*mtr.unit)!=bar_dur
 				puts <<-EOS
 
 LotusRoot >> Total duration of bar (#{bar_dur}) is different from the time signature (#{mtr})
@@ -168,7 +168,7 @@ LotusRoot >> #{mtr}
 						end
 
 						nv = fol.dsum + laf.dsum
-						tp_ary = [beat_struc, beat_struc.sigma, unit_dur].to_tpar
+						tp_ary = [beat_struc, beat_struc.sum, unit_dur].to_tpar
 						matchValue = note_value(tp_ary)[nv]!=nil
 
 						npos = allowed_positions(tp_ary, pos_table, nv)
@@ -215,7 +215,7 @@ LotusRoot >> #{mtr}
 
 	def markup_tail(bars)
 		past = nil
-		u,v,w = nil, nil, nil 
+		u,v,w = nil, nil, nil
 		bars.each.with_index{|bar,x|
 			bar.tpls.each.with_index{|tuple,y|
 				tuple.evts.each.with_index{|note,z|
@@ -238,7 +238,7 @@ LotusRoot >> #{mtr}
 
 	def slur_over_tremolo(bars)
 		past = nil
-		u,v,w = nil, nil, nil 
+		u,v,w = nil, nil, nil
 		id = 0
 		bars.each.with_index{|bar,x|
 			bar.tpls.each.with_index{|tuple,y|
@@ -331,7 +331,7 @@ LotusRoot >> #{mtr}
 
 			if wbel[0]=~/r!/ && wbel[1..-1].map{|e| e=="r!"}.all?
 				unit = wbdu.flatten.min
-				mul = (wbdu.flatten.sigma/unit).to_i
+				mul = (wbdu.flatten.sum/unit).to_i
 				new_el = wbel[0].sub("r!", "R!")
 				tpp = [mul, mul, unit].to_tpar
 				evt = Event.new(new_el, wbdu)

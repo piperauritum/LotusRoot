@@ -78,7 +78,7 @@ end
 
 def add_time_signature(mtr, tpl_id)
 	if tpl_id==0 && mtr.ar!=@prev_mtr
-		nu = mtr.beat.sigma
+		nu = mtr.beat.sum
 		de = (Rational(1, mtr.unit)*4).to_i
 		@voice += "\\time #{nu}/#{de} "
 	end
@@ -137,10 +137,10 @@ def put_note(evt, tp)
 		if _el=~/%/							# fingered tremolo
 			/(%(ATK)?(SOT)?(\d+))/ =~ _el
 			trem_nval = $4.to_i
-			trem_dur = Rational(8, trem_nval)			
+			trem_dur = Rational(8, trem_nval)
 			nval_dur = note_value(2**16).key(note_value(tp)[_du])
 			tr_times = (nval_dur/trem_dur).to_i
-			
+
 			if tr_times==0
 				puts "LotusRoot >> Note value is equal or shorter than fingered-tremolo notes (\\repeat tremolo 0)"
 				raise
@@ -195,7 +195,7 @@ LotusRoot >> #{vv}
 	end
 
 	if !(_el=~/%/) # && (
-#		(@prev_dur!=_du || @prev_tpl!=tpp || @prev_elm=~/%/) || 
+#		(@prev_dur!=_du || @prev_tpl!=tpp || @prev_elm=~/%/) ||
 #		(_du==bar_dur && (_el=~/r!|s!/))
 #		)
 		@mainnote += nv
@@ -205,10 +205,10 @@ end
 
 def fingered_tremolo(evt, trem_nval)
 	_el = evt.el
-	main_pch = @pitch.on(@pch_id)	
+	main_pch = @pitch.on(@pch_id)
 	trem_cmd = _el.sub(/.*%(ATK)?(SOT)?\d+/, "")
-	trem_pch = _el.scan(/\[.+\]/)[0]	
-	nnum = trem_pch.gsub(/\[|\]|\s/, "").split(",").map{|e|	
+	trem_pch = _el.scan(/\[.+\]/)[0]
+	nnum = trem_pch.gsub(/\[|\]|\s/, "").split(",").map{|e|
 		e.gsub(/\(|\)/, "").to_r+@pitchShift
 	}
 
@@ -267,15 +267,15 @@ def add_beam(tuple, evt_id)
 			bm = false if eq[0]==1 && (eq-[0]).size==1
 
 			# no rest
-			eq = elz.map{|e| e=~/r!|s!|rrr|sss/ ? 1 : 0 }.sigma
+			eq = elz.map{|e| e=~/r!|s!|rrr|sss/ ? 1 : 0 }.sum
 			bm = false if eq==0 && @beamOverRest==0
 
 			# include two-notes tremolo or grace notes
-			eq = elz.map{|e| e=~/%|GRC/ ? 1 : 0 }.sigma
+			eq = elz.map{|e| e=~/%|GRC/ ? 1 : 0 }.sum
 			bm = false if eq>0
 
 			# only rest or tie
-			eq = elz.map{|e| e=~/r!|s!|rrr|sss|\A=\Z|\A=:\Z/ ? 0 : 1 }.sigma
+			eq = elz.map{|e| e=~/r!|s!|rrr|sss|\A=\Z|\A=:\Z/ ? 0 : 1 }.sum
 			bm = false if eq==0
 
 			# already beamed

@@ -5,7 +5,7 @@ An assistance program for musical composition on Ruby.
 Generates LilyPond script from some numeric/string arrays.
 
 ## Requirement
-Ruby 2.2 or later
+Ruby 2.4 or later
 https://www.ruby-lang.org
 http://rubyinstaller.org/downloads (win)
 

@@ -71,14 +71,14 @@ class DataProcess
 		rescue
 			puts "LotusRoot >> .metre must be [Integer..] or [[[Integer..], Rational]..]"
 			raise
-		end	
+		end
 	end
 
 
 	def beat_structure(metre)
 		metre.map{|e|
 			if e.unit==1
-				[1]*e.beat.sigma
+				[1]*e.beat.sum
 			else
 				e.beat.map{|f| e.unit*f}
 			end
@@ -269,14 +269,14 @@ LotusRoot >> #{note_value(tpp.ar)}
 		quad = Tuplet.new(tpp, quad)
 		[quad, prev]
 	end
- 
- 
+
+
 	def recombine_tuplet(tuplet)
 		quad = tuplet.evts
 		tpp = tuplet.par
 		tick = tpp.tick
 		beat_struc = quad.map{|e|
-			(e.dlook.flatten.sigma/tick).to_i
+			(e.dlook.flatten.sum/tick).to_i
 		}
 
 		if tpp.even?
@@ -320,7 +320,7 @@ LotusRoot >> #{note_value(tpp.ar)}
 							fol.el=~/@/,
 							fol.el=='+',
 							[fol.el]-%w(= =:)==[]
-						].any?, 
+						].any?,
 						[
 							fol.el=~/%/,
 							laf.el=~/%/,

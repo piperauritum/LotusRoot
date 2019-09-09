@@ -52,18 +52,19 @@ class Array
 
 	# circular index
 	def on(idx)
-		Complex===idx ? i=idx.real : i=idx 
+		Complex===idx ? i=idx.real : i=idx
 		self.at(i%self.size)
 	end
 
 	# sum of array
+	# obsolete: replace by Array#sum (Ruby 2.4~)
 	def sigma
 		inject(:+)
 	end
 
 	# average
 	def avg
-		self.sigma.to_f/self.size
+		self.sum.to_f/self.size
 	end
 
 	# calc multi-dimensional array
@@ -78,7 +79,7 @@ class Array
 			end
 		}
 	end
-	
+
 	def mod(x)
 		self.map{|e|
 			if Array === e

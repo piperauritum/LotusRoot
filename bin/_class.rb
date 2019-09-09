@@ -14,7 +14,7 @@
 	end
 
 	def dsum
-		@du.flatten.sigma
+		@du.flatten.sum
 	end
 end
 

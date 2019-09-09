@@ -112,7 +112,7 @@ class Score < DataProcess
 		@seq.each{|bar|
 			mtr = bar.mtr
 			beat_dur = mtr.unit
-			bar_dur = mtr.beat.sigma*beat_dur
+			bar_dur = mtr.beat.sum*beat_dur
 
 			##### TUPLET #####
 			bar.tpls.each.with_index{|tuple, tpl_id|
@@ -153,7 +153,7 @@ class Score < DataProcess
 						}
 
 						fingered_tremolo(evt, trem_nval) if _el=~/%/
-					
+
 					@voice += @mainnote
 					add_beam(tuple, evt_id)
 
@@ -222,7 +222,7 @@ class Score < DataProcess
 		@seq.each{|e|
 			e.tpls.each{|f|
 				f.evts.each{|g|
-					dx = g.du.flatten.sigma
+					dx = g.du.flatten.sum
 					dx = dx*(60.0/tempo)
 					case g.el
 					when /@/
@@ -248,4 +248,3 @@ class Score < DataProcess
 		txt
 	end
 end
-
