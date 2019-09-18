@@ -23,12 +23,12 @@ lilypond test.ly
 ## Reference
 
 # Durations
-dur = [a0, a1, a2, ...]		(cyclic sequence)
-	a	duration (Fixnum)
+dur = [x0, x1, x2, ...]		(cyclic sequence)
+	x	duration (Integer)
 
 # Elements
-elm = [a0, a1, a2, ...]		(linear sequence)
-	a	element (String)
+elm = [x0, x1, x2, ...]		(linear sequence)
+	x	element (String)
 
 		@				attack of note
 		=				sustain of note (can not use for rest)
@@ -48,25 +48,25 @@ elm = [a0, a1, a2, ...]		(linear sequence)
 		["@", 1]		staccato (shortened note)
 
 # Tuplets
-tpl = [a0, a1, a2, ...]		(cyclic sequence)
-	a	number of division (Fixnum)
+tpl = [x0, x1, x2, ...]		(cyclic sequence)
+	x	number of division (Integer)
 
 		or
 
-	a	[n, d, u]
-		n	numerator (Fixnum)
-		d	denominator (Fixnum)
+	x	[n, d, u]
+		n	numerator (Integer)
+		d	denominator (Integer)
 		u	unit duration (Rational)
 
 # Pitches
-pch = [a0, a1, a2, ...]		(cyclic sequence)
-	a	Fixnum/Float/Rational/Complex (single note)
+pch = [x0, x1, x2, ...]		(cyclic sequence)
+	x	Integer/Float/Rational/Complex (single note)
 
 		or
 
-	a	[Fixnum/Float/Rational/Complex] (chord)
+	x	[Integer/Float/Rational/Complex] (chord)
 
-		Fixnum			chromatic scale
+		Integer			chromatic scale
 		Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
 		Complex(b, c)	Specifies an accidental (experimental)
 			b	single note
@@ -79,73 +79,76 @@ sco = Score.new(dur, elm, tpl, pch)
 sco.gen
 
 # Outputs
-a = sco.output
-	a	LilyPond script
+x = sco.output
+	x	LilyPond script
 
 sco.print
 	Outputs to console
 
-a = sco.sc(tempo=60, synth="hoge")
-	a	SuperCollider score (experimental)
+x = sco.sc(tempo=60, synth="hoge")
+	x	SuperCollider score (experimental)
 
 # Exports to a textfile
 sco.export(filename)
 
 # Options
-sco.pitchShift = a
-	a	transposition (Fixnum/Float/Rational)
+sco.config = x
+	x	configuration in the beginning (String)
 
-sco.metre = [a0, a1, a2, ...]		(cyclic sequence)
-	a	numerator of time signature (Fixnum)
+sco.pitchShift = x
+	x	transposition (Integer/Float/Rational)
+
+sco.metre = [x0, x1, x2, ...]		(cyclic sequence)
+	x	numerator of time signature (Integer)
 		(denominator = 4)
 
 		or
 
-	a	[[b], u]
-		b	beat structure ([Fixnum])
+	x	[[b], u]
+		b	beat structure ([Integer])
 		u	unit duration (Rational)
 		(e.g. [[2,2,1], 1/2r] => \time 5/8)
 
-sco.finalBar = a
-	a	the last bar number (Fixnum)
+sco.finalBar = x
+	x	the last bar number (Integer)
 
-sco.namedMusic = a
-	a	namedMusic (String)
+sco.namedMusic = x
+	x	namedMusic (String)
 
 sco.noMusBracket = 0
 	Removes namedMusic bracket.
 
-sco.accMode = a
-	a	Fixnum
+sco.accMode = x
+	x	Integer
 		0: sharp
 		1: flat
 		2: sharp, without 3/4-tones
 		3: flat, without 3/4-tones
 
-sco.autoChordAcc = a
-	a	Fixnum
+sco.autoChordAcc = x
+	x	Integer
 		0: Selects sharp or flat for each chromatic chords automatically, avoids imperfect unison
 		1: Additionary, aligns the degrees of dyads
 
-sco.reptChordAcc = a
+sco.reptChordAcc = x
 	Repeats accidentals to the next chord.
 
-	a	Fixnum
-		0: 
+	x	Integer
+		0:
 		1: Except if the chord is immediately repeated
 
 sco.distNat = 0
 	Adds naturals regardless of bars, but ignores the octaves.
 
-sco.altNoteName = [a0, a1, a2, ...]
+sco.altNoteName = [x0, x1, x2, ...]
 	Replaces note-names.
 
-	a	[p, n]
-		p	pitch (Fixnum/Float/Rational)
+	x	[p, n]
+		p	pitch (Integer/Float/Rational)
 		n	note-name (String)
 
-sco.beamOverRest = a
-	a	Fixnum
+sco.beamOverRest = x
+	x	Integer
 		0: Writes beams over rests
 		1: Writes beams forcibly
 
@@ -164,10 +167,10 @@ sco.dotDuplet = 0
 sco.splitBeat = 0
 	Disable connecting of beats.
 
-sco.avoidRest = [a0, a1, a2, ...]
+sco.avoidRest = [x0, x1, x2, ...]
 	Excludes rests of given note values.
 
-	a	note value (Fixnum/Float/Rational)
+	x	note value (Integer/Float/Rational)
 
 sco.wholeBarRest = 0
 	Writes whole bar rests.
@@ -184,5 +187,5 @@ Takumi Ikeda
 
 ## Copyright
 
-(c) 2016-2018 Takumi Ikeda
+(c) 2016-2019 Takumi Ikeda
 This software is released under the MIT License, see LICENSE.txt.

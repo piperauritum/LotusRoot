@@ -6,7 +6,7 @@ include Notation
 class Score < DataProcess
 	include Notation
 	attr_reader :output
-	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket,
+	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket, :config,
 	:accMode, :autoChordAcc, :reptChordAcc, :distNat, :altNoteName,
 	:beamOverRest, :noTieAcrossBeat, # :pnoTrem,
 	:fracTuplet, :tidyTuplet, :dotDuplet, :avoidRest, :wholeBarRest, :splitBeat
@@ -106,7 +106,12 @@ class Score < DataProcess
 		@prev_acc = []
 		@prev_dur, @prev_elm, @prev_tpl, @prev_mtr = [nil]*4
 		@bracketing, @beaming = nil, nil
-		@voice = ""
+
+		if @config != nil
+			@voice = "\n#{@config}"
+		else
+			@voice = ""
+		end
 
 		##### MEASURE #####
 		@seq.each{|bar|
@@ -171,7 +176,7 @@ class Score < DataProcess
 		if @noMusBracket==nil
 			@voice = "#{@namedMusic} = {#{@voice}\n}"
 		end
-		@voice
+		@voice + "\n"
 	end
 
 
