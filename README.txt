@@ -70,7 +70,7 @@ pch = [x0, x1, x2, ...]		(cyclic sequence)
 		Float/Rational	1/4-tone (n/2) or 1/8-tone (n/4)
 		Complex(b, c)	Specifies an accidental (experimental)
 			b	single note
-			c	-1: flat / 1: sharp
+			c	accidental mode (see sco.accMode)
 
 # Initialize
 sco = Score.new(dur, elm, tpl, pch)
@@ -124,6 +124,8 @@ sco.accMode = x
 		1: flat
 		2: sharp, without 3/4-tones
 		3: flat, without 3/4-tones
+		4: sharp + double sharp for "white key notes", chromatic scale only
+		5: flat + double flat for "white key notes", chromatic scale only
 
 sco.autoChordAcc = x
 	x	Integer

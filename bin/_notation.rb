@@ -6,12 +6,7 @@ module Notation
 
 	def note_name(pc, acc=0, alt=nil)
 		if Complex===pc
-			case pc.imag
-			when 1
-				acc = 0
-			when -1
-				acc = 1
-			end
+			acc = pc.imag
 			pc = pc.real
 		end
 
@@ -26,6 +21,25 @@ module Notation
 				end
 			}.flatten
 		}.at(acc%2)
+
+		if acc>3
+			enharmonic = [[2,6,-1],[0,3,1]].map.with_index{|x,i|
+				r = x.pop
+				diatonic.map.with_index{|n,deg|
+					if [deg]-x==[]
+						[n+"is", n+"es"][i]
+					else
+						[n+"isis", n+"eses"][i]
+					end
+				}.rotate(r)
+			}.at(acc%2)
+
+			enharmonic = diatonic.zip(enharmonic).to_h
+
+			chromatic = chromatic.map{|x|
+				enharmonic.has_key?(x) ? enharmonic[x] : x
+			}
+		end
 
 		if acc<2
 			qtone = chromatic.map{|n|
@@ -43,7 +57,7 @@ module Notation
 				end
 			}.flatten
 		end
-		qtone = qtone.rotate(qtone.index("c"))
+		qtone = qtone.rotate(qtone.index(chromatic[0]))
 
 		etone = qtone.map.with_index{|n,i|
 			if i%2==0
@@ -52,7 +66,7 @@ module Notation
 				n
 			end
 		}.flatten
-		etone = etone.rotate(etone.index("c"))
+		etone = etone.rotate(etone.index(chromatic[0]))
 
 		if alt!=nil
 			rep = alt.transpose[0]
@@ -64,9 +78,18 @@ module Notation
 			}
 		end
 
-		na = etone.on(pc*4)
+		if acc<4
+			na = etone.on(pc*4)
+		else
+			na = chromatic.on(pc)
+		end
 		otv = (pc/12.0).floor
-		otv += 1 if na=~/ce/
+		case na
+		when /ce/
+			otv += 1
+		when /bis/
+			otv -= 1
+		end
 		otv.abs.times{
 			pc>0 ? na+="'" : na+=","
 		}
