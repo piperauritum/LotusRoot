@@ -73,7 +73,11 @@ class Array
 			if Array === e
 				e.add(x)
 			elsif e!=nil
-				e+x
+				if Complex === e
+					e + Complex(x, 0)
+				else
+					e+x
+				end
 			else
 				e
 			end
