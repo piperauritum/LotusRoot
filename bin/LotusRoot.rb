@@ -15,7 +15,7 @@ class Score < DataProcess
 	def initialize(_durations, _elements, _tuplets, _pitches)
 		super(_tuplets)
 		@elems = unfold_elements(_durations, _elements)
-		@pitch = _pitches-[nil]
+		@pitch = _pitches-[nil]-[[]]
 		@namedMusic = "hoge"
 		@metre = [4]
 		@accMode, @pitchShift = 0, 0
