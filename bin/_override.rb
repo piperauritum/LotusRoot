@@ -84,6 +84,18 @@ class Array
 		}
 	end
 
+	def mul(x)
+		self.map{|e|
+			if Array === e
+				e.mul(x)
+			elsif e!=nil
+				e*x
+			else
+				e
+			end
+		}
+	end
+
 	def mod(x)
 		self.map{|e|
 			if Array === e
