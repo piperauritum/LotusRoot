@@ -126,6 +126,20 @@ class Array
 	def deepcopy
 		Marshal.load(Marshal.dump(self))
 	end
+
+	# convert the intervals to array of pitch
+	def itv_pch(mod=0)
+		self.inject([0]){|arr,n|
+			pc = arr.last+n
+			pc %= mod if mod>0
+			arr << pc
+		}
+	end
+
+
+	def pch_itv(mod=0)
+		self.zip(self.rotate(1)).map{|x,y| mod>0 ? (y-x)%mod : y-x}
+	end
 end
 
 
