@@ -232,7 +232,12 @@ module Notation
 			[Rational(x*3), "#{(2/x).to_i}."]
 		}
 
-		notation = (duple_note + dotted_note).sort{|x,y| x[0]<=>y[0]}
+		double_dotted_note = [*-16..-1].map{|e|
+		  x = 2**e
+		  [Rational(x*7), "#{(1/x).to_i}.."]
+		}
+
+		notation = (duple_note + dotted_note + double_dotted_note).sort{|x,y| x[0]<=>y[0]}
 
 		if tpp.numer==0
 			nil
