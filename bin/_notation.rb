@@ -101,6 +101,8 @@ module Notation
 		mo = mode
 
 		## Avoids imperfect unison in chromatic chords
+=begin
+		## Previous method
 		am = chord.map{|x| x%12}
 		[0,2,5,7,9].each{|e|
 			mo = 1 if am.include?(e) && am.include?(e+1)
@@ -108,12 +110,18 @@ module Notation
 		[2,4,7,9,11].each{|e|
 			mo = 0 if am.include?(e) && am.include?(e-1)
 		}
+=end
+
+		chord.each{|e|
+			mo = 1 if chord.include?(e+1) && [0,2,5,7,9].include?(e%12)
+			mo = 0 if chord.include?(e-1) && [2,4,7,9,11].include?(e%12)
+		}
 
 		## Aligns the degrees of dyads
 		sel = ->(ary){
 			ary.each{|e|
 				[*0..2].each.with_index{|a,i|
-					if chord.min%12==a/2.0+e	# applies on quarter tones
+					if chord.min % 12 == a / 2.0 + e	# applies on quarter tones
 						mo = [1,2,0][i]
 					end
 				}
