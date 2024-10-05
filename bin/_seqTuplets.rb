@@ -75,20 +75,72 @@ class DataProcess
 	end
 
 
-	def beat_structure(metre)
-		metre.map{|e|
-			if e.unit==1
-				[1]*e.beat.sum
-			else
-				e.beat.map{|f| e.unit*f}
-			end
-		}.flatten
+	# def beat_structure(metre)
+	# 	metre.map{|e|
+	# 		if e.unit==1
+	# 			[1]*e.beat.sum
+	# 		else
+	# 			e.beat.map{|f| e.unit*f}
+	# 		end
+	# 	}.flatten
+	# end
+
+
+	def beat_structure(metre, tpl)
+	  mtr_bt = metre.map{|e|
+	    if e.unit == 1
+	      e.beat.sum * e.unit
+	    else
+	      e.beat.map{|f| e.unit * f}
+	    end
+	  }.flatten
+
+	  bts = []
+	  mid = 0
+	  tid = 0
+	  total = 0
+	  go = true
+
+	  while (go)
+	    dur = mtr_bt.on(mid)
+
+	    while total < dur
+	      if Integer === dur
+	        if Array === tpl.on(tid)
+	          b = tpl.on(tid)[1] * tpl.on(tid)[2]
+	          bts << b
+	          total += b
+	        else
+	          bts << 1
+	          total += 1
+	        end
+	      else
+	        bts << dur
+	        total += dur
+	      end
+
+	      tid += 1
+	      # puts "total #{total}\nbts #{bts} #{bts.sigma}"
+	    end
+
+	    if total == dur
+	      total = 0
+	      mid += 1
+	    elsif total > dur
+	      raise "boo"
+	    end
+
+	    if mid % mtr_bt.size == 0 && tid % tpl.size == 0
+	      go = false
+	    end
+	  end
+		bts
 	end
 
 
 	def assemble_tuplets(elms, tpar, metre)
 		tpls = []
-		beats = beat_structure(metre)
+		beats = beat_structure(metre, tpar)
 		idx = 0
 
 		while elms.size>0
@@ -132,7 +184,6 @@ class DataProcess
 					puts "LotusRoot >> Parameter of tuplet must be [Integer..] or [[Integer, Integer, Rational]..]"
 					raise
 				end
-
 
 				if Integer===tp && tick.numerator>1
 					len = tp
