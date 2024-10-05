@@ -31,7 +31,7 @@ class TplParam
 	end
 
 	def tick
-		Rational(@denom*@unit, @numer)
+		Rational(@denom * @unit, @numer)
 	end
 
 	def even?
@@ -40,9 +40,9 @@ class TplParam
 
 	def dot?
 		[
-			Math.log2(@numer)%1==0,
-			@denom%3==0,
-			note_value_dot(self)!=nil
+			Math.log2(@numer) % 1 == 0,
+			@denom % 3 == 0,
+			note_value_dot(self) != nil
 		].all?
 	end
 end
@@ -51,9 +51,9 @@ end
 class Tuplet
 	attr_accessor :par, :evts
 
-	def initialize(param=nil, event=nil)
+	def initialize(param = nil, event = nil)
 		@par, @evts = param, event
-		@evts = Event.new("r!", nil) if event==nil
+		@evts = Event.new("r!", nil) if event == nil
 	end
 
 	def ar
@@ -68,12 +68,12 @@ class MtrParam
 	def initialize(param)
 		@orig = param
 		param = [[param], 1] if Integer === param
-		if param[0].size==1
+		if param[0].size == 1
 			x = param[0][0]
-			y = if x%3==0
-				[3]*(x/3)
+			y = if x % 3 == 0
+				[3] * (x / 3)
 			else
-				[2]*(x/2)+[x%2]-[0]
+				[2] * (x / 2) + [x % 2] - [0]
 			end
 			param = [y, param[1]]
 		end
@@ -89,7 +89,7 @@ end
 class Bar
 	attr_accessor :mtr, :tpls
 
-	def initialize(metre=nil, tuplets=[])
+	def initialize(metre = nil, tuplets = [])
 		@mtr, @tpls = metre, tuplets
 	end
 

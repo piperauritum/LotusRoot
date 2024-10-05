@@ -34,7 +34,7 @@ class Score < DataProcess
 		idx = 0
 		tplts.inject(Tuplet.new){|prev_tplt, tplt|
 			tpar = tplt.par
-			tick = Rational(tpar.denom*tpar.unit, tplt.evts.size)
+			tick = Rational(tpar.denom * tpar.unit, tplt.evts.size)
 
 			reduc = ->(tup){
 				abbr = tpar_abbreviations(tpar)
@@ -104,7 +104,7 @@ class Score < DataProcess
 		@last_pch = []
 		@all_pch = []
 		@prev_acc = []
-		@prev_dur, @prev_elm, @prev_tpl, @prev_mtr = [nil]*4
+		@prev_dur, @prev_elm, @prev_tpl, @prev_mtr = [nil] * 4
 		@bracketing, @beaming = nil, nil
 
 		if @config != nil
@@ -117,7 +117,7 @@ class Score < DataProcess
 		@seq.each{|bar|
 			mtr = bar.mtr
 			beat_dur = mtr.unit
-			bar_dur = mtr.beat.sum*beat_dur
+			bar_dur = mtr.beat.sum * beat_dur
 
 			##### TUPLET #####
 			bar.tpls.each.with_index{|tuple, tpl_id|
@@ -228,7 +228,7 @@ class Score < DataProcess
 			e.tpls.each{|f|
 				f.evts.each{|g|
 					dx = g.du.flatten.sum
-					dx = dx*(60.0/tempo)
+					dx = dx * (60.0/tempo)
 					case g.el
 					when /@/
 						scx << s if s!=[]

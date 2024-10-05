@@ -10,20 +10,20 @@ class DataProcess
 		bar_residue = 0
 
 		## fill with rests
-		while tuples.size>0 || bar_residue>0
+		while tuples.size > 0 || bar_residue > 0
 			mtr = metre.on(mtr_id)
-			btotal = Rational(mtr.beat.sum*mtr.unit)
+			btotal = Rational(mtr.beat.sum * mtr.unit)
 
-			if tuples.map(&:evts).dtotal<btotal
+			if tuples.map(&:evts).dtotal < btotal
 				filler = []
 				tpl_add = []
-				len = tuples.map(&:evts).dtotal+filler.map(&:evts).dtotal+bar_residue
-				gap = btotal-len
+				len = tuples.map(&:evts).dtotal + filler.map(&:evts).dtotal + bar_residue
+				gap = btotal - len
 
-				while gap>0
+				while gap > 0
 					tick = note_value(16)
 					tick = tick.select{|key, val| !(@avoidRest.include?(key))}
-					tick = tick.select{|key, val| key<=gap}.max[0]
+					tick = tick.select{|key, val| key <= gap}.max[0]
 					tpp = [1, 1, tick].to_tpar
 					evt = Event.new("r!", tick)
 					filler << Tuplet.new(tpp, [evt])
@@ -37,11 +37,11 @@ class DataProcess
 			end
 
 			bar = Bar.new(mtr)
-			while bar.tpls.map(&:evts).dtotal+bar_residue<btotal
+			while bar.tpls.map(&:evts).dtotal + bar_residue < btotal
 				bar.tpls << tuples.shift
 			end
 
-			bar_residue = bar.tpls.map(&:evts).dtotal+bar_residue-btotal
+			bar_residue = bar.tpls.map(&:evts).dtotal + bar_residue - btotal
 			bars << bar
 			mtr_id += 1
 		end
@@ -52,15 +52,15 @@ class DataProcess
 
 
 	def fit_into_final_bar(bars, metre, mtr_id, final_bar)
-		if final_bar!=nil
-			if final_bar>bars.size
-				(final_bar-bars.size).times{
+		if final_bar != nil
+			if final_bar > bars.size
+				(final_bar - bars.size).times{
 					mtr = metre.on(mtr_id)
 					events = []
-					mtr.beat.map{|e| mtr.unit*e}.each{|e|
+					mtr.beat.map{|e| mtr.unit * e}.each{|e|
 						residue = e
-						while residue>0
-							dur = note_value(2**16).select{|f| f<=residue}.max[0]
+						while residue > 0
+							dur = note_value(2 ** 16).select{|f| f <= residue}.max[0]
 							tpp = [1, 1, Rational(1, dur.denominator)].to_tpar
 							evt = Event.new("r!", dur)
 							events << Tuplet.new(tpp, [evt])
@@ -73,7 +73,7 @@ class DataProcess
 					mtr_id += 1
 				}
 			else
-				bars = bars[0..final_bar-1]
+				bars = bars[0 .. final_bar-1]
 			end
 		end
 		bars
@@ -84,7 +84,7 @@ class DataProcess
 		bars.each.with_index{|bar, bar_id|
 			bar_dur = bar.tpls.map(&:evts).dtotal
 			mtr = bar.mtr
-			if Rational(mtr.beat.sum*mtr.unit)!=bar_dur
+			if Rational(mtr.beat.sum * mtr.unit) != bar_dur
 				puts <<-EOS
 
 LotusRoot >> Total duration of bar (#{bar_dur}) is different from the time signature (#{mtr})
@@ -99,31 +99,31 @@ LotusRoot >> #{mtr}
 				time = 0
 				again = false
 
-				while bid<bar.tpls.size
-					fo, la = bar.tpls[bid], bar.tpls[bid+1]
+				while bid < bar.tpls.size
+					fo, la = bar.tpls[bid], bar.tpls[bid + 1]
 
-					if la!=nil
+					if la != nil
 						fo_ev, fo_tp = fo.evts, fo.par
 						la_ev, la_tp = la.evts, la.par
 						fol, laf = fo_ev.last, la_ev.first
-						time += fo_ev[0..-2].dtotal if fo_ev.size>1
+						time += fo_ev[0 .. -2].dtotal if fo_ev.size > 1
 						beat_struc, unit_dur = mtr.ar
 
 						bothNotes = [
-							[laf.el]-%w(= =:)==[],
+							[laf.el] - %w(= =:) == [],
 							[
-								fo_ev.size==1 || la_ev.size==1,
-								fol.el=~/%/,
-								laf.el=~/%/,
-								!(laf.el=~/%ATK/)
+								fo_ev.size == 1 || la_ev.size == 1,
+								fol.el =~ /%/,
+								laf.el =~ /%/,
+								!(laf.el =~ /%ATK/)
 							].all?,
-							fol.el=~/@/ && laf.el=~/==/,
-							fol.el=~/==/ && laf.el=~/==/,
+							fol.el =~ /@/ && laf.el =~ /==/,
+							fol.el =~ /==/ && laf.el =~ /==/,
 						].any?
 
 						bothRests = [
-							fol.el=~/r!/ && laf.el=="r!",
-							fol.el=~/s!/ && laf.el=="s!",
+							fol.el =~ /r!/ && laf.el == "r!",
+							fol.el =~ /s!/ && laf.el == "s!",
 						].any?
 
 						if bothRests
@@ -169,18 +169,18 @@ LotusRoot >> #{mtr}
 
 						nv = fol.dsum + laf.dsum
 						tp_ary = [beat_struc, beat_struc.sum, unit_dur].to_tpar
-						matchValue = note_value(tp_ary)[nv]!=nil
+						matchValue = note_value(tp_ary)[nv] != nil
 
 						npos = allowed_positions(tp_ary, pos_table, nv)
-						matchValue = false if npos.all?{|e| time!=e}
+						matchValue = false if npos.all?{|e| time != e}
 
 						mt = mtr.unit
 						if @dotDuplet && fo_tp.dot? && la_tp.dot?
-							nval = [1,2,3,4,6,8].map{|e| Rational(e*3,8)*mt}
+							nval = [1, 2, 3, 4, 6, 8].map{|e| Rational(e * 3, 8) * mt}
 						else
-							nval = [1,2,3,4,6,8].map{|e| Rational(e,2)*mt}
+							nval = [1, 2, 3, 4, 6, 8].map{|e| Rational(e, 2) * mt}
 						end
-						matchDup = [fol.dsum]-nval==[] && [laf.dsum]-nval==[]
+						matchDup = [fol.dsum] - nval == [] && [laf.dsum] - nval == []
 
 						sameElem = bothNotes || bothRests
 						samePlet = fo_tp.even? && la_tp.even?
@@ -189,16 +189,16 @@ LotusRoot >> #{mtr}
 							fol.du = [fol.du, laf.du]
 							la_ev.shift
 							unit = fo.evts.dlook.flatten.min
-							mul = (fo.evts.dtotal/unit).to_i
+							mul = (fo.evts.dtotal / unit).to_i
 							bars[bar_id].tpls[bid].par = [mul, mul, unit].to_tpar
 
 							if la.evts.size > 0
 								unit = la.evts.dlook.flatten.min
-								mul = (la.evts.dtotal/unit).to_i
-								bars[bar_id].tpls[bid+1].par = [mul, mul, unit].to_tpar
+								mul = (la.evts.dtotal / unit).to_i
+								bars[bar_id].tpls[bid + 1].par = [mul, mul, unit].to_tpar
 							end
 
-							bar.tpls.delete_if{|e| e.evts==[]}
+							bar.tpls.delete_if{|e| e.evts == []}
 							again = again || true
 						end
 
@@ -215,18 +215,18 @@ LotusRoot >> #{mtr}
 
 	def markup_tail(bars)
 		past = nil
-		u,v,w = nil, nil, nil
-		bars.each.with_index{|bar,x|
-			bar.tpls.each.with_index{|tuple,y|
-				tuple.evts.each.with_index{|note,z|
-					if past!=nil
-						if note.el=~/==/
+		u, v, w = nil, nil, nil
+		bars.each.with_index{|bar, x|
+			bar.tpls.each.with_index{|tuple, y|
+				tuple.evts.each.with_index{|note, z|
+					if past != nil
+						if note.el =~ /==/
 							bars[u].tpls[v].evts[w].el.gsub!(/#Z.*?Z#/m, "")
 						else
 							bars[u].tpls[v].evts[w].el.gsub!(/#Z(.*?)Z#/m, "\\1")
 						end
 					end
-					u,v,w = x,y,z
+					u, v, w = x, y, z
 					past = note
 				}
 			}
@@ -238,28 +238,28 @@ LotusRoot >> #{mtr}
 
 	def slur_over_tremolo(bars)
 		past = nil
-		u,v,w = nil, nil, nil
+		u, v, w = nil, nil, nil
 		id = 0
-		bars.each.with_index{|bar,x|
-			bar.tpls.each.with_index{|tuple,y|
-				tuple.evts.each.with_index{|note,z|
-					if past!=nil
+		bars.each.with_index{|bar, x|
+			bar.tpls.each.with_index{|tuple, y|
+				tuple.evts.each.with_index{|note, z|
+					if past != nil
 						elms = [past.el, note.el].map{|e| e.scan(/%[A-Z]*/)[0]}
 						ptr, ntr = elms
 
 						if [
-							elms==%w(%ATK %),
-							elms==%w(% %ATK),
-							elms==["%", nil],
+							elms == %w(%ATK %),
+							elms == %w(% %ATK),
+							elms == ["%", nil],
 						].any?
 							bars[u].tpls[v].evts[w].el = ptr + "SOT" + past.el.sub(ptr, "")
 						end
 
-						if ntr=="%" && id==bars.flatten.size-1
+						if ntr == "%" && id == bars.flatten.size - 1
 							bars[x].tpls[y].evts[z].el = ntr + "SOT" + note.el.sub(ntr, "")
 						end
 					end
-					u,v,w = x,y,z
+					u, v, w = x, y, z
 					past = bars[x].tpls[y].evts[z]
 					id += 1
 				}
@@ -272,10 +272,10 @@ LotusRoot >> #{mtr}
 	def rest_dur(bars, metre)
 		avoidedRest = ->(evt, mtr){
 			[
-				evt.el=~/(r!|s!|rrr|sss)/,
+				evt.el =~ /(r!|s!|rrr|sss)/,
 				Array === evt.du,
 				[
-					mtr!=nil && mtr.beat.uniq==[3] && evt.dsum==2,
+					mtr != nil && mtr.beat.uniq == [3] && evt.dsum == 2,
 					@avoidRest.include?(evt.dsum),
 				].any?
 			].all?
@@ -284,14 +284,14 @@ LotusRoot >> #{mtr}
 		yet = true
 		cnt = 0
 		while yet
-			bars.each.with_index{|bar,x|
+			bars.each.with_index{|bar, x|
 				mtr = metre.on(x)
-				bar.tpls.each.with_index{|tuple,y|
-					tuple.evts.each.with_index{|note,z|
+				bar.tpls.each.with_index{|tuple, y|
+					tuple.evts.each.with_index{|note, z|
 						if avoidedRest.call(note, mtr)
 							bars[x].tpls[y].evts[z] = note.du.map.with_index{|d, i|
 								rest = note.el.match(/(r!|s!|rrr|sss)/)[1]
-								i==0 ? e=note.el : e=rest
+								i == 0 ? e = note.el : e = rest
 								Event.new(e, d)
 							}
 							bars[x].tpls[y].evts.flatten!
@@ -329,9 +329,9 @@ LotusRoot >> #{mtr}
 			wbel = wholebar.elook
 			wbdu = wholebar.dlook
 
-			if wbel[0]=~/r!/ && wbel[1..-1].map{|e| e=="r!"}.all?
+			if wbel[0] =~ /r!/ && wbel[1 .. -1].map{|e| e == "r!"}.all?
 				unit = wbdu.flatten.min
-				mul = (wbdu.flatten.sum/unit).to_i
+				mul = (wbdu.flatten.sum / unit).to_i
 				new_el = wbel[0].sub("r!", "R!")
 				tpp = [mul, mul, unit].to_tpar
 				evt = Event.new(new_el, wbdu)

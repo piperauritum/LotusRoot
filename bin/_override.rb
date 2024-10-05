@@ -21,7 +21,7 @@ class Complex
 		class_eval <<-EOS
 			def #{op}(other)
 				x = BigDecimal(self.real.to_s)
-				if Complex===other
+				if Complex === other
 					y = BigDecimal(other.real.to_s)
 				else
 					y = BigDecimal(other.to_s)
@@ -36,7 +36,7 @@ class Complex
 		class_eval <<-EOS
 			def #{op}(other)
 				x = self.real
-				if Complex===other
+				if Complex === other
 					y = other.real
 				else
 					y = other
@@ -52,8 +52,8 @@ class Array
 
 	# circular index
 	def on(idx)
-		Complex===idx ? i=idx.real : i=idx
-		self.at(i%self.size)
+		Complex === idx ? i = idx.real : i = idx
+		self.at(i % self.size)
 	end
 
 	# sum of array
@@ -64,7 +64,7 @@ class Array
 
 	# average
 	def avg
-		self.sum.to_f/self.size
+		self.sum.to_f / self.size
 	end
 
 	# calc multi-dimensional array
@@ -72,11 +72,11 @@ class Array
 		self.map{|e|
 			if Array === e
 				e.add(x)
-			elsif e!=nil
+			elsif e != nil
 				if Complex === e
 					e + Complex(x, 0)
 				else
-					e+x
+					e + x
 				end
 			else
 				e
@@ -88,8 +88,8 @@ class Array
 		self.map{|e|
 			if Array === e
 				e.mul(x)
-			elsif e!=nil
-				e*x
+			elsif e != nil
+				e * x
 			else
 				e
 			end
@@ -100,8 +100,8 @@ class Array
 		self.map{|e|
 			if Array === e
 				e.mod(x)
-			elsif e!=nil
-				e%x
+			elsif e != nil
+				e % x
 			else
 				e
 			end
@@ -128,17 +128,17 @@ class Array
 	end
 
 	# convert the intervals to array of pitch
-	def itv_pch(mod=0)
-		self.inject([0]){|arr,n|
-			pc = arr.last+n
-			pc %= mod if mod>0
+	def itv_pch(mod = 0)
+		self.inject([0]){|arr, n|
+			pc = arr.last + n
+			pc %= mod if mod > 0
 			arr << pc
 		}
 	end
 
 
-	def pch_itv(mod=0)
-		self.zip(self.rotate(1)).map{|x,y| mod>0 ? (y-x)%mod : y-x}
+	def pch_itv(mod = 0)
+		self.zip(self.rotate(1)).map{|x, y| mod > 0 ? (y - x) % mod : y - x}
 	end
 end
 
