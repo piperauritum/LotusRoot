@@ -1,6 +1,6 @@
 ﻿require_relative '../bin/LotusRoot'
 
-dur = [*0..99].map{rand(4)+1}
+dur = [*0 .. 99].map{rand(4) + 1}
 elm = dur.map{"@"}
 tpl = [8]
 pch = [0]

@@ -6,16 +6,16 @@
 pch = [0, 2, 4, 5, 7, 9, 11]
 
 ## Chromatic scale
-# pch = [*0..11]		# => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+# pch = [*0 .. 11]		# => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 ## Quarter tone scale
-# pch = [*0..23].map{|e| Rational(e, 2)}
+# pch = [*0 .. 23].map{|e| Rational(e, 2)}
 
 ## Eighth tone scale
-# pch = [*0..47].map{|e| Rational(e, 4)} 
+# pch = [*0 .. 47].map{|e| Rational(e, 4)}
 
 ## Chord
-# pch = [*0..11].map{|e| [0,5,10].map{|f| e+f}}
+# pch = [*0 .. 11].map{|e| [0,5,10].map{|f| e+f}}
 
 p pch
 

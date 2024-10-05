@@ -1,8 +1,8 @@
 ﻿require_relative '../bin/LotusRoot'
 
-pca = [*0..23].map{|e| e/2.0}	# Applies on quarter tones
-pch = [*1..11].map{|n|			# ... and chromatic intervals
-	pca.map{|e| [e, e+n]}
+pca = [*0 .. 23].map{|e| e / 2.0}	# Applies on quarter tones
+pch = [*1 .. 11].map{|n|			# ... and chromatic intervals
+	pca.map{|e| [e, e + n]}
 }.flatten.each_slice(2).to_a
 dur = pch.map{1}
 elm = pch.map{"@=HOGE"}

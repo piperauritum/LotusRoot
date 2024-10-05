@@ -6,12 +6,12 @@ dur = [2, 1, 1]
 # dur = [3, 1]
 
 ## tuplets
-tpl = [*2..8].map{|e| [e]*4}.flatten
+tpl = [*2 .. 8].map{|e| [e] * 4}.flatten
 
 p dur, tpl
 
-elm = dur.map{|e| "@"}*35
-# elm = dur.map{|e| "@_\\markup{#{e}}"}*35
+elm = dur.map{|e| "@"} * 35
+# elm = dur.map{|e| "@_\\markup{#{e}}"} * 35
 
 pch = [0]		# Cyclic sequence: Read repeatedly
 

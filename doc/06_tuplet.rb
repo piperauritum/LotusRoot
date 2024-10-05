@@ -1,7 +1,7 @@
 ﻿require_relative '../bin/LotusRoot'
 
 ## Simple notation: Division of a quarter note
-mtr = [*1..16].map{|e| [[e], 1/2r]}
+mtr = [*1 .. 16].map{|e| [[e], 1/2r]}
 tpl = [6]
 # tpl = [5]
 # tpl = [4]
@@ -9,8 +9,8 @@ tpl = [6]
 ## Explicit description of beat structure
 =begin
 tpl = [5]
-mtr = [*1..16].map{|e|
-	bt = [3]*(e/3)+[e%3]-[0]
+mtr = [*1 .. 16].map{|e|
+	bt = [3] * (e / 3) + [e % 3] - [0]
 	[bt, 1/2r]
 }
 =end
@@ -23,7 +23,7 @@ mtr = [[[3], 1/2r]]
 
 p tpl, mtr
 
-dur = [1]*1000
+dur = [1] * 1000
 elm = dur.map{"@"}
 pch = [0]
 
