@@ -120,7 +120,6 @@ class DataProcess
 	      end
 
 	      tid += 1
-	      # puts "total #{total}\nbts #{bts} #{bts.sigma}"
 	    end
 
 	    if total == dur
