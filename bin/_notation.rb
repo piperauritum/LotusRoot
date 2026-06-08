@@ -239,7 +239,7 @@ module Notation
 			[x, "#{(4 / x).to_i}"]
 		}
 
-		dotted_note = [*-16 .. 0].map{|e|
+		dotted_note = [*-16 .. 1].map{|e|
 			x = 2 ** e
 			[Rational(x * 3), "#{(2 / x).to_i}."]
 		}
