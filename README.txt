@@ -199,5 +199,5 @@ Takumi Ikeda
 
 ## Copyright
 
-(c) 2016-2019 Takumi Ikeda
+(c) 2016-2026 Takumi Ikeda
 This software is released under the MIT License, see LICENSE.txt.
