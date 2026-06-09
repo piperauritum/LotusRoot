@@ -1,6 +1,7 @@
 ﻿require_relative '_seqTuplets'
 require_relative '_seqBars'
 require_relative '_scribe'
+require_relative '_interval'
 include Notation
 
 class Score < DataProcess
@@ -9,7 +10,8 @@ class Score < DataProcess
 	attr_writer :pitchShift, :metre, :finalBar, :namedMusic, :noMusBracket, :config,
 	:accMode, :autoChordAcc, :reptChordAcc, :distNat, :altNoteName,
 	:beamOverRest, :noTieAcrossBeat, # :pnoTrem,
-	:fracTuplet, :tidyTuplet, :dotDuplet, :avoidRest, :wholeBarRest, :splitBeat
+	:fracTuplet, :tidyTuplet, :dotDuplet, :avoidRest, :wholeBarRest, :splitBeat,
+	:spellPitch
 
 
 	def initialize(_durations, _elements, _tuplets, _pitches)
@@ -26,6 +28,7 @@ class Score < DataProcess
 
 	def sequence
 		@pitch = pitch_shift(@pitch, @pitchShift)
+		@pitch = spellPitch(@pitch, @spellPitch) if @spellPitch != nil
 		@metre = process_metre(@metre)
 		tplts = assemble_tuplets(@elems, @tpl_param, @metre)
 		tplts = delete_ties_across_beats(tplts) if @noTieAcrossBeat # ??

@@ -127,6 +127,16 @@ sco.accMode = x
 		4: sharp + double sharp for "white key notes", chromatic scale only
 		5: flat + double flat for "white key notes", chromatic scale only
 
+sco.spellPitch = x
+	Resolves enharmonic ambiguity to prefer major/minor/perfect intervals
+	over augmented/diminished, improving readability for singers. (experimental)
+
+	x	Integer
+		0: greedy — each note optimised against the previous note;
+		   semitone steps prefer minor 2nd over augmented unison
+		1: Viterbi DP — globally optimal spelling across the whole sequence
+		2: Viterbi DP + minor 2nd forced for semitone steps (recommended)
+
 sco.autoChordAcc = x
 	x	Integer
 		0: Selects sharp or flat for each chromatic chords automatically, avoids imperfect unison
