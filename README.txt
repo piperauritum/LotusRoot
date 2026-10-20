@@ -130,6 +130,7 @@ sco.accMode = x
 sco.spellPitch = x
 	Resolves enharmonic ambiguity to prefer major/minor/perfect intervals
 	over augmented/diminished, improving readability for singers. (experimental)
+	For monophonic (vocal) lines only; chords are not supported.
 
 	x	Integer
 		0: greedy — each note optimised against the previous note;
