@@ -298,8 +298,8 @@ module Notation
 						(po + tme) * rto
 					}
 				end
-				tme += bt
 			end
+			tme += bt
 		}
 
 		ary
